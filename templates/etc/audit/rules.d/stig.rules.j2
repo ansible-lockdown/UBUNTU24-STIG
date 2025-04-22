@@ -1,0 +1,200 @@
+## Auditd Configured by ansible-lockdown UBUNTU24-STIG
+# Sponsored by Mindpoint Group - A Tyto Athene Company / Ansible Lockdown
+{% if ubtu_24_654010 %}
+# UBUNTU24-STIG rule 654010
+-a always,exit -F path=/sbin/apparmor_parser -F perm=x -F auid>=1000 -F auid!=unset -k perm_chng
+{% endif %}
+{% if ubtu_24_654015 %}
+# UBUNTU24-STIG rule 654015
+-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_chng
+{% endif %}
+{% if ubtu_24_654020 %}
+# UBUNTU24-STIG rule 654020
+-a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=unset -k privileged-chage
+{% endif %}
+{% if ubtu_24_654025 %}
+# UBUNTU24-STIG rule 654025
+-a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=unset -k perm_chng
+{% endif %}
+{% if ubtu_24_654030 %}
+# UBUNTU24-STIG rule 654030
+-a always,exit -F path=/usr/bin/chfn -F perm=x -F auid>=1000 -F auid!=unset -k privileged-chfn
+{% endif %}
+{% if ubtu_24_654035 %}
+# UBUNTU24-STIG rule 654035
+-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd
+{% endif %}
+{% if ubtu_24_654040 %}
+# UBUNTU24-STIG rule 654040
+-a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=unset -k privileged-crontab
+{% endif %}
+{% if ubtu_24_654045 %}
+# UBUNTU24-STIG rule 654045
+-w /usr/sbin/fdisk -p x -k fdisk
+{% endif %}
+{% if ubtu_24_654050 %}
+# UBUNTU24-STIG rule 654050
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-gpasswd
+{% endif %}
+{% if ubtu_24_654055 %}
+# UBUNTU24-STIG rule 654055
+-w /bin/kmod -p x -k modules
+{% endif %}
+{% if ubtu_24_654060 %}
+# UBUNTU24-STIG rule 654060
+-w /sbin/modprobe -p x -k modules
+{% endif %}
+{% if ubtu_24_654065 %}
+# UBUNTU24-STIG rule 654065
+-a always,exit -F path=/usr/bin/mount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-mount
+{% endif %}
+{% if ubtu_24_654070 %}
+# UBUNTU24-STIG rule 654070
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd
+{% endif %}
+{% if ubtu_24_654075 %}
+# UBUNTU24-STIG rule 654075
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=unset -k privileged-pam_timestamp_check
+{% endif %}
+{% if ubtu_24_654080 %}
+# UBUNTU24-STIG rule 654080
+-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -k privileged-passwd
+{% endif %}
+{% if ubtu_24_654085 %}
+# UBUNTU24-STIG rule 654085
+-a always,exit -F path=/usr/bin/setfacl -F perm=x -F auid>=1000 -F auid!=unset -k perm_chng
+{% endif %}
+{% if ubtu_24_654090 %}
+# UBUNTU24-STIG rule 654090
+-a always,exit -F path=/usr/bin/ssh-agent -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh
+{% endif %}
+{% if ubtu_24_654095 %}
+# UBUNTU24-STIG rule 654095
+-a always,exit -F path=/usr/lib/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=unset -k privileged-ssh
+{% endif %}
+{% if ubtu_24_654100 %}
+# UBUNTU24-STIG rule 654100
+-a always,exit -F path=/bin/su -F perm=x -F auid>=1000 -F auid!=unset -k privileged-priv_change
+{% endif %}
+{% if ubtu_24_654105 %}
+# UBUNTU24-STIG rule 654105
+-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd
+{% endif %}
+{% if ubtu_24_654110 %}
+# UBUNTU24-STIG rule 654110
+-a always,exit -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=unset -k priv_cmd
+{% endif %}
+{% if ubtu_24_654115 %}
+# UBUNTU24-STIG rule 654115
+-a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=unset -k privileged-umount
+{% endif %}
+{% if ubtu_24_654120 %}
+# UBUNTU24-STIG rule 654120
+-a always,exit -F path=/sbin/unix_update -F perm=x -F auid>=1000 -F auid!=unset -k privileged-unix-update
+{% endif %}
+{% if ubtu_24_654125 %}
+# UBUNTU24-STIG rule 654125
+-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>=1000 -F auid!=unset -k privileged-usermod
+{% endif %}
+{% if ubtu_24_654130 %}
+# UBUNTU24-STIG rule 654130
+-w /etc/group -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu_24_654135 %}
+# UBUNTU24-STIG rule 654135
+-w /etc/gshadow -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu_24_654140 %}
+# UBUNTU24-STIG rule 654140
+-w /etc/security/opasswd -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu_24_654145 %}
+# UBUNTU24-STIG rule 654145
+-w /etc/passwd -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu_24_654150 %}
+# UBUNTU24-STIG rule 654150
+-w /etc/shadow -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu_24_654155 %}
+# UBUNTU24-STIG rule 654155
+-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_chng
+-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -k perm_chng
+{% endif %}
+{% if ubtu_24_654160 %}
+# UBUNTU24-STIG rule 654160
+-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_chng
+-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -k perm_chng
+{% endif %}
+{% if ubtu_24_654165 %}
+# UBUNTU24-STIG rule 654165
+-a always,exit -F arch=b32 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access
+-a always,exit -F arch=b32 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access
+-a always,exit -F arch=b64 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -k perm_access
+-a always,exit -F arch=b64 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -k perm_access
+{% endif %}
+{% if ubtu_24_654170 %}
+# UBUNTU24-STIG rule 654170
+-a always,exit -F arch=b32 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng
+-a always,exit -F arch=b64 -S delete_module -F auid>=1000 -F auid!=unset -k module_chng
+{% endif %}
+{% if ubtu_24_654175 %}
+# UBUNTU24-STIG rule 654175
+-a always,exit -F arch=b32 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng
+-a always,exit -F arch=b64 -S init_module,finit_module -F auid>=1000 -F auid!=unset -k module_chng
+{% endif %}
+{% if ubtu_24_654180 %}
+# UBUNTU24-STIG rule 654180
+-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod
+-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=unset -k perm_mod
+-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod
+{% endif %}
+{% if ubtu_24_654185 %}
+# UBUNTU24-STIG rule 654185
+-a always,exit -F arch=b64 -S unlink,unlinkat,rename,renameat,rmdir -F auid>=1000 -F auid!=unset -k delete
+-a always,exit -F arch=b32 -S unlink,unlinkat,rename,renameat,rmdir -F auid>=1000 -F auid!=unset -k delete
+{% endif %}
+{% if ubtu_24_654190 %}
+# UBUNTU24-STIG rule 654190
+-w /var/log/journal -p wa -k systemd_journal
+{% endif %}
+{% if ubtu_24_654195 %}
+# UBUNTU24-STIG rule 654195
+-w /var/log/btmp -p wa -k logins
+{% endif %}
+{% if ubtu_24_654200 %}
+# UBUNTU24-STIG rule 654200
+-w /var/log/wtmp -p wa -k logins
+{% endif %}
+{% if ubtu_24_654205 %}
+# UBUNTU24-STIG rule 654205
+-w /var/run/utmp -p wa -k logins
+{% endif %}
+{% if ubtu_24_654210 %}
+# UBUNTU24-STIG rule 654210
+-w /var/log/faillog -p wa -k logins
+{% endif %}
+{% if ubtu_24_654215 %}
+# UBUNTU24-STIG rule 654215
+-w /var/log/lastlog -p wa -k logins
+{% endif %}
+{% if ubtu_24_654220 %}
+# UBUNTU24-STIG rule 654220
+-w /etc/sudoers -p wa -k privilege_modification
+{% endif %}
+{% if ubtu_24_654225 %}
+# UBUNTU24-STIG rule 654225
+-w /etc/sudoers.d -p wa -k privilege_modification
+{% endif %}
+{% if ubtu_24_654230 %}
+# UBUNTU24-STIG rule 654230
+-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k execpriv
+-a always,exit -F arch=b64 -S execve -C gid!=egid -F egid=0 -k execpriv
+-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k execpriv
+-a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -k execpriv
+{% endif %}
+{% if ubtu_24_654235 %}
+# UBUNTU24-STIG rule 654235
+-w /var/log/sudo.log -p wa -k maintenance
+{% endif %}
