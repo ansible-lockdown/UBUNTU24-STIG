@@ -32,7 +32,7 @@
     state: absent
     purge: "{{ ubtu24stig_purge_apt }}"
 
-- name: HIGH | UBTU-24-100800 | PATCH | Ubuntu 22.04 LTS must have SSH installed.
+- name: HIGH | UBTU-24-100800 | PATCH | Ubuntu 24.04 LTS must have SSH installed.
   when: ubtu24stig_100800
   tags:
     - UBTU-24-100800
@@ -51,7 +51,7 @@
     name: ssh
     state: present
 
-- name: HIGH | UBTU-24-100810 | PATCH | Ubuntu 22.04 LTS must use SSH to protect the confidentiality and integrity of transmitted information.
+- name: HIGH | UBTU-24-100810 | PATCH | Ubuntu 24.04 LTS must use SSH to protect the confidentiality and integrity of transmitted information.
   when: ubtu24stig_100810
   tags:
     - UBTU-24-100810

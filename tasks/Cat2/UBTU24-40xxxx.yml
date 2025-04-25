@@ -239,7 +239,7 @@
     regexp: (?i)^(#|)difok\s*=
     line: 'difok = {{ ubtu24stig_pass_difok }}'
 
-- name: MEDIUM | UBTU-24-400300 | PATCH | Ubuntu 22.04 LTS must enforce 24 hours/one day as the minimum password lifetime. Passwords for new users must have a 24 hours/one day minimum password lifetime restriction.
+- name: MEDIUM | UBTU-24-400300 | PATCH | Ubuntu 24.04 LTS must enforce 24 hours/one day as the minimum password lifetime. Passwords for new users must have a 24 hours/one day minimum password lifetime restriction.
   when: ubtu_24_400300
   tags:
     - UBTU-24-400300
@@ -377,7 +377,7 @@
         line: "{{ item }},crl_auto;"
       loop: "{{ discovered_pkcs_cert_crl_policy.stdout_lines }}"
 
-- name: MEDIUM | UBTU-24-400400 | PATCH | Ubuntu 22.04 LTS must store only encrypted representations of passwords.
+- name: MEDIUM | UBTU-24-400400 | PATCH | Ubuntu 24.04 LTS must store only encrypted representations of passwords.
   when: ubtu_24_400400
   tags:
     - UBTU-24-400400

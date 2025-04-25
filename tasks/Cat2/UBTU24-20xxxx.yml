@@ -1,6 +1,6 @@
 ---
 
-- name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 22.04 LTS must initiate a graphical session lock after 10 minutes of inactivity.
+- name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity.
   when:
     - ubtu_24_200020
     - ubtu24stig_gui
@@ -14,40 +14,40 @@
     - NIST800-53R4_AC-11
     - gnome
   block:
-    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 22.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | get lock-enabled
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | get lock-enabled
       ansible.builtin.command: gsettings get org.gnome.desktop.screensaver lock-enabled
       changed_when: false
       failed_when: discovered_gnome_screensaver_lock_enabled.rc not in [ 0, 1 ]
       register: discovered_gnome_screensaver_lock_enabled
 
-    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 22.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | set lock-enabled
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | set lock-enabled
       when: "'true' not in discovered_gnome_screensaver_lock_enabled.stdout"
       ansible.builtin.command: gsettings set org.gnome.desktop.screensaver lock-enabled true
       changed_when: true
 
-    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 22.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | get lock-delay
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | get lock-delay
       ansible.builtin.command: gsettings get org.gnome.desktop.screensaver lock-delay
       changed_when: false
       failed_when: discovered_gnome_screensaver_lock_delay.rc not in [ 0, 1 ]
       register: discovered_gnome_screensaver_lock_delay
 
-    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 22.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | set lock-delay
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | set lock-delay
       when: "'uint32' not in discovered_gnome_screensaver_lock_delay.stdout"
       ansible.builtin.command: gsettings set org.gnome.desktop.screensaver lock-delay 0
       changed_when: true
 
-    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 22.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | get idle-delay
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | get idle-delay
       ansible.builtin.command: gsettings get org.gnome.desktop.session idle-delay
       changed_when: false
       failed_when: discovered_gnome_session_idle_delay.rc not in [ 0, 1 ]
       register: discovered_gnome_session_idle_delay
 
-    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 22.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | set idle-delay
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | set idle-delay
       when: "'uint32 900' not in discovered_gnome_session_idle_delay.stdout"
       ansible.builtin.command: gsettings set org.gnome.desktop.session idle-delay 600
       changed_when: true
 
-- name: MEDIUM | UBTU-24-200040 | PATCH | Ubuntu 22.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures.
+- name: MEDIUM | UBTU-24-200040 | PATCH | Ubuntu 24.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures.
   when:
     - ubtu_24_200040
     - ubtu24stig_gui
@@ -61,12 +61,12 @@
     - NIST800-53R4_AC-11
     - gnome
   block:
-    - name: MEDIUM | UBTU-24-200040 | AUDIT | Ubuntu 22.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures. | get settings
+    - name: MEDIUM | UBTU-24-200040 | AUDIT | Ubuntu 24.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures. | get settings
       ansible.builtin.command: gsettings get org.gnome.desktop.screensaver lock-enabled
       changed_when: false
       register: discovered_gui_screensaver_lock
 
-    - name: MEDIUM | UBTU-24-200040 | PATCH | Ubuntu 22.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures. | set settings
+    - name: MEDIUM | UBTU-24-200040 | PATCH | Ubuntu 24.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures. | set settings
       when: "'true' not in discovered_gui_screensaver_lock"
       ansible.builtin.command: gsettings set org.gnome.desktop.screensaver lock-enabled true
       changed_when: true
@@ -230,7 +230,7 @@
   ansible.builtin.set_fact:
     update_audit_template: true
 
-- name: MEDIUM | UBTU-24-200300 | Ubuntu 22.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/shadow.
+- name: MEDIUM | UBTU-24-200300 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/shadow.
   when: ubtu_24_200300
   tags:
     - UBTU-24-200300
@@ -360,7 +360,7 @@
         mode: 'go-wx'
         owner: root
 
-- name: MEDIUM | UBTU-24-200650 | PATCH | Ubuntu 22.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.
+- name: MEDIUM | UBTU-24-200650 | PATCH | Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.
   when:
     - ubtu_24_200650
     - ubtu24stig_gui
@@ -383,7 +383,7 @@
     - Update_dconf
     - Restart_gdm3
 
-- name: MEDIUM | UBTU-24-200660 | PATCH | Ubuntu 22.04 LTS must enable the graphical user logon banner to display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.
+- name: MEDIUM | UBTU-24-200660 | PATCH | Ubuntu 24.04 LTS must enable the graphical user logon banner to display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.
   when:
     - ubtu_24_200660
     - ubtu24stig_gui

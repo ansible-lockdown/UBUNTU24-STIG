@@ -119,7 +119,7 @@
     regexp: (.*) nullok(.*)
     replace: \1\2
 
-- name: HIGH | UBTU-24-300031 | PATCH | Ubuntu 22.04 LTS must not allow unattended or automatic login via SSH.
+- name: HIGH | UBTU-24-300031 | PATCH | Ubuntu 24.04 LTS must not allow unattended or automatic login via SSH.
   when: ubtu24stig_300031
   tags:
     - UBTU-24-300031

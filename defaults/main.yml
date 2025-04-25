@@ -3,7 +3,7 @@
 ## metadata for Audit benchmark
 benchmark_version: 'v1.1.0'
 
-## Benchmark name used by audting control role
+## Benchmark name used by auditing control role
 # The audit variable found at the base
 benchmark: UBUNTU24-STIG
 
@@ -102,7 +102,7 @@ audit_only: false
 
 # How to retrieve audit binary
 # Options are copy or download - detailed settings at the bottom of this file
-# you will need to access to either github or the file already dowmloaded
+# you will need to access to either github or the file already downloaded
 get_audit_binary_method: download
 
 ## if get_audit_binary_method - copy the following needs to be updated for your environment
@@ -330,6 +330,7 @@ ubtu24stig_901300: true
 ubtu24stig_901310: true
 ubtu24stig_901350: true
 ubtu24stig_901380: true
+ubtu24stig_901890: true
 
 ## 909XXX
 ubtu24stig_909000: true
@@ -507,7 +508,7 @@ ubtu24stig_sudo_group_users:
 ubtu24stig_passwd_setpam_hash_algo: false
 
 # 612xxx
-# Section 612xxx is for smartcards configurations these require further configurations before applying STiG settings
+# Section 612xxx is for smart cards configurations these require further configurations before applying STiG settings
 ubtu24stig_configure_multifactor_auth: false
 
 # 651xxx

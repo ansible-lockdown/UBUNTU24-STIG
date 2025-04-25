@@ -359,7 +359,7 @@
   failed_when: discovered_var_log_syslog.state not in '[ file, absent ]'
   register: discovered_var_log_syslog
 
-- name: MEDIUM | UBTU-24-700140 | PATCH | Ubuntu 22.04 LTS must configure "/var/log/syslog" file to be owned by "syslog".
+- name: MEDIUM | UBTU-24-700140 | PATCH | Ubuntu 24.04 LTS must configure "/var/log/syslog" file to be owned by "syslog".
   when:
     - ubtu_24_700140
     - ubtu24stig_disruption_high

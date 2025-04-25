@@ -176,7 +176,7 @@
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
-- name: MEDIUM | UBTU-24-300010 | PATCH | Ubuntu 22.04 LTS library directories must be group-owned by root.
+- name: MEDIUM | UBTU-24-300010 | PATCH | Ubuntu 24.04 LTS library directories must be group-owned by root.
   when: ubtu_24_300010
   tags:
     - UBTU-24-300010
@@ -190,13 +190,13 @@
   vars:
     warn_control_id: 'MEDIUM | UBTU-24-300010'
   block:
-    - name: MEDIUM | UBTU-24-300010 | AUDIT | Ubuntu 22.04 LTS library directories must be group-owned by root. | Discover
+    - name: MEDIUM | UBTU-24-300010 | AUDIT | Ubuntu 24.04 LTS library directories must be group-owned by root. | Discover
       ansible.builtin.shell: find /lib /usr/lib /lib64 ! -group root -type d -exec stat -c "%n" '{}' \;
       changed_when: false
       failed_when: discovered_system_lib_dirs_group.rc not in [ 0, 1 ]
       register: discovered_system_lib_dirs_group
 
-    - name: MEDIUM | UBTU-24-300010 | PATCH | Ubuntu 22.04 LTS library directories must be group-owned by root. | Fix
+    - name: MEDIUM | UBTU-24-300010 | PATCH | Ubuntu 24.04 LTS library directories must be group-owned by root. | Fix
       when:
         - discovered_system_lib_dirs_group.stdout_lines is defined
         - ubtu24stig_disruption_high
@@ -206,14 +206,14 @@
         group: root
       loop: "{{ discovered_system_lib_dirs_group.stdout_lines }}"
 
-    - name: MEDIUM | UBTU-24-300010 | AUDIT | Ubuntu 22.04 LTS library directories must be group-owned by root. | Warning
+    - name: MEDIUM | UBTU-24-300010 | AUDIT | Ubuntu 24.04 LTS library directories must be group-owned by root. | Warning
       when:
         - discovered_system_lib_dirs_group.stdout_lines is defined
         - not ubtu24stig_disruption_high
       ansible.builtin.debug:
         msg: "Warning!! The following library directories are not group owned by root please investigate {{ discovered_system_lib_dirs_group.stdout_lines }}"
 
-    - name: MEDIUM | UBTU-24-300010 | AUDIT | Ubuntu 22.04 LTS library directories must be group-owned by root. | Warn fact
+    - name: MEDIUM | UBTU-24-300010 | AUDIT | Ubuntu 24.04 LTS library directories must be group-owned by root. | Warn fact
       when:
         - discovered_system_lib_dirs_group.stdout_lines is defined
         - not ubtu24stig_disruption_high
@@ -308,7 +308,7 @@
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
-- name: MEDIUM | UBTU-24-300013 | PATCH | Ubuntu 22.04 LTS must have system commands group-owned by "root" or a system account.
+- name: MEDIUM | UBTU-24-300013 | PATCH | Ubuntu 24.04 LTS must have system commands group-owned by "root" or a system account.
   when: ubtu_24_300013
   tags:
     - UBTU-24-300013

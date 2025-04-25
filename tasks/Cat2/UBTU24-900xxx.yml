@@ -19,7 +19,7 @@
         recurse: true
       register: discovered_audit_files
 
-    - name: MEDIUM | UBTU-24-900040 | PATCH | Ubuntu 224.04 LTS must be configured so that audit configuration files are not write-accessible by unauthorized users.
+    - name: MEDIUM | UBTU-24-900040 | PATCH | Ubuntu 24.04 LTS must be configured so that audit configuration files are not write-accessible by unauthorized users.
       ansible.builtin.file:
         path: "{{ item.path }}"
         mode: 'g-wx,o-rwx'
@@ -105,7 +105,7 @@
   ansible.builtin.set_fact:
     update_audit_template: true
 
-- name: MEDIUM | UBTU-24-900090 | Ubuntu 22.04 LTS must generate audit records for successful/unsuccessful uses of the mount command.
+- name: MEDIUM | UBTU-24-900090 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the mount command.
   when: ubtu_24_900090
   tags:
     - UBTU-24-900090
@@ -550,7 +550,7 @@
   ansible.builtin.set_fact:
     update_audit_template: true
 
-- name: MEDIUM | UBTU-24-900600 | Ubuntu 22.04 LTS must generate audit records for the /var/run/utmp file.
+- name: MEDIUM | UBTU-24-900600 | Ubuntu 24.04 LTS must generate audit records for the /var/run/utmp file.
   when: ubtu_24_900600
   tags:
     - UBTU-24-900600

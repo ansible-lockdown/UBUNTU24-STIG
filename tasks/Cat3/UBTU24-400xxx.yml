@@ -23,7 +23,7 @@
         read_whole_file: true
       register: discovered_security_cached_auth_timeout
 
-    - name: LOW | UBTU-22-400340 | PATCH | Ubuntu 24.04 LTS must be configured such that Pluggable Authentication Module (PAM) prohibits the use of cached authentications after one day. | comment out settings
+    - name: LOW | UBTU-24-400340 | PATCH | Ubuntu 24.04 LTS must be configured such that Pluggable Authentication Module (PAM) prohibits the use of cached authentications after one day. | comment out settings
       when: "'/etc/security/limits.conf' not in item"
       ansible.builtin.lineinfile:
         path: "{{ item }}"
@@ -32,7 +32,7 @@
         line: '#offline_credentials_expiration \1'
       loop: "{{ discovered_security_cached_auth_timeout.files }}"
 
-    - name: LOW | UBTU-22-400340 | PATCH | Ubuntu 24.04 LTS must be configured such that Pluggable Authentication Module (PAM) prohibits the use of cached authentications after one day. | Ensure settings exist
+    - name: LOW | UBTU-24-400340 | PATCH | Ubuntu 24.04 LTS must be configured such that Pluggable Authentication Module (PAM) prohibits the use of cached authentications after one day. | Ensure settings exist
       ansible.builtin.lineinfile:
         path: /etc/sssd/sssd.conf
         regexp: ^(#|)\s*offline_credentials_expiration\s*=\s*(?!1)

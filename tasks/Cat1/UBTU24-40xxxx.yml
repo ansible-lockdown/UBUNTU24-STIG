@@ -1,6 +1,6 @@
 ---
 
-- name: HIGH | UBTU-24-400370 | PATCH | Ubuntu 22.04 LTS must map the authenticated identity to the user or group account for PKI-based authentication.
+- name: HIGH | UBTU-24-400370 | PATCH | Ubuntu 24.04 LTS must map the authenticated identity to the user or group account for PKI-based authentication.
   when:
     - ubtu24stig_400370
     - "'pam-pkcs11' in ansible_facts.packages"

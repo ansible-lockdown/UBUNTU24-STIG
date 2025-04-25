@@ -154,6 +154,7 @@
   ansible.builtin.systemd_service:
     name: ufw
     enabled: true
+    state: started
 
 - name: MEDIUM | UBTU-24-100400 | PATCH | Ubuntu 24.04 LTS must have the "auditd" package installed.
   when: ubtu24stig_100400
@@ -371,7 +372,7 @@
     state: started
     enabled: true
 
-- name: MEDIUM | UBTU-24-100820 | PATCH | Ubuntu 22.04 LTS must configure the SSH daemon to use FIPS 140-3-approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
+- name: MEDIUM | UBTU-24-100820 | PATCH | Ubuntu 24.04 LTS must configure the SSH daemon to use FIPS 140-3-approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
   when: ubtu24stig_100820
   tags:
     - UBTU-24-100820
@@ -395,7 +396,7 @@
     validate: sshd -t -f %s
   notify: Change_requires_reboot
 
-- name: MEDIUM | UBTU-24-100830 | PATCH | Ubuntu 22.04 LTS must configure the SSH daemon to use Message Authentication Codes (MACs) employing FIPS 140-3-approved cryptographic hashes to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
+- name: MEDIUM | UBTU-24-100830 | PATCH | Ubuntu 24.04 LTS must configure the SSH daemon to use Message Authentication Codes (MACs) employing FIPS 140-3-approved cryptographic hashes to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
   when: ubtu24stig_100830
   tags:
     - UBTU-24-100830
@@ -419,7 +420,7 @@
     validate: sshd -t -f %s
   notify: Change_requires_reboot
 
-- name: MEDIUM | UBTU-24-100840 | PATCH | Ubuntu 22.04 LTS SSH server must be configured to use only FIPS-validated key exchange algorithms.
+- name: MEDIUM | UBTU-24-100840 | PATCH | Ubuntu 24.04 LTS SSH server must be configured to use only FIPS-validated key exchange algorithms.
   when: ubtu24stig_100840
   tags:
     - UBTU-24-100840
@@ -531,14 +532,14 @@
     - NIST800-53R4_AU-14
     - bootloader
   block:
-    - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 22.04 LTS must initiate session audits at system startup. | Get GRUB_CMDLINE_LINUX
+    - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup. | Get GRUB_CMDLINE_LINUX
       ansible.builtin.shell: grep "GRUB_CMDLINE_LINUX=" /etc/default/grub | cut -f2 -d'"'
       changed_when: false
       failed_when: false
       check_mode: false
       register: discovered_audit_enabled_cmdline_settings
 
-    - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 22.04 LTS must initiate session audits at system startup. | Add setting if doesn't exist
+    - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup. | Add setting if doesn't exist
       when: "'audit=' not in discovered_audit_enabled_cmdline_settings.stdout"
       ansible.builtin.lineinfile:
         path: /etc/default/grub
@@ -546,7 +547,7 @@
         line: 'GRUB_CMDLINE_LINUX="audit=1 {{ discovered_audit_enabled_cmdline_settings.stdout }}"'
       notify: Update_grub
 
-    - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 22.04 LTS must initiate session audits at system startup. | Update setting if exists
+    - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup. | Update setting if exists
       when: "'audit=' in discovered_audit_enabled_cmdline_settings.stdout"
       ansible.builtin.replace:
         dest: /etc/default/grub

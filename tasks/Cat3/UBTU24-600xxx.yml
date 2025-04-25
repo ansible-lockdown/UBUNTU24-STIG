@@ -29,7 +29,7 @@
         - "{{ discovered_sysctl_conf_files.files | map(attribute='path') }}"
         - /etc/sysctl.conf
 
-    - name: LOW | UBTU-24-600140 | PATCH | Ubuntu 22.04 LTS must restrict access to the kernel message buffer. | add file specific settings
+    - name: LOW | UBTU-24-600140 | PATCH | Ubuntu 24.04 LTS must restrict access to the kernel message buffer. | add file specific settings
       ansible.posix.sysctl:
         name: kernel.dmesg_restrict
         value: '1'
