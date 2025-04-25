@@ -73,7 +73,7 @@
   block:
     - name: "PRELIM | AUDIT | Discover if system is subscribed for PRO plan (needed for FIPS) | Check status if pkg installed"
       when: "'ubuntu-advantage-tools' in ansible_facts.packages"
-      ansible.builtin.shell: pro status
+      ansible.builtin.command: pro status
       changed_when: false
       register: prelim_pro_subscription
 

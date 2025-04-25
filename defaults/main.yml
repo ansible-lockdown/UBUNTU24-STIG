@@ -64,6 +64,21 @@ ubtu24stig_purge_apt: false
 create_benchmark_facts: true
 ansible_facts_path: /etc/ansible/facts.d
 
+# UID settings for interactive users
+# These are discovered via logins.def if set true
+ubtu24stig_discover_int_uid: true
+# This variable sets the minimum number from which to search for UID
+# Note that the value will be dynamically overwritten if variable `rhel9cis_discover_int_uid` has
+# been set to `true`.
+min_int_uid: 1000
+### Controls:
+# - Ensure local interactive user home directories exist
+# - Ensure local interactive users own their home directories
+# This variable sets the maximum number at which the search stops for UID
+# Note that the value will be dynamically overwritten if variable `rhel9cis_discover_int_uid` has
+# been set to `true`.
+max_int_uid: 65533
+
 ###
 ### Settings for associated Audit role using Goss
 ###
@@ -144,7 +159,7 @@ ubtu24stig_600030: true
 ubtu24stig_600130: true
 
 #### CAT 2
-## 2XX – System Configuration
+## 10XXXX
 ubtu24stig_100100: true
 ubtu24stig_100110: true
 ubtu24stig_100120: true
@@ -161,190 +176,191 @@ ubtu24stig_100660: true
 ubtu24stig_100820: true
 ubtu24stig_100830: true
 ubtu24stig_100840: true
+ubtu24stig_100850: true
+ubtu24stig_100860: true
+ubtu24stig_100900: true
+ubtu24stig_100910: true
+ubtu24stig_101000: true
+ubtu24stig_102010: true
 
+## 20XXXX
+ubtu24stig_200020: true
+ubtu24stig_200040: true
+ubtu24stig_200060: true
+ubtu24stig_200090: true
+ubtu24stig_200250: true
+ubtu24stig_200260: true
+ubtu24stig_200280: true
+ubtu24stig_200290: true
+ubtu24stig_200300: true
+ubtu24stig_200310: true
+ubtu24stig_200320: true
+ubtu24stig_200580: true
+ubtu24stig_200640: true
+ubtu24stig_200650: true
+ubtu24stig_200660: true
+ubtu24stig_200680: true
 
+## 30XXXX
+ubtu24stig_300006: true
+ubtu24stig_300007: true
+ubtu24stig_300008: true
+ubtu24stig_300009: true
+ubtu24stig_300010: true
+ubtu24stig_300011: true
+ubtu24stig_300012: true
+ubtu24stig_300013: true
+ubtu24stig_300014: true
+ubtu24stig_300016: true
+ubtu24stig_300021: true
+ubtu24stig_300023: true
+ubtu24stig_300029: true
+ubtu24stig_300030: true
+ubtu24stig_300039: true
+ubtu24stig_300041: true
 
+## 40XXXX
+ubtu24stig_400000: true
+ubtu24stig_400020: true
+ubtu24stig_400030: true
+ubtu24stig_400060: true
+ubtu24stig_400110: true
+ubtu24stig_400220: true
+ubtu24stig_400260: true
+ubtu24stig_400270: true
+ubtu24stig_400280: true
+ubtu24stig_400290: true
+ubtu24stig_400300: true
+ubtu24stig_400310: true
+ubtu24stig_400320: true
+ubtu24stig_400330: true
+ubtu24stig_400360: true
+ubtu24stig_400375: true
+ubtu24stig_400380: true
+ubtu24stig_400400: true
 
-ubtu24stig_212015: true
-ubtu24stig_213015: true
-ubtu24stig_213020: true
-ubtu24stig_213025: true
-ubtu24stig_214015: true
-ubtu24stig_215010: true
-ubtu24stig_231010: true
-ubtu24stig_232010: true
-ubtu24stig_232015: true
-ubtu24stig_232020: true
-ubtu24stig_232025: true
-ubtu24stig_232026: true
-ubtu24stig_232027: true
-ubtu24stig_232030: true
-ubtu24stig_232035: true
-ubtu24stig_232040: true
-ubtu24stig_232045: true
-ubtu24stig_232050: true
-ubtu24stig_232055: true
-ubtu24stig_232060: true
-ubtu24stig_232065: true
-ubtu24stig_232070: true
-ubtu24stig_232075: true
-ubtu24stig_232080: true
-ubtu24stig_232085: true
-ubtu24stig_232090: true
-ubtu24stig_232095: true
-ubtu24stig_232100: true
-ubtu24stig_232105: true
-ubtu24stig_232110: true
-ubtu24stig_232115: true
-ubtu24stig_232120: true
-ubtu24stig_232125: true
-ubtu24stig_232130: true
-ubtu24stig_232135: true
-ubtu24stig_232140: true
-ubtu24stig_232145: true
-ubtu24stig_251010: true
-ubtu24stig_251015: true
-ubtu24stig_251020: true
-ubtu24stig_251025: true
-ubtu24stig_251030: true
-ubtu24stig_253010: true
-ubtu24stig_255020: true
-ubtu24stig_255030: true
-ubtu24stig_255035: true
-ubtu24stig_255045: true
-ubtu24stig_255050: true
-ubtu24stig_255055: true
-ubtu24stig_255060: true
-ubtu24stig_255065: true
-ubtu24stig_271010: true
-ubtu24stig_271015: true
-ubtu24stig_271020: true
-ubtu24stig_271025: true
-ubtu24stig_291010: true
-ubtu24stig_291015: true
-## 4XX – User Configuration
-ubtu24stig_411010: true
-ubtu24stig_411015: true
-ubtu24stig_411025: true
-ubtu24stig_411030: true
-ubtu24stig_411035: true
-ubtu24stig_411040: true
-ubtu24stig_412025: true
-ubtu24stig_412030: true
-ubtu24stig_412035: true
-ubtu24stig_431010: true
-ubtu24stig_431015: true
-ubtu24stig_432010: true
-## 6xx - Authentication, Authorization and Accounting
-ubtu24stig_611010: true
-ubtu24stig_611015: true
-ubtu24stig_611020: true
-ubtu24stig_611025: true
-ubtu24stig_611030: true
-ubtu24stig_611035: true
-ubtu24stig_611040: true
-ubtu24stig_611045: true
-ubtu24stig_611055: true
-ubtu24stig_611070: true
-ubtu24stig_612010: true
-ubtu24stig_612015: true
-ubtu24stig_612020: true
-ubtu24stig_612025: true
-ubtu24stig_612030: true
-ubtu24stig_612035: true
-ubtu24stig_631010: true
-ubtu24stig_651010: true
-ubtu24stig_651015: true
-ubtu24stig_651020: true
-ubtu24stig_651025: true
-ubtu24stig_651030: true
-ubtu24stig_652010: true
-ubtu24stig_652015: true
-ubtu24stig_653010: true
-ubtu24stig_653015: true
-ubtu24stig_653030: true
-ubtu24stig_653045: true
-ubtu24stig_653050: true
-ubtu24stig_653055: true
-ubtu24stig_653060: true
-ubtu24stig_653065: true
-ubtu24stig_653070: true
-ubtu24stig_653075: true
-ubtu24stig_654010: true
-ubtu24stig_654015: true
-ubtu24stig_654020: true
-ubtu24stig_654025: true
-ubtu24stig_654030: true
-ubtu24stig_654035: true
-ubtu24stig_654040: true
-ubtu24stig_654045: true
-ubtu24stig_654050: true
-ubtu24stig_654055: true
-ubtu24stig_654060: true
-ubtu24stig_654065: true
-ubtu24stig_654070: true
-ubtu24stig_654075: true
-ubtu24stig_654080: true
-ubtu24stig_654085: true
-ubtu24stig_654090: true
-ubtu24stig_654095: true
-ubtu24stig_654100: true
-ubtu24stig_654105: true
-ubtu24stig_654110: true
-ubtu24stig_654115: true
-ubtu24stig_654120: true
-ubtu24stig_654125: true
-ubtu24stig_654130: true
-ubtu24stig_654135: true
-ubtu24stig_654140: true
-ubtu24stig_654145: true
-ubtu24stig_654150: true
-ubtu24stig_654155: true
-ubtu24stig_654160: true
-ubtu24stig_654165: true
-ubtu24stig_654170: true
-ubtu24stig_654175: true
-ubtu24stig_654180: true
-ubtu24stig_654185: true
-ubtu24stig_654190: true
-ubtu24stig_654195: true
-ubtu24stig_654200: true
-ubtu24stig_654205: true
-ubtu24stig_654210: true
-ubtu24stig_654215: true
-ubtu24stig_654220: true
-ubtu24stig_654225: true
-ubtu24stig_654230: true
-ubtu24stig_654235: true
+## 50XXXX
+ubtu24stig_500010: true
+ubtu24stig_500050: true
+
+## 60XXXX
+ubtu24stig_600000: true
+ubtu24stig_600010: true
+ubtu24stig_600060: true
+ubtu24stig_600070: true
+ubtu24stig_600090: true
+ubtu24stig_600150: true
+ubtu24stig_600190: true
+ubtu24stig_600200: true
+ubtu24stig_600230: true
+
+## 70XXXX
+ubtu24stig_700010: true
+ubtu24stig_700020: true
+ubtu24stig_700030: true
+ubtu24stig_700040: true
+ubtu24stig_700050: true
+ubtu24stig_700060: true
+ubtu24stig_700070: true
+ubtu24stig_700080: true
+ubtu24stig_700090: true
+ubtu24stig_700100: true
+ubtu24stig_700110: true
+ubtu24stig_700120: true
+ubtu24stig_700130: true
+ubtu24stig_700140: true
+ubtu24stig_700150: true
+ubtu24stig_700300: true
+ubtu24stig_700310: true
+ubtu24stig_700320: true
+ubtu24stig_700400: true
+
+## 900XXX
+ubtu24stig_900040: true
+ubtu24stig_900050: true
+ubtu24stig_900060: true
+ubtu24stig_900070: true
+ubtu24stig_900080: true
+ubtu24stig_900090: true
+ubtu24stig_900100: true
+ubtu24stig_900110: true
+ubtu24stig_900120: true
+ubtu24stig_900130: true
+ubtu24stig_900140: true
+ubtu24stig_900150: true
+ubtu24stig_900160: true
+ubtu24stig_900170: true
+ubtu24stig_900180: true
+ubtu24stig_900190: true
+ubtu24stig_900200: true
+ubtu24stig_900210: true
+ubtu24stig_900220: true
+ubtu24stig_900230: true
+ubtu24stig_900240: true
+ubtu24stig_900250: true
+ubtu24stig_900260: true
+ubtu24stig_900270: true
+ubtu24stig_900280: true
+ubtu24stig_900290: true
+ubtu24stig_900300: true
+ubtu24stig_900310: true
+ubtu24stig_900320: true
+ubtu24stig_900330: true
+ubtu24stig_900340: true
+ubtu24stig_900350: true
+ubtu24stig_900500: true
+ubtu24stig_900510: true
+ubtu24stig_900520: true
+ubtu24stig_900540: true
+ubtu24stig_900590: true
+ubtu24stig_900600: true
+ubtu24stig_900610: true
+ubtu24stig_900730: true
+ubtu24stig_900740: true
+ubtu24stig_900750: true
+
+## 901XXX
+ubtu24stig_901230: true
+ubtu24stig_901240: true
+ubtu24stig_901250: true
+ubtu24stig_901260: true
+ubtu24stig_901270: true
+ubtu24stig_901280: true
+ubtu24stig_901300: true
+ubtu24stig_901310: true
+ubtu24stig_901350: true
+ubtu24stig_901380: true
+
+## 909XXX
+ubtu24stig_909000: true
 
 #### CAT 3
-ubtu24stig_213010: true
-ubtu24stig_214010: true
-ubtu24stig_215015: true
-ubtu24stig_215020: true
-ubtu24stig_215025: true
-ubtu24stig_252010: true
-ubtu24stig_252015: true
-ubtu24stig_252020: true
-ubtu24stig_411045: true
-ubtu24stig_412010: true
-ubtu24stig_412015: true
-ubtu24stig_412020: true
-ubtu24stig_631015: true
-ubtu24stig_651035: true
-ubtu24stig_653020: true
-ubtu24stig_653025: true
-ubtu24stig_653035: true
-ubtu24stig_653040: true
+ubtu24stig_100010: true
+ubtu24stig_100020: true
+ubtu24stig_100450: true
+ubtu24stig_100700: true
+ubtu24stig_200000: true
+ubtu24stig_200610: true
+ubtu24stig_300001: true
+ubtu24stig_300017: true
+ubtu24stig_300024: true
+ubtu24stig_400340: true
+ubtu24stig_600140: true
+ubtu24stig_600160: true
+ubtu24stig_600180: true
+ubtu24stig_900920: true
+ubtu24stig_900950: true
+ubtu24stig_900960: true
+ubtu24stig_900980: true
+ubtu24stig_901220: true
 
 ### CONTROLS
 
-##################################
-### 1XX – System Configuration ###
-##################################
+##############
+### 10XXXX ###
+##############
 
-
-## 100650 SSSD packages
+## 100600 SSSD packages
 # Add extra packages for environment as required
 ubtu24stig_sssd_packages:
 - sssd
@@ -356,33 +372,14 @@ ubtu24stig_sshd_config_ciphers: "{{ ubtu24stig_dod_ciphers }}"
 ubtu24stig_sshd_config_macs: "{{ ubtu24stig_dod_macs }}"
 ubtu24stig_sshd_config_kex: "{{ ubtu24stig_dod_kex }}"
 
-## 102000 Bootloader/Grub settings
-ubtu24stig_bootloader_password_hash: 'grub.pbkdf2.sha512.changethispassword'  # pragma: allowlist secret
-ubtu24stig_set_bootloader_password: false
-ubtu24stig_grub2_path: /etc/grub2.cfg
+##############
+### 20XXXX ###
+##############
 
-## 213xxx - Kernel
-ubtu24stig_sysctl_file_default: /etc/sysctl.d/stig_kernel.conf
-ubtu24cis_sysctl_kernel_conf: "{{ ubtu24stig_sysctl_file_default }}"
+## 200260
+ubtu24stig_user_inactive_days: '35'
 
-# 215xxx
-## Chrony
-ubtu24stig_time_synchronization_servers:
-- 'tick.usno.navy.mil'
-- 'tock.usno.navy.mil'
-- 'ntp2.usno.navy.mil'
-ubtu24stig_chrony_server_options: "iburst maxpoll 16"  # Max Settings is maxpoll 16
-
-## 253xxx
-ubtu24cis_sysctl_network_conf: "{{ ubtu24stig_sysctl_file_default }}"
-
-## 1008xxx - Network - SSHD
-ubtu24stig_ssh_required: true
-ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
-ubtu24stig_sshd_config_clientalivecountmax: 1
-ubtu24stig_sshd_config_clientaliveinterval: 600  # max 600
-
-
+## 2006xx
 ## Banner
 ubtu24stig_logon_banner: "{{ ubtu24stig_workaround_for_disa_benchmark | ternary(
         ubtu24stig_logon_banner_nice | regex_replace('(?s)(?<!\\n)\\n(?!(\n|$))', ' '),
@@ -415,22 +412,75 @@ ubtu24stig_logon_banner_nice: |
     communications and work product are private and confidential. See User
     Agreement for details.
 
+## 200680
+ubtu24stig_ssh_confirm_file: etc/profile.d/ssh_confirm.sh
+
+##############
+### 30XXXX ###
+##############
+
+## 30xxxx - ssh
+ubtu24stig_ssh_required: true
+ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
+
+##############
+### 40XXXX ###
+##############
+
+# ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - system default is often yescrypt
+ubtu24stig_passwd_hash_algo: sha512  # pragma: allowlist secret
+ubtu24stig_pass_difok: '8'  # 8 is minimum for STIG
+ubtu24stig_pass_min_days: '1'
+ubtu24stig_pass_max_days: '60'
+ubtu24stig_pass_minlen: '15'  # 15 is minimum for STIG
+
+##############
+### 50XXXX ###
+##############
+
+ubtu24stig_sshd_config_clientalivecountmax: 1
+ubtu24stig_sshd_config_clientaliveinterval: 600  # max 600
+
+ubtu24cis_sysctl_network_conf: "{{ ubtu24stig_sysctl_file_default }}"
+
+##############
+### 60XXXX ###
+##############
+
+ubtu24stig_time_synchronization_servers:
+- 'tick.usno.navy.mil'
+- 'tock.usno.navy.mil'
+- 'ntp2.usno.navy.mil'
+ubtu24stig_chrony_server_options: "iburst maxpoll 16"  # Max Settings is maxpoll 16
+
+##############
+### 70XXXX ###
+##############
+
+ubtu24stig_sysctl_file_default: /etc/sysctl.d/stig_kernel.conf
+ubtu24cis_sysctl_kernel_conf: "{{ ubtu24stig_sysctl_file_default }}"
+
+##############
+### 91XXXX ###
+##############
+ubtu24stig_audit_tools:
+- /sbin/auditctl
+- /sbin/aureport
+- /sbin/ausearch
+- /sbin/autrace
+- /sbin/auditd
+- /sbin/audispd-zos-remote
+- /sbin/augenrules
+
+## 102000 Bootloader/Grub settings
+ubtu24stig_bootloader_password_hash: 'grub.pbkdf2.sha512.changethispassword'  # pragma: allowlist secret
+ubtu24stig_set_bootloader_password: false
+ubtu24stig_grub2_path: /etc/grub2.cfg
 
 ### 271xxx - Gnome Desktop
 ### Graphical/Gnome interface required
 ubtu24stig_gui: "{{ ubtu24_gnome_present.stat.exists | default(false) }}"
 
-################################
-### 4xx - User Configuration ###
-################################
-
-### 411xxx - User Configuration
-### ACCOUNTS ###
-ubtu24stig_pass_minlen: '15'  # 15 is minimum for STIG
-ubtu24stig_pass_difok: '8'  # 8 is minimum for STIG
-ubtu24stig_pass_max_days: '60'
-ubtu24stig_pass_min_days: '1'
-ubtu24stig_user_inactive_days: '35'
 # Faillock settings
 ubtu24stig_faillock_deny: '3'  # 3 or less but not 0
 ubtu24stig_faillock_fail_interval: '900'  # 900 or less is required
@@ -452,8 +502,7 @@ ubtu24stig_sudo_group_users:
 - vagrant
 
 # 611xxx
-# ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - default is newer yescrypt
-ubtu24stig_passwd_hash_algo: sha512  # pragma: allowlist secret
+
 # Set pam as well as login defs if PAM is required
 ubtu24stig_passwd_setpam_hash_algo: false
 
@@ -472,13 +521,13 @@ ubtu24stig_aide_cron:
   job: '/usr/sbin/aide --check | /bin/mail -s "$HOSTNAME - Daily aide integrity check run" root@sysname.mil'
   name: 'Aide Job runs Daily at 0430'
 
-# 653xxx
+# 900xxx
 ### AUDITD
 ubtu24stig_audit_log_filesystem: /var/log/audit
 ubtu24stig_auditd_disk_full_action: HALT  # Can be one of "SYSLOG", "SINGLE", or "HALT"
 ubtu24stig_auditd_log_group: root
 ubtu24stig_auditd_email_acct: root
-ubtu24stig_auditd_space_left: 25%
+ubtu24stig_auditd_space_used: 25%
 ubtu24stig_auditd_space_left_action: EMAIL  # Can be set to exec if running script to inform ISSO
 
 # Adjust to match remote syslog server configuration
