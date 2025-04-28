@@ -1,49 +1,87 @@
 ---
 
 ## metadata for Audit benchmark
-benchmark_version: {{ benchmark_version }}
+benchmark_version: 'v1.1.0'
 
-## Benchmark name used by audting control role
+## Benchmark name used by auditing control role
 # The audit variable found at the base
-benchmark: UBUNTU22-STIG
+benchmark: UBUNTU24-STIG
 
+# Whether to skip the OS check for supported OS's
+skip_os_check: false
 
-
-# turn the categories on/off
 ubtu24stig_cat1: {{ ubtu24stig_cat1 }}
 ubtu24stig_cat2: {{ ubtu24stig_cat2 }}
 ubtu24stig_cat3: {{ ubtu24stig_cat3 }}
 
-# If using the supplied graphical interface
-ubtu24stig_gui: {{ ubtu24stig_gui }}
+# We've defined complexity-high to mean that we cannot automatically remediate
+# the rule in question.  In the future this might mean that the remediation
+# may fail in some cases.
+ubtu24stig_complexity_high: {{ ubtu24stig_complexity_high }}
 
-# subscribed - if subscribed to ubuntu pro fucntionality
-ubtu24stig_subscribed: {{ ubtu24stig_subscribed }}
+# Show "changed" for complex items not remediated per complexity-high setting
+# to make them stand out.  "changed" items on a second run of the role would
+# indicate items requiring manual review.
+ubtu24stig_audit_complex: {{ ubtu24stig_audit_complex }}
 
-# Some tests may need to scan every filesystem or have an impact on a system
-# these may need be scheduled to minimise impact
-run_heavy_tests: {{ audit_run_heavy_tests }}
-# Time out of commands
-timeout_ms: {{ audit_cmd_timeout }}
-
-# tweak role to run in a non-privileged container (default value)- dynamically discovered in tasks/main.yml
-system_is_container: {{ system_is_container }}
-
-# system acts or requires router networking options
-ubtu24stig_system_is_router: {{ ubtu24stig_system_is_router }}
+# We've defined disruption-high to indicate items that are likely to cause
+# disruption in a normal workflow.  These items can be remediated automatically
+# but are disabled by default to avoid disruption.
+ubtu24stig_disruption_high: {{ ubtu24stig_disruption_high }}
 
 # Allow aide check to run - this can be very resource intensive - not good on shared storage multiple hosts
 ubtu24stig_allow_aide_check: {{ ubtu24stig_allow_aide_check }}
 
-### Goss Settings ##
-####### END ########
+ubtu24stig_workaround_for_disa_benchmark: {{ ubtu24stig_workaround_for_disa_benchmark }}
+
+## Unrestricted boot
+# Setting this variable to false enables the system to
+# boot *without* querying for the bootloader password.
+ubtu24stig_ask_passwd_to_boot: {{ ubtu24stig_ask_passwd_to_boot }}
+
+# tweak role to run in a chroot, such as in kickstart %post script
+ubtu24stig_system_is_chroot: {{ ubtu24stig_system_is_chroot }}
+
+# Set if system uses ipv6
+ubtu24stig_system_uses_ipv6: {{ ubtu24stig_system_uses_ipv6 }}
+
+# Place to find the container yml file for your environment - /vars/...
+container_vars_file: is_container.yml
+
+# Whether to skip the reboot
+skip_reboot: true
+
+# system acts or requires router networking options
+ubtu24stig_system_is_router: {{ ubtu24stig_system_is_router }}
+
+# System is based on ec2
+system_is_ec2: {{ system_is_ec2 }}
+
+# Whether to purge apt pages when removed
+ubtu24stig_purge_apt: {{ ubtu24stig_purge_apt }}
+
+# UID settings for interactive users
+# These are discovered via logins.def if set true
+ubtu24stig_discover_int_uid: {{ ubtu24stig_discover_int_uid }}
+# This variable sets the minimum number from which to search for UID
+# Note that the value will be dynamically overwritten if variable `ubtu24stig_discover_int_uid` has
+# been set to `true`.
+min_int_uid: 1000
+
+### Controls:
+# - Ensure local interactive user home directories exist
+# - Ensure local interactive users own their home directories
+# This variable sets the maximum number at which the search stops for UID
+# Note that the value will be dynamically overwritten if variable `ubtu24stig_discover_int_uid` has
+# been set to `true`.
+max_int_uid: 65533
 
 #### CAT 1
 
 ubtu24stig_100030: {{ ubtu24stig_100030 }}
 ubtu24stig_100040: {{ ubtu24stig_100040 }}
 ubtu24stig_100800: {{ ubtu24stig_100800 }}
-ubtu24stig_100810: {{ ubtu24stig_100810 }
+ubtu24stig_100810: {{ ubtu24stig_100810 }}
 ubtu24stig_102000: {{ ubtu24stig_102000 }}
 ubtu24stig_300022: {{ ubtu24stig_300022 }}
 ubtu24stig_300025: {{ ubtu24stig_300025 }}
@@ -253,75 +291,143 @@ ubtu24stig_900960: {{ ubtu24stig_900960 }}
 ubtu24stig_900980: {{ ubtu24stig_900980 }}
 ubtu24stig_901220: {{ ubtu24stig_901220 }}
 
-# Variables
+### CONTROLS
 
-## Bootloader Settings
-ubtu24stig_bootloader_password_hash: {{ ubtu24stig_bootloader_password_hash }}
+##############
+### 10XXXX ###
+##############
 
-ubtu24stig_logon_banner:
-  - You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
-  - By using this IS (which includes any device attached to this IS), you consent to the following conditions
-  - -The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
-  - -At any time, the USG may inspect and seize data stored on this IS.
-  - -Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
-  - -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
-  - -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+# 100450
+# Adjust to match remote syslog server configuration
+ubtu24stig_remotelog_server_address: {{ ubtu24stig_remotelog_server_address }}
 
-# Sysctl file
-ubtu24stig_sysctl_file_default: {{ ubtu24stig_sysctl_file_default }}
+# If using sssd set to true
+ubtu24stig_use_sssd: {{ ubtu24stig_use_sssd }}
 
 
-## 25xxxx
-
-
-# Set sysctl files
-ubtu24stig_sysctl_file:
-  kernel: "{{ ubtu24stig_sysctl_file_default }}"
-  network: "{{ ubtu24stig_sysctl_file_default }}"
-
-# Chrony
-ubtu24stig_time_synchronization_servers:
-{% for time_server in ubtu24stig_time_synchronization_servers %}
-  - {{ time_server }}
-{% endfor %}
-ubtu24stig_chrony_server_options: "{{ ubtu24stig_chrony_server_options }}"  # Max Settings is maxpoll 16
-
-
-## SSHD
-ubtu24stig_ssh_required: true
-ubtu24stig_sshd_config_file: {{ ubtu24stig_sshd_config_file }}
-ubtu24stig_sshd_config_clientalivecountmax: {{ ubtu24stig_sshd_config_clientalivecountmax }}
-ubtu24stig_sshd_config_clientaliveinterval: {{ ubtu24stig_sshd_config_clientaliveinterval }}
+## 1008xxx - Network - SSHD
 ubtu24stig_sshd_config_ciphers: {{ ubtu24stig_sshd_config_ciphers }}
 ubtu24stig_sshd_config_macs: {{ ubtu24stig_sshd_config_macs }}
 ubtu24stig_sshd_config_kex: {{ ubtu24stig_sshd_config_kex }}
 
-##27XXXX GUI Settings
-{% if ubtu24stig_dconf_locald_files.files is defined %}
-ubtu24stig_dconf_locald_files:
-{% for file in ubtu24stig_dconf_locald_files.files %}
-- {{ file.path }}
+## 102000 Bootloader/Grub settings
+ubtu24stig_bootloader_password_hash: {{ ubtu24stig_bootloader_password_hash }}
+ubtu24stig_set_bootloader_password: {{ ubtu24stig_set_bootloader_password }}
+
+##############
+### 20XXXX ###
+##############
+
+## 200000
+# Max number of logins 10 max set by STIG
+ubtu24stig_maxlogins: {{ ubtu24stig_maxlogins }}
+
+### 2000xx - Gnome Desktop
+### Graphical/Gnome interface required
+ubtu24stig_gui: {{ ubtu24stig_gui }}
+
+## 200260
+# Number of days account is active before disabled
+# 35 is max set by STIG
+ubtu24stig_user_inactive_days: {{ ubtu24stig_user_inactive_days }}
+
+## 2006xx
+## Banner
+ubtu24stig_logon_banner: "{{ ubtu24stig_workaround_for_disa_benchmark | ternary(
+        ubtu24stig_logon_banner_nice | regex_replace('(?s)(?<!\\n)\\n(?!(\n|$))', ' '),
+        ubtu24stig_logon_banner_nice) }}"
+
+## 200610
+# Faillock settings
+ubtu24stig_faillock_deny: {{ ubtu24stig_faillock_deny }}
+ubtu24stig_faillock_fail_interval: {{ ubtu24stig_faillock_fail_interval }}
+ubtu24stig_faillock_unlock_time: {{ ubtu24stig_faillock_unlock_time }}
+
+## 200680
+ubtu24stig_ssh_confirm_file: {{ ubtu24stig_ssh_confirm_file }}
+
+##############
+### 30XXXX ###
+##############
+
+## 30xxxx - ssh
+ubtu24stig_ssh_required: {{ ubtu24stig_ssh_required }}
+ubtu24stig_sshd_config_file: {{ ubtu24stig_sshd_config_file }}
+
+# 300017 Session
+# faildelay
+ubtu24stig_faildelay: {{ ubtu24stig_faildelay }}
+
+##############
+### 40XXXX ###
+##############
+
+# 400020
+# Set to true if using smart card multifactor authentication
+ubtu24stig_uses_smartcard: {{ ubtu24stig_uses_smartcard }}
+
+# ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - system default is often yescrypt
+ubtu24stig_passwd_hash_algo: sha512  # pragma: {{ ubtu24stig_passwd_hash_algo: sha512  # pragma }}
+ubtu24stig_pass_difok: {{ ubtu24stig_pass_difok }}
+ubtu24stig_pass_min_days: {{ ubtu24stig_pass_min_days }}
+ubtu24stig_pass_max_days: {{ ubtu24stig_pass_max_days }}
+ubtu24stig_pass_minlen: {{ ubtu24stig_pass_minlen }}
+
+##############
+### 50XXXX ###
+##############
+
+ubtu24stig_sshd_config_clientalivecountmax: {{ ubtu24stig_sshd_config_clientalivecountmax }}
+ubtu24stig_sshd_config_clientaliveinterval: {{ ubtu24stig_sshd_config_clientaliveinterval }}
+
+ubtu24stig_sysctl_network_conf: {{ ubtu24stig_sysctl_network_conf }}
+
+##############
+### 60XXXX ###
+##############
+
+ubtu24stig_time_synchronization_servers:
+{% for server in ubtu24stig_time_synchronization_servers %}
+- {{ server }}
 {% endfor %}
-{% endif %}
 
-{% if ubtu24stig_gui %}
-{% if ubtu24stig_dconf_db is defined %}
-ubtu24stig_dconf_db: {{ ubtu24stig_dconf_db.stdout }}
-{% endif %}
-{% endif %}
+ubtu24stig_chrony_server_options: {{ ubtu24stig_chrony_server_options }}
 
-# 611xxx
-# ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - default is newer yescrypt
-ubtu24stig_passwd_hash_algo: {{ ubtu24stig_passwd_hash_algo }}  # pragma: allowlist secret
+# 600130
+## Users to be added to the sudo group
+ubtu24stig_sudo_group_users:
+{% for user in ubtu24stig_sudo_group_users %}
+- {{ user }}
+{% endfor %}
 
-# 653xxx
+##############
+### 70XXXX ###
+##############
+
+ubtu24stig_sysctl_file_default: {{ ubtu24stig_sysctl_file_default }}
+ubtu24stig_sysctl_kernel_conf: {{ ubtu24stig_sysctl_kernel_conf }}
+
+##############
+### 90XXXX ###
+##############
 ### AUDITD
 ubtu24stig_audit_log_filesystem: {{ ubtu24stig_audit_log_filesystem }}
-ubtu24stig_auditd_disk_full_action: {{ ubtu24stig_auditd_disk_full_action }} # Can be one of "SYSLOG", "SINGLE", or "HALT"
+ubtu24stig_auditd_disk_full_action: {{ ubtu24stig_auditd_disk_full_action }}
 ubtu24stig_auditd_log_group: {{ ubtu24stig_auditd_log_group }}
 ubtu24stig_auditd_email_acct: {{ ubtu24stig_auditd_email_acct }}
 ubtu24stig_auditd_space_left: {{ ubtu24stig_auditd_space_left }}
-ubtu24stig_auditd_space_left_action: {{ ubtu24stig_auditd_space_left_action }} # Can be set to exec if running script to inform ISSO
+ubtu24stig_auditd_space_left_action: {{ ubtu24stig_auditd_space_left_action }}
 
-# Adjust to match remote syslog server configuration
-ubtu24stig_remotelog_server_address: {{ ubtu24stig_remotelog_server_address }}
+##############
+### 91XXXX ###
+##############
+ubtu24stig_audit_tools:
+{% for path on ubtu24stig_audit_tools %}
+- /sbin/auditctl
+- /sbin/aureport
+- /sbin/ausearch
+- /sbin/autrace
+- /sbin/auditd
+- /sbin/audispd-zos-remote
+- /sbin/augenrules
+{% endfor %}
