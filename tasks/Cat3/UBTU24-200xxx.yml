@@ -1,7 +1,7 @@
 ---
 
 - name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types.
-  when: ubtu_24_200000
+  when: ubtu24stig_200000
   tags:
     - UBTU-24-200000
     - CAT3
@@ -37,7 +37,7 @@
         line: '* hard maxlogins {{ ubtu24stig_maxlogins }}'
 
 - name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.
-  when: ubtu_24_200610
+  when: ubtu24stig_200610
   tags:
     - UBTU-24-200610
     - CAT3
@@ -52,15 +52,6 @@
     - pam
   block:
     - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.
-      ansible.builtin.blockinfile:
-        path: /etc/pam.d/common-auth
-        marker: "# {mark} Faillock config Ubuntu2404 STIG - Ansible-lockdown Sponsored by Mindpoint Group - A Tyto Athene Company / Ansible Lockdown"
-        block: |
-          auth    [default=die]                   pam_faillock.so authfail
-          auth    sufficient                      pam_faillock.so authsucc
-        insertafter: auth.*pam_unix.so nullok
-
-    - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.
       ansible.builtin.lineinfile:
         path: /etc/security/faillock.conf
         regexp: "{{ item.regexp }}"
@@ -72,8 +63,17 @@
         - { regexp: '^(#|)\s*fail_interval', line: 'fail_interval = {{ ubtu24stig_faillock_fail_interval }}' }
         - { regexp: '^(#|)\s*unlock_time', line: 'unlock_time = {{ ubtu24stig_faillock_unlock_time }}' }
 
+    - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.
+      ansible.builtin.blockinfile:
+        path: /etc/pam.d/common-auth
+        marker: "# {mark} Faillock config Ubuntu2404 STIG - Ansible-lockdown Sponsored by Mindpoint Group - A Tyto Athene Company / Ansible Lockdown"
+        block: |
+          auth    [default=die]                   pam_faillock.so authfail
+          auth    sufficient                      pam_faillock.so authsucc
+        insertafter: auth.*pam_unix.so
+
 - name: LOW | UBTU-24-300024 | PATCH | Ubuntu 24.04 LTS must display the date and time of the last successful account logon upon logon.
-  when: ubtu_24_300024
+  when: ubtu24stig_300024
   tags:
     - UBTU-24-300024
     - CAT3

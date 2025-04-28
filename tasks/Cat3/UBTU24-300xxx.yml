@@ -1,7 +1,7 @@
 ---
 
 - name: LOW | UBTU-24-300001 | PATCH | Ubuntu 24.04 LTS must be configured so that the Advance Package Tool (APT) prevents the installation of patches, service packs, device drivers, or operating system components without verification they have been digitally signed using a certificate that is recognized and approved by the organization.
-  when: ubtu_24_300001
+  when: ubtu24stig_300001
   tags:
     - UBTU-24-300001
     - CAT3
@@ -28,7 +28,7 @@
         line: APT::Get::AllowUnauthenticated "true";
 
 - name: LOW | UBTU-24-300017 | PATCH | Ubuntu 24.04 LTS must enforce a delay of at least four seconds between logon prompts following a failed logon attempt.
-  when: ubtu_24_300017
+  when: ubtu24stig_300017
   tags:
     - UBTU-24-300017
     - CAT3

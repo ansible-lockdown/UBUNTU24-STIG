@@ -1,7 +1,7 @@
 ---
 
 - name: LOW | UBTU-24-600140 | PATCH | Ubuntu 24.04 LTS must restrict access to the kernel message buffer.
-  when: ubtu_24_600140
+  when: ubtu24stig_600140
   tags:
     - UBTU-24-600140
     - CAT3
@@ -20,7 +20,7 @@
       register: discovered_sysctl_conf_files
 
     - name: LOW | UBTU-24-600140 | PATCH | Ubuntu 24.04 LTS must restrict access to the kernel message buffer. | remove existing
-      when: "ubtu24cis_sysctl_kernel_conf not in item"
+      when: "ubtu24stig_sysctl_kernel_conf not in item"
       ansible.builtin.replace:
         path: "{{ item.path | default(item) }}"
         regexp: ^\s*kernel.dmesg_restrict\s*=\s*[ 0, 1 ]
@@ -34,13 +34,13 @@
         name: kernel.dmesg_restrict
         value: '1'
         state: present
-        sysctl_file: "{{ ubtu24cis_sysctl_kernel_conf }}"
+        sysctl_file: "{{ ubtu24stig_sysctl_kernel_conf }}"
         reload: true
         sysctl_set: true
         ignoreerrors: true
 
 - name: LOW | UBTU-24-600160 | PATCH | Ubuntu 24.04 LTS must compare internal information system clocks at least every 24 hours with an authoritative time server.
-  when: ubtu_24_600160
+  when: ubtu24stig_600160
   tags:
     - UBTU-24-600160
     - CAT3
@@ -72,7 +72,7 @@
       notify: Restart_chrony
 
 - name: LOW | UBTU-24-600180 | PATCH | Ubuntu 24.04 LTS must synchronize internal information system clocks to the authoritative time source when the time difference is greater than one second.
-  when: ubtu_24_600180
+  when: ubtu24stig_600180
   tags:
     - UBTU-24-600180
     - CAT3

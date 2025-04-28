@@ -1,7 +1,7 @@
 ---
 
 - name: MEDIUM | UBTU-24-500010 | Ubuntu 24.04 LTS must generate audit records for privileged activities, nonlocal maintenance, diagnostic sessions and other system-level access.
-  when: ubtu_24_500010
+  when: ubtu24stig_500010
   tags:
     - UBTU-24-500010
     - CAT2
@@ -18,7 +18,7 @@
     update_audit_template: true
 
 - name: MEDIUM | UBTU-24-500050 | PATCH | Ubuntu 24.04 LTS must use strong authenticators in establishing nonlocal maintenance and diagnostic sessions
-  when: ubtu_24_500050
+  when: ubtu24stig_500050
   tags:
     - UBTU-24-500050
     - CAT2

@@ -2,7 +2,7 @@
 
 - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity.
   when:
-    - ubtu_24_200020
+    - ubtu24stig_200020
     - ubtu24stig_gui
   tags:
     - UBTU-24-200020
@@ -49,7 +49,7 @@
 
 - name: MEDIUM | UBTU-24-200040 | PATCH | Ubuntu 24.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures.
   when:
-    - ubtu_24_200040
+    - ubtu24stig_200040
     - ubtu24stig_gui
   tags:
     - UBTU-24-200040
@@ -72,7 +72,7 @@
       changed_when: true
 
 - name: MEDIUM | UBTU-24-200060 | PATCH | Ubuntu 24.04 LTS must automatically terminate a user session after inactivity timeouts have expired.
-  when: ubtu_24_200060
+  when: ubtu24stig_200060
   tags:
     - UBTU-24-200060
     - CAT2
@@ -109,7 +109,7 @@
         mode: 'go-wx'
 
 - name: MEDIUM | UBTU-24_200090 | PATCH | Ubuntu 24.04 LTS must monitor remote access methods.
-  when: ubtu_24_200090
+  when: ubtu24stig_200090
   tags:
     - UBTU-24-200090
     - CAT2
@@ -140,7 +140,7 @@
       notify: Restart_rsyslog
 
 - name: MEDIUM | UBTU-24-200250 | WARN | Ubuntu 24.04 LTS must automatically remove or disable emergency accounts after 72 hours.
-  when: ubtu_24_200250
+  when: ubtu24stig_200250
   tags:
     - UBTU-24-200250
     - CAT2
@@ -160,7 +160,7 @@
       - 'To set account expire run sudo chage -E `date -d "+3 days" +%Y-%m-%d` account_name'
 
 - name: MEDIUM | UBTU-24-200260 | PATCH | Ubuntu 24.04 LTS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity.
-  when: ubtu_24_200260
+  when: ubtu24stig_200260
   tags:
     - UBTU-24-200260
     - CAT2
@@ -173,11 +173,11 @@
     - account
   ansible.builtin.lineinfile:
     path: /etc/default/useradd
-    regexp: ^(#|)(?i)INACTIVE\s*=\s*\d*
+    regexp: (?i)^(#|)INACTIVE\s*=\s*\d*
     line: "INACTIVE {{ ubtu24stig_user_inactive_days }}"
 
 - name: MEDIUM | UBTU-24-200280 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/passwd.
-  when: ubtu_24_200280
+  when: ubtu24stig_200280
   tags:
     - UBTU-24-200280
     - CAT2
@@ -204,7 +204,7 @@
     update_audit_template: true
 
 - name: MEDIUM | UBTU-24-200290 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/group.
-  when: ubtu_24_200290
+  when: ubtu24stig_200290
   tags:
     - UBTU-24-200290
     - CAT2
@@ -231,7 +231,7 @@
     update_audit_template: true
 
 - name: MEDIUM | UBTU-24-200300 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/shadow.
-  when: ubtu_24_200300
+  when: ubtu24stig_200300
   tags:
     - UBTU-24-200300
     - CAT2
@@ -258,7 +258,7 @@
     update_audit_template: true
 
 - name: MEDIUM | UBTU-24-200310 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/gshadow.
-  when: ubtu_24_200310
+  when: ubtu24stig_200310
   tags:
     - UBTU-24-200310
     - CAT2
@@ -285,7 +285,7 @@
     update_audit_template: true
 
 - name: MEDIUM | UBTU-24-200320 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/opasswd.
-  when: ubtu_24_200320
+  when: ubtu24stig_200320
   tags:
     - UBTU-24-200320
     - CAT2
@@ -312,7 +312,7 @@
     update_audit_template: true
 
 - name: MEDIUM | UBTU-24-200580 | Ubuntu 24.04 LTS must prevent all software from executing at higher privilege levels than users executing the software and the audit system must be configured to audit the execution of privileged functions.
-  when: ubtu_24_200580
+  when: ubtu24stig_200580
   tags:
     - UBTU-24-200580
     - CAT2
@@ -329,7 +329,7 @@
     update_audit_template: true
 
 - name: MEDIUM | UBTU-24-200640 | PATCH | Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting access to via an SSH logon.
-  when: ubtu_24_200640
+  when: ubtu24stig_200640
   tags:
     - UBTU-24-200640
     - CAT2
@@ -362,7 +362,7 @@
 
 - name: MEDIUM | UBTU-24-200650 | PATCH | Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.
   when:
-    - ubtu_24_200650
+    - ubtu24stig_200650
     - ubtu24stig_gui
   tags:
     - UBTU-24-200650
@@ -385,7 +385,7 @@
 
 - name: MEDIUM | UBTU-24-200660 | PATCH | Ubuntu 24.04 LTS must enable the graphical user logon banner to display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.
   when:
-    - ubtu_24_200660
+    - ubtu24stig_200660
     - ubtu24stig_gui
   tags:
     - UBTU-24-200660
@@ -407,7 +407,7 @@
     - Restart_gdm3
 
 - name: MEDIUM | UBTU-24-200680 | PATCH | Ubuntu 24.04 LTS must be configured to enforce the acknowledgement of the Standard Mandatory DOD Notice and Consent Banner for all SSH connections.
-  when: ubtu_24_200680
+  when: ubtu24stig_200680
   tags:
     - UBTU-24-200680
     - CAT2
@@ -417,8 +417,8 @@
     - V-270694
     - NIST800-53R4_AC-8
   ansible.builtin.template:
-    src: "{{ ssh_confirm_file }}.j2"
-    dest: "{{ ssh_confirm_file }}"
+    src: "{{ ubtu24stig_ssh_confirm_file }}.j2"
+    dest: "/{{ ubtu24stig_ssh_confirm_file }}"
     owner: root
     group: root
-    mode: 'a=rx'
+    mode: 'a=r'

@@ -2,7 +2,8 @@
 
 - name: LOW | UBTU-24-400340 | PATCH | Ubuntu 24.04 LTS must be configured such that Pluggable Authentication Module (PAM) prohibits the use of cached authentications after one day.
   when:
-    - ubtu_24_400340
+    - ubtu24stig_400340
+    - ubtu24stig_use_sssd
     - "'sssd' in ansible_facts.packages"
   tags:
     - UBTU-24-400340

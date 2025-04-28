@@ -61,26 +61,12 @@
   when:
     - not system_is_ec2
     - not system_is_container
-    - ubtu_24_212010
+    - ubtu24stig_102000
     - ubtu24stig_set_bootloader_password
     - not audit_only
   ansible.builtin.assert:
     that: ubtu24stig_bootloader_password_hash != 'grub.pbkdf2.sha512.changethispassword'  # pragma: allowlist secret
     msg: "This role will not be able to run single user password commands as ubtu24stig_bootloader_password_hash variable has not been set"  # pragma: allowlist secret
-
-- name: "Discover if system is Pro subscription (needed for FIPS)"
-  tags: always
-  block:
-    - name: "PRELIM | AUDIT | Discover if system is subscribed for PRO plan (needed for FIPS) | Check status if pkg installed"
-      when: "'ubuntu-advantage-tools' in ansible_facts.packages"
-      ansible.builtin.command: pro status
-      changed_when: false
-      register: prelim_pro_subscription
-
-    - name: "PRELIM | AUDIT | Discover if system is subscribed for PRO plan (needed for FIPS) | Set fact for Pro subscription"
-      when: "'not attached' not in prelim_pro_subscription.stdout"
-      ansible.builtin.set_fact:
-        ubtu24stig_subscribed: true
 
 - name: "Gather the package facts"
   tags: always

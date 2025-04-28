@@ -1,7 +1,7 @@
 ---
 
 - name: MEDIUM | UBTU-24-909000 | Ubuntu 24.04 LTS audit system must protect auditing rules from unauthorized change.
-  when: ubtu_24_909000
+  when: ubtu24stig_909000
   tags:
     - UBTU-24-909000
     - CAT2

@@ -48,7 +48,7 @@
         file: warning_facts.yml
 
 - name: HIGH | UBTU-24-600130 | PATCH | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group.
-  when: ubtu24stig__600130
+  when: ubtu24stig_600130
   tags:
     - UBTU-24-600130
     - CAT1
@@ -80,7 +80,7 @@
 
     - name: HIGH | UBTU-24-600130 | AUDIT | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Compare existing to required
       ansible.builtin.set_fact:
-        sudo_group_members_not_required: "{{ discovered_sudo_group_users_list | difference(ubtu24stig_sudo_group_required) }}"
+        sudo_group_members_not_required: "{{ discovered_sudo_group_users_list | difference(ubtu24stig_sudo_group_users) }}"
 
     - name: HIGH | UBTU-24-600130 | PATCH | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Remove user not in required list
       when: ubtu24stig_disruption_high

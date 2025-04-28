@@ -1,7 +1,7 @@
 ---
 
 - name: "LOW | UBTU-24-900920 | PATCH | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
-  when: ubtu_24_900920
+  when: ubtu24stig_900920
   tags:
     - UBTU-24-900920
     - CAT3
@@ -39,7 +39,7 @@
         file: warning_facts.yml
 
 - name: LOW | UBTU-24-900950 | PATCH | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems.
-  when: ubtu_24_900950
+  when: ubtu24stig_900950
   tags:
     - UBTU-24-900950
     - CAT3
@@ -70,7 +70,7 @@
         file: warning_facts.yml
 
 - name: LOW | UBTU-24-900960 | PATCH | Ubuntu 24.04 LTS must immediately notify the system administrator (SA) and information system security officer (ISSO) (at a minimum) when allocated audit record storage volume reaches 75 percent of the repository maximum audit record storage capacity.
-  when: ubtu_24_900960
+  when: ubtu24stig_900960
   tags:
     - UBTU-24-900960
     - CAT3
@@ -90,7 +90,7 @@
   notify: Restart_auditd
 
 - name: "LOW | UBTU-24-900980 | PATCH | Ubuntu 24.04 LTS must alert the information system security officer (ISSO) and system administrator (SA) in the event of an audit processing failure."
-  when: ubtu_24_900980
+  when: ubtu24stig_900980
   tags:
     - UBTU-24-900980
     - CAT3
@@ -107,6 +107,7 @@
   notify: Restart_auditd
 
 - name: LOW | UBTU-24-901220 | PATCH | Ubuntu 24.04 LTS must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT).
+  when: ubtu24stig_901220
   tags:
     - UBTU-24-901220
     - CAT3

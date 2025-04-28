@@ -1,7 +1,7 @@
 ---
 
 - name: MEDIUM | UBTU-24-700010 | PATCH | Ubuntu 24.04 LTS must generate error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries.
-  when: ubtu_24_700010
+  when: ubtu24stig_700010
   tags:
     - UBTU-24-700010
     - CAT2
@@ -15,7 +15,7 @@
     warn_control_id: 'MEDIUM | UBTU-24-700010'
   block:
     - name: MEDIUM | UBTU-24-700010 | AUDIT | Ubuntu 24.04 LTS must generate error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries. | find files
-      ansible.builtin.shell: find /var/log -perm /137 ! -name '*[bw]tmp' ! -name '*lastlog' {% if ubtu_24_700010 %}! -name '*syslog' {% endif %}-type f -exec stat -c "%n" {} \;
+      ansible.builtin.shell: find /var/log -perm /137 ! -name '*[bw]tmp' ! -name '*lastlog' {% if ubtu24stig_700010 %}! -name '*syslog' {% endif %}-type f -exec stat -c "%n" {} \;
       changed_when: false
       failed_when: discovered_var_log_logfiles.rc not in [ 0, 1 ]
       register: discovered_var_log_logfiles
@@ -44,7 +44,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-700020 | PATCH | Ubuntu 24.04 LTS must generate system journal entries without revealing information that could be exploited by adversaries.
-  when: ubtu_24_700020
+  when: ubtu24stig_700020
   tags:
     - UBTU-24-700020
     - CAT2
@@ -95,7 +95,7 @@
 
 - name: MEDIUM | UBTU-24-700030 | PATCH | Ubuntu 24.04 LTS must be configured so that the "journalctl" command is not accessible by unauthorized users.
   when:
-    - ubtu_24_700030
+    - ubtu24stig_700030
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700030
@@ -113,7 +113,7 @@
 
 - name: MEDIUM | UBTU-24-700040 | PATCH | Ubuntu 24.04 LTS must be configured so that the "journalctl" command is owned by "root".
   when:
-    - ubtu_24_700040
+    - ubtu24stig_700040
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700040
@@ -131,7 +131,7 @@
 
 - name: MEDIUM | UBTU-24-700050 | PATCH | Ubuntu 24.04 LTS must be configured so that the "journalctl" command is group-owned by "root".
   when:
-    - ubtu_24_700050
+    - ubtu24stig_700050
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700050
@@ -149,7 +149,7 @@
 
 - name: MEDIUM | UBTU-24-700060 | PATCH | Ubuntu 24.04 LTS must configure the directories used by the system journal to be group-owned by "systemd-journal".
   when:
-    - ubtu_24_700060
+    - ubtu24stig_700060
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700060
@@ -182,7 +182,7 @@
 
 - name: MEDIUM | UBTU-24-700070 | PATCH | Ubuntu 24.04 LTS must configure the files used by the system journal to be group-owned by "systemd-journal"
   when:
-    - ubtu_24_700070
+    - ubtu24stig_700070
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700070
@@ -216,7 +216,7 @@
 
 - name: MEDIUM | UBTU-24-700080 | PATCH | Ubuntu 24.04 LTS must configure the directories used by the system journal to be owned by "root".
   when:
-    - ubtu_24_700080
+    - ubtu24stig_700080
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700080
@@ -249,7 +249,7 @@
 
 - name: MEDIUM | UBTU-24-700090 | PATCH | Ubuntu 24.04 LTS must configure the files used by the system journal to be owned by "root".
   when:
-    - ubtu_24_700090
+    - ubtu24stig_700090
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700090
@@ -283,7 +283,7 @@
 
 - name: MEDIUM | UBTU-24-700100 | PATCH | Ubuntu 24.04 LTS must configure the /var/log directory to be group-owned by syslog.
   when:
-    - ubtu_24_700100
+    - ubtu24stig_700100
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700100
@@ -302,7 +302,7 @@
 
 - name: MEDIUM | UBTU-24-700110 | PATCH | Ubuntu 24.04 LTS must configure the /var/log directory to be owned by root.
   when:
-    - ubtu_24_700110
+    - ubtu24stig_700110
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700110
@@ -321,7 +321,7 @@
 
 - name: MEDIUM | UBTU-24-700120 | PATCH | Ubuntu 24.04 LTS must configure the /var/log directory to have mode "0755" or less permissive.
   when:
-    - ubtu_24_700120
+    - ubtu24stig_700120
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700120
@@ -340,7 +340,7 @@
 
 - name: MEDIUM | UBTU-24-700130 | PATCH | Ubuntu 24.04 LTS must configure /var/log/syslog file to be group-owned by "adm".
   when:
-    - ubtu_24_700130
+    - ubtu24stig_700130
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700130
@@ -361,7 +361,7 @@
 
 - name: MEDIUM | UBTU-24-700140 | PATCH | Ubuntu 24.04 LTS must configure "/var/log/syslog" file to be owned by "syslog".
   when:
-    - ubtu_24_700140
+    - ubtu24stig_700140
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700140
@@ -382,7 +382,7 @@
 
 - name: MEDIUM | UBTU-24-700150 | PATCH | Ubuntu 24.04 LTS must configure /var/log/syslog file with mode "0640" or less permissive.
   when:
-    - ubtu_24_700150
+    - ubtu24stig_700150
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-700150
@@ -401,7 +401,7 @@
   register: discovered_var_log_syslog
 
 - name: MEDIUM | UBTU-24-700300 | AUDIT | Ubuntu 24.04 LTS must implement nonexecutable data to protect its memory from unauthorized code execution.
-  when: ubtu_24_700300
+  when: ubtu24stig_700300
   tags:
     - UBTU-24-700300
     - CAT2
@@ -443,7 +443,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-700310 | PATCH | Ubuntu 24.04 LTS must implement address space layout randomization to protect its memory from unauthorized code execution.
-  when: ubtu_24_700310
+  when: ubtu24stig_700310
   tags:
     - UBTU-24-700310
     - CAT2
@@ -480,7 +480,7 @@
         ignoreerrors: true
 
 - name: MEDIUM | UBTU-24-700320 | PATCH | Ubuntu 24.04 LTS must be configured so that the Advance Package Tool (APT) removes all software components after updated versions have been installed.
-  when: ubtu_24_700320
+  when: ubtu24stig_700320
   tags:
     - UBTU-24-700320
     - CAT2
@@ -501,7 +501,7 @@
     - {regexp: 'Unattended-Upgrade::Remove-Unused-Dependencies', line: 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'}
 
 - name: MEDIUM | UBTU-24-700400 | AUDIT | Ubuntu 24.04 LTS must be a vendor-supported release.
-  when: ubtu_24_700400
+  when: ubtu24stig_700400
   tags:
     - UBTU-24-700400
     - CAT2

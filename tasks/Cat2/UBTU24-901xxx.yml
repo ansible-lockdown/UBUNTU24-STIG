@@ -2,7 +2,7 @@
 
 - name: MEDIUM | UBTU-24-901230 | PATCH | Ubuntu 24.04 LTS must configure audit tools with a mode of "755" or less permissive.
   when:
-    - ubtu_24_901230
+    - ubtu24stig_901230
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-901230
@@ -26,7 +26,7 @@
 
 - name: MEDIUM | UBTU-24-901240 | PATCH | Ubuntu 24.04 LTS must configure audit tools to be owned by root.
   when:
-    - ubtu_24_901240
+    - ubtu24stig_901240
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-901240
@@ -50,7 +50,7 @@
 
 - name: MEDIUM | UBTU-24-901250 | PATCH | Ubuntu 24.04 LTS must configure audit tools to be group-owned by root.
   when:
-    - ubtu_24_901250
+    - ubtu24stig_901250
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-901250
@@ -73,7 +73,7 @@
   loop: "{{ ubtu24stig_audit_tools }}"
 
 - name: MEDIUM | UBTU-24-901260 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive.
-  when: ubtu_24_901260
+  when: ubtu24stig_901260
   tags:
     - UBTU-24-901260
     - CAT2
@@ -117,7 +117,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-901270 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands owned by "root".
-  when: ubtu_24_901270
+  when: ubtu24stig_901270
   tags:
     - UBTU-24-901270
     - CAT2
@@ -163,7 +163,7 @@
 
 - name: MEDIUM | UBTU-24-901280 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands group-owned by "root".
   when:
-    - ubtu_24_901280
+    - ubtu24stig_901280
   tags:
     - UBTU-24-901280
     - CAT2
@@ -208,7 +208,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-901300 | PATCH | Ubuntu 24.04 LTS must be configured so that audit log files are not read or write-accessible by unauthorized users.
-  when: ubtu_24_901300
+  when: ubtu24stig_901300
   tags:
     - UBTU-24-901300
     - CAT2
@@ -232,7 +232,7 @@
         mode: 'go-rwx'
 
 - name: MEDIUM | UBTU-24-901310 | PATCH | Ubuntu 24.04 LTS must be configured to permit only authorized users ownership of the audit log files.
-  when: ubtu_24_901310
+  when: ubtu24stig_901310
   tags:
     - UBTU-24-901310
     - CAT2
@@ -258,7 +258,7 @@
         owner: root
 
 - name: MEDIUM | UBTU-24-901350 | PATCH | Ubuntu 24.04 LTS must permit only authorized groups ownership of the audit log files.
-  when: ubtu_24_901350
+  when: ubtu24stig_901350
   tags:
     - UBTU-24-901350
     - CAT2
@@ -278,7 +278,7 @@
     line: "log_group = {{ ubtu24stig_auditd_log_group }}"
 
 - name: MEDIUM | UBTU-24-901380 | PATCH | Ubuntu 24.04 LTS must be configured so that the audit log directory is not write-accessible by unauthorized users.
-  when: ubtu_24_901380
+  when: ubtu24stig_901380
   tags:
     - UBTU-24-901380
     - CAT2
@@ -301,7 +301,7 @@
         mode: 'g-w,o-rwx'
 
 - name: MEDIUM | UBTU-24-901890 | PATCH | Ubuntu 24.04 LTS must use cryptographic mechanisms to protect the integrity of audit tools.
-  when: ubtu_24_901890
+  when: ubtu24stig_901890
   tags:
     - UBTU-24-901890
     - CAT2

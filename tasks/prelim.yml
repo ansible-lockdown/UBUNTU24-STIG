@@ -47,6 +47,20 @@
   ansible.builtin.import_tasks:
     file: pre_remediation_audit.yml
 
+- name: "Discover if system is Pro subscription (needed for FIPS)"
+  when: "'ubuntu-advantage-tools' in ansible_facts.packages"
+  tags: always
+  block:
+    - name: "PRELIM | AUDIT | Discover if system is subscribed for PRO plan (needed for FIPS) | Check status if pkg installed"
+      ansible.builtin.command: pro status
+      changed_when: false
+      register: prelim_pro_subscription
+
+    - name: "PRELIM | AUDIT | Discover if system is subscribed for PRO plan (needed for FIPS) | Set fact for Pro subscription"
+      when: "'not attached' not in prelim_pro_subscription.stdout"
+      ansible.builtin.set_fact:
+        ubtu24stig_subscribed: true
+
 - name: "PRELIM | capture /etc/password variables"
   tags: always
   ansible.builtin.include_tasks:
@@ -65,7 +79,7 @@
   register: ubtu24stig_interactive_users_home
 
 - name: "PRELIM | Gather accounts with empty password fields"
-  when: ubtu24stig_611065
+  when: ubtu24stig_300027
   tags: passwords
   ansible.builtin.shell: "cat /etc/shadow | awk -F: '($2 == \"\" ) {j++;print $1; } END {exit j}'"
   changed_when: false
@@ -121,9 +135,7 @@
     state: present
 
 - name: "PRELIM | Configure syslog (rsyslog)"
-  when:
-    - '"rsyslog" not in ansible_facts.packages'
-    - ubtu24stig_652010
+  when: ubtu24stig_100200
   tags: always
   ansible.builtin.package:
     name: rsyslog
@@ -143,7 +155,6 @@
     state: touch
 
 - name: PRELIM | SSH | find existing ssh config files
-  when: ubtu24stig_sshd_required
   tags: always
   ansible.builtin.find:
     paths:
@@ -167,7 +178,7 @@
 
 - name: "PRELIM | AUDIT | Wireless adapter pre-requisites"
   when:
-    - ubtu24stig_291010
+    - ubtu24stig_600230
     - not system_is_container
   tags: always
   block:

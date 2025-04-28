@@ -1,7 +1,7 @@
 ---
 
 - name: MEDIUM | UBTU-24-400000 | PATCH | Ubuntu 24.04 LTS must uniquely identify interactive users.
-  when: ubtu_24_400000
+  when: ubtu24stig_400000
   tags:
     - UBTU-24-400000
     - CAT2
@@ -35,7 +35,8 @@
 
 - name: MEDIUM | UBTU-24-400020 | PATCH | Ubuntu 24.04 LTS must implement smart card logins for multifactor authentication for local and network access to privileged and nonprivileged accounts.
   when:
-    - ubtu_24_400020
+    - ubtu24stig_400020
+    - ubtu24stig_uses_smartcard
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-400020
@@ -61,12 +62,12 @@
       ansible.builtin.lineinfile:
         path: /etc/pam.d/common-auth
         regexp: ^auth.*pam_pkcs11.so
-        line: auth [success=2 default=ignore] pam_pkcs11.so
+        line: auth    [success=2 default=ignore]      pam_pkcs11.so
         insertbefore: ^auth.*pam_unix.so
 
 - name: MEDIUM | UBTU-24-400030 | PATCH | Ubuntu 24.04 LTS must implement smart card logins for multifactor authentication for local and network access to privileged and nonprivileged accounts over SSH.
   when:
-    - ubtu_24_400030
+    - ubtu24stig_400030
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-400030
@@ -90,7 +91,7 @@
 
 - name: MEDIUM | UBTU-24-400060 | PATCH | Ubuntu 24.04 LTS must electronically verify personal identity verification (PIV) credentials.
   when:
-    - ubtu_24_400060
+    - ubtu24stig_400060
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-400060
@@ -118,7 +119,7 @@
       loop: "{{ discovered_pkcs_cert_ocsp_policy.stdout_lines }}"
 
 - name: MEDIUM | UBTU-24-400110 | PATCH | Ubuntu 24.04 LTS must prevent direct login into the root account.
-  when: ubtu_24_400110
+  when: ubtu24stig_400110
   tags:
     - UBTU-24-400110
     - CAT2
@@ -133,7 +134,7 @@
     password_lock: true
 
 - name: MEDIUM | UBTU-24-400220 | PATCH | Ubuntu 24.04 LTS must store only encrypted representations of passwords.
-  when: ubtu_24_400220
+  when: ubtu24stig_400220
   tags:
     - UBTU-24-400220
     - CCI-000000
@@ -152,17 +153,15 @@
 
     - name: MEDIUM | UBTU-24-400220 | AUDIT | Ubuntu 24.04 LTS must store only encrypted representations of passwords. | replace current setting if incorrect
       when:
-        - discovered_common_pwd_sha512 | length > 0
+        - discovered_common_pwd_sha512.stdout | length > 0
         - "ubtu24stig_passwd_hash_algo not in discovered_common_pwd_sha512.stdout"
-      ansible.builtin.lineinfile:
+      ansible.builtin.replace:
         path: /etc/pam.d/common-password
-        backrefs: true
-        regexp: ^(password\s*\[success=1 default=ignore\]\s*pam_unix.so.*)(yescrypt|md5|bigcrypt|sha256|sha512|blowfish)(.*)
-        line: \1{{ ubtu24stig_passwd_hash_algo }}\3
+        regexp: (yescrypt|md5|bigcrypt|sha256|sha512|blowfish)
+        replace: "{{ ubtu24stig_passwd_hash_algo }}"
 
     - name: MEDIUM | UBTU-24-400220 | PATCH | Ubuntu 24.04 LTS must store only encrypted representations of passwords.
-      when:
-        - discovered_common_pwd_sha512 | length > 0
+      when: discovered_common_pwd_sha512.stdout | length > 0
       community.general.pamd:
         name: common-password
         type: password
@@ -172,7 +171,7 @@
         state: args_present
 
 - name: MEDIUM | UBTU-24-400260 | PATCH | Ubuntu 24.04 LTS must enforce password complexity by requiring at least one uppercase character be used.
-  when: ubtu_24_400260
+  when: ubtu24stig_400260
   tags:
     - UBTU-24-400260
     - CAT2
@@ -189,7 +188,7 @@
     line: 'ucredit = -1'
 
 - name: MEDIUM | UBTU-24-400270 | PATCH | Ubuntu 24.04 LTS must enforce password complexity by requiring at least one lowercase character be used.
-  when: ubtu_24_400270
+  when: ubtu24stig_400270
   tags:
     - UBTU-24-400270
     - CAT2
@@ -206,7 +205,7 @@
     line: 'lcredit = -1'
 
 - name: MEDIUM | UBTU-24-400280 | PATCH | Ubuntu 24.04 LTS must enforce password complexity by requiring that at least one numeric character be used.
-  when: ubtu_24_400280
+  when: ubtu24stig_400280
   tags:
     - UBTU-24-400280
     - CAT2
@@ -223,7 +222,7 @@
     line: 'dcredit = -1'
 
 - name: MEDIUM | UBTU-24-400290 | PATCH | Ubuntu 24.04 LTS must require the change of at least eight characters when passwords are changed.
-  when: ubtu_24_400290
+  when: ubtu24stig_400290
   tags:
     - UBTU-24-400290
     - CAT2
@@ -240,7 +239,7 @@
     line: 'difok = {{ ubtu24stig_pass_difok }}'
 
 - name: MEDIUM | UBTU-24-400300 | PATCH | Ubuntu 24.04 LTS must enforce 24 hours/one day as the minimum password lifetime. Passwords for new users must have a 24 hours/one day minimum password lifetime restriction.
-  when: ubtu_24_400300
+  when: ubtu24stig_400300
   tags:
     - UBTU-24-400300
     - CAT2
@@ -257,7 +256,7 @@
     line: "PASS_MIN_DAYS {{ ubtu24stig_pass_min_days }}"
 
 - name: MEDIUM | UBTU-24-400310 | PATCH | Ubuntu 24.04 LTS must enforce a 60-day maximum password lifetime restriction. Passwords for new users must have a 60-day maximum password lifetime restriction.
-  when: ubtu_24_400310
+  when: ubtu24stig_400310
   tags:
     - UBTU-24-400310
     - CAT2
@@ -274,7 +273,7 @@
     line: "PASS_MAX_DAYS {{ ubtu24stig_pass_max_days }}"
 
 - name: MEDIUM | UBTU-24-400320 | PATCH | Ubuntu 24.04 LTS must enforce a minimum 15-character password length.
-  when: ubtu_24_400320
+  when: ubtu24stig_400320
   tags:
     - UBTU-24-400320
     - CCI-000000
@@ -290,7 +289,7 @@
     line: "minlen = {{ ubtu24stig_pass_minlen }}"
 
 - name: MEDIUM | UBTU-24-400330 | PATCH | Ubuntu 24.04 LTS must enforce password complexity by requiring that at least one special character be used.
-  when: ubtu_24_400330
+  when: ubtu24stig_400330
   tags:
     - UBTU-24-400330
     - CAT2
@@ -306,11 +305,11 @@
     regexp: (?i)^(#|)\s*ocredit\s*=
     line: 'ocredit = -1'
 
-####### 400360 & 400375 #######
+####### 400360 & 400370 #######
 
 - name: MEDIUM | UBTU-24-400375 | PATCH | Ubuntu 24.04 LTS, for PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.
   when:
-    - ubtu_24_400375
+    - ubtu24stig_400375
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-400375
@@ -342,7 +341,7 @@
 
 - name: MEDIUM | UBTU-24-400380 | PATCH | Ubuntu 24.04 LTS for PKI-based authentication, must implement a local cache of revocation data in case of the inability to access revocation information via the network.
   when:
-    - ubtu_24_400380
+    - ubtu24stig_400380
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-400380
@@ -378,7 +377,7 @@
       loop: "{{ discovered_pkcs_cert_crl_policy.stdout_lines }}"
 
 - name: MEDIUM | UBTU-24-400400 | PATCH | Ubuntu 24.04 LTS must store only encrypted representations of passwords.
-  when: ubtu_24_400400
+  when: ubtu24stig_400400
   tags:
     - UBTU-24-400400
     - CAT2
@@ -391,4 +390,4 @@
   ansible.builtin.lineinfile:
     path: /etc/login.defs
     regexp: (?i)^(#|)\s*ENCRYPT_METHOD
-    line: ENCRYPT_METHOD "{{ ubtu24stig_passwd_hash_algo }}"
+    line: "ENCRYPT_METHOD {{ ubtu24stig_passwd_hash_algo | upper }}"

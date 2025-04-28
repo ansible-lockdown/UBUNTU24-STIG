@@ -54,7 +54,9 @@
       changed_when: true
 
 - name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default.
-  when: ubtu24stig_100120
+  when:
+    - ubtu24stig_100120
+    - ubtu24stig_disruption_high
   tags:
     - UBTU-24-100120
     - CAT2
@@ -69,12 +71,12 @@
       ansible.builtin.command: sha256sum /etc/aide/aide.conf 2>/dev/null
       changed_when: false
       failed_when: discovered_cron_script_sha256.rc not in [ 0, 1 ]
-      register: discovered_cron_script_sha1
+      register: discovered_cron_script_sha256
 
     - name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | replace if needed
-      when: "'f3bbea2552f2c5b475627850d8a5fba1659df6466986d5a18948d9821ecbe491 /etc/aide/aide.conf' not in discovered_cron_script_sha256.stdout"
+      when: "'458aea46ab75906c3d9ad7f174a03b4ab62ee389fc4b8fb3c0330aae3c765441' not in discovered_cron_script_sha256.stdout"
       ansible.builtin.shell: |
-        apt download aide-common; dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | sudo tar -x --wildcards ./usr/share/aide/config/cron.daily/dailyaidecheck* -C /; cp -f /usr/share/aide/config/cron.daily/aide /etc/cron.daily/dailyaidecheck*
+        apt download aide-common; dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | sudo tar -x --wildcards ./usr/share/aide/config/cron.daily/dailyaidecheck -C /; cp -f /usr/share/aide/config/cron.daily/dailyaidecheck /etc/cron.daily/dailyaidecheck*
       changed_when: true
       args:
         chdir: /tmp
@@ -326,6 +328,7 @@
 - name: MEDIUM | UBTU-24-100650 | PATCH | Ubuntu 24.04 LTS must have the "SSSD" package installed.
   when:
     - ubtu24stig_100600
+    - ubtu24stig_use_sssd
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-100650
@@ -350,6 +353,7 @@
 - name: MEDIUM | UBTU-24-100660 | PATCH | Ubuntu 24.04 LTS must use the "SSSD" package for multifactor authentication services.
   when:
     - ubtu24stig_100660
+    - ubtu24stig_use_sssd
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-100660
@@ -439,7 +443,7 @@
   notify: Restart_ssh
 
 - name: MEDIUM | UBTU-24-100850 | PATCH | Ubuntu 24.04 LTS must configure the SSH client to use FIPS 140-3 approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
-  when: ubtu_24_100850
+  when: ubtu24stig_100850
   tags:
     - UBTU-24-100850
     - CAT2
@@ -457,7 +461,7 @@
   notify: Change_requires_reboot
 
 - name: MEDIUM | UBTU-24-100860 | PATCH | Ubuntu 24.04 LTS SSH client must be configured to use only Message Authentication Codes (MACs) employing FIPS 140-3 validated cryptographic hash algorithms.
-  when: ubtu_24_100860
+  when: ubtu24stig_100860
   tags:
     - UBTU-24-100860
     - CAT2
@@ -475,7 +479,7 @@
   notify: Restart_ssh
 
 - name: MEDIUM | UBTU-24-100900 | PATCH | Ubuntu 24.04 LTS must accept Personal Identity Verification (PIV) credentials.
-  when: ubtu_24_100900
+  when: ubtu24stig_100900
   tags:
     - UBTU-24-100900
     - CAT2
@@ -490,7 +494,7 @@
     state: present
 
 - name: MEDIUM | UBTU-24-100910 | PATCH | Ubuntu 24.04 LTS must accept Personal Identity Verification (PIV) credentials managed through the Privileged Access Management (PAM)  framework.
-  when: ubtu_24_100910
+  when: ubtu24stig_100910
   tags:
     - UBTU-24-100910
     - CAT2
@@ -505,7 +509,7 @@
     state: present
 
 - name: MEDIUM | UBTU-24-101000 | PATCH | Ubuntu 24.04 LTS must allow users to directly initiate a session lock for all connection types.
-  when: ubtu_24_101000
+  when: ubtu24stig_101000
   tags:
     - UBTU-24-101000
     - CAT2
@@ -521,7 +525,7 @@
     state: present
 
 - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup.
-  when: ubtu_24_102010
+  when: ubtu24stig_102010
   tags:
     - UBTU-24-102010
     - CAT2

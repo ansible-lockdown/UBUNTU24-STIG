@@ -1,7 +1,7 @@
 ---
 
 - name: MEDIUM | UBTU-24-300006 | PATCH | Ubuntu 24.04 LTS library files must have mode 0755 or less permissive.
-  when: ubtu_24_300006
+  when: ubtu24stig_300006
   tags:
     - UBTU-24-300006
     - CAT2
@@ -45,7 +45,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-300007 | PATCH | Ubuntu 24.04 LTS library files must be owned by root.
-  when: ubtu_24_300007
+  when: ubtu24stig_300007
   tags:
     - UBTU-24-300007
     - CAT2
@@ -89,7 +89,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-300008 | PATCH | Ubuntu 24.04 LTS library directories must be owned by root.
-  when: ubtu_24_300008
+  when: ubtu24stig_300008
   tags:
     - UBTU-24-300008
     - CAT2
@@ -133,7 +133,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-300009 | PATCH | Ubuntu 24.04 LTS library files must be group-owned by root or system account.
-  when: ubtu_24_300009
+  when: ubtu24stig_300009
   tags:
     - UBTU-24-300009
     - CAT2
@@ -177,7 +177,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-300010 | PATCH | Ubuntu 24.04 LTS library directories must be group-owned by root.
-  when: ubtu_24_300010
+  when: ubtu24stig_300010
   tags:
     - UBTU-24-300010
     - CAT2
@@ -221,7 +221,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-300011 | PATCH | Ubuntu 24.04 LTS must have system commands set to a mode of 755 or less permissive.
-  when: ubtu_24_300011
+  when: ubtu24stig_300011
   tags:
     - UBTU-24-300011
     - CAT2
@@ -265,7 +265,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-300012 | PATCH | Ubuntu 24.04 LTS must have system commands owned by root or a system account.
-  when: ubtu_24_300012
+  when: ubtu24stig_300012
   tags:
     - UBTU-24-300012
     - CAT2
@@ -309,7 +309,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-300013 | PATCH | Ubuntu 24.04 LTS must have system commands group-owned by "root" or a system account.
-  when: ubtu_24_300013
+  when: ubtu24stig_300013
   tags:
     - UBTU-24-300013
     - CAT2
@@ -353,7 +353,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-300014 | PATCH | Ubuntu 24.04 LTS must prevent the use of dictionary words for passwords.
-  when: ubtu_24_300014
+  when: ubtu24stig_300014
   tags:
     - UBTU-24-300014
     - CAT2
@@ -369,7 +369,7 @@
     line: 'dictcheck = 1'
 
 - name: MEDIUM | UBTU-24-300016 | PATCH | Ubuntu 24.04 LTS must be configured so that when passwords are changed or new passwords are established, pwquality must be used.
-  when: ubtu_24_300016
+  when: ubtu24stig_300016
   tags:
     - UBTU-24-300016
     - CAT2
@@ -385,7 +385,7 @@
     line: 'enforcing = 1'
 
 - name: MEDIUM | UBTU-24-300021 | PATCH | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles.
-  when: ubtu_24_300021
+  when: ubtu24stig_300021
   tags:
     - UBTU-24-300021
     - CAT2
@@ -413,7 +413,7 @@
       loop: "{{ discovered_sudo_nopasswd.stdout_lines }}"
 
 - name: MEDIUM | UBTU-24-300023 | PATCH | Ubuntu 24.04 LTS SSH daemon must prevent remote hosts from connecting to the proxy display.
-  when: ubtu_24_300023
+  when: ubtu24stig_300023
   tags:
     - UBTU-24-300023
     - CAT2
@@ -425,14 +425,14 @@
     - ssh
   ansible.builtin.lineinfile:
     path: "{{ ubtu24stig_sshd_config_file }}"
-    regexp: ^(?i)(#|)X11UseLocalhost\s\d*
+    regexp: (?i)^(#|)X11UseLocalhost\s\d*
     line: "X11UseLocalhost yes"
     validate: sshd -t -f %s
     mode: 'go-rwx'
   notify: Restart_ssh
 
 - name: MEDIUM | UBTU-24-300029 | Ubuntu 24.04 LTS must generate audit records for all events that affect the systemd journal files.
-  when: ubtu_24_300029
+  when: ubtu24stig_300029
   tags:
     - UBTU-24-300029
     - CAT2
@@ -446,7 +446,7 @@
     update_audit_template: true
 
 - name: MEDIUM | UBTU-24-300030 | PATCH | Ubuntu 24.04 LTS default filesystem permissions must be defined in such a way that all authenticated users can read and modify only their own files.
-  when: ubtu_24_300030
+  when: ubtu24stig_300030
   tags:
     - UBTU-24-300030
     - CAT2
@@ -462,7 +462,7 @@
     replace: UMASK 077
 
 - name: MEDIUM | UBTU-24-300039 | PATCH | Ubuntu 24.04 LTS must disable automatic mounting of Universal Serial Bus (USB) mass storage driver.
-  when: ubtu_24_300039
+  when: ubtu24stig_300039
   tags:
     - UBTU-24-300039
     - CAT2
@@ -482,7 +482,7 @@
   notify: Change_requires_reboot
 
 - name: MEDIUM | UBTU-24-300041 | PATCH | Ubuntu 24.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessments.
-  when: ubtu_24_300041
+  when: ubtu24stig_300041
   tags:
     - UBTU-24-300041
     - CAT2

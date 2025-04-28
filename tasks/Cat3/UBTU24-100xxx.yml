@@ -1,7 +1,7 @@
 ---
 
 - name: LOW | UBTU-24-100010 | PATCH | Ubuntu 24.04 LTS must not have the "systemd-timesyncd" package installed.
-  when: ubtu_24_100010
+  when: ubtu24stig_100010
   tags:
     - UBTU-24-100010
     - CAT3
@@ -17,7 +17,7 @@
     state: absent
 
 - name: LOW | UBTU-24-100020 | PATCH | Ubuntu 24.04 LTS must not have the "ntp" package installed.
-  when: ubtu_24_100020
+  when: ubtu24stig_100020
   tags:
     - UBTU-24-100020
     - CAT3
@@ -33,7 +33,7 @@
     state: absent
 
 - name: LOW | UBTU-24-100450 | PATCH | Ubuntu 24.04 LTS audit event multiplexor must be configured to offload audit logs onto a different system or storage media from the system being audited.
-  when: ubtu_24_100450
+  when: ubtu24stig_100450
   tags:
     - UBTU-24-100450
     - CAT3
@@ -69,7 +69,7 @@
       notify: Restart_auditd
 
 - name: LOW | UBTU-24-100700 | PATCH | Ubuntu 24.04 LTS must have the "chrony" package installed.
-  when: ubtu_24_100700
+  when: ubtu24stig_100700
   tags:
     - UBTU-24-100700
     - CAT3

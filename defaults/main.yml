@@ -68,14 +68,14 @@ ansible_facts_path: /etc/ansible/facts.d
 # These are discovered via logins.def if set true
 ubtu24stig_discover_int_uid: true
 # This variable sets the minimum number from which to search for UID
-# Note that the value will be dynamically overwritten if variable `rhel9cis_discover_int_uid` has
+# Note that the value will be dynamically overwritten if variable `ubtu24stig_discover_int_uid` has
 # been set to `true`.
 min_int_uid: 1000
 ### Controls:
 # - Ensure local interactive user home directories exist
 # - Ensure local interactive users own their home directories
 # This variable sets the maximum number at which the search stops for UID
-# Note that the value will be dynamically overwritten if variable `rhel9cis_discover_int_uid` has
+# Note that the value will be dynamically overwritten if variable `ubtu24stig_discover_int_uid` has
 # been set to `true`.
 max_int_uid: 65533
 
@@ -116,8 +116,8 @@ audit_content: git
 
 # If using either archive, copy, get_url:
 ## Note will work with .tar files - zip will require extra configuration
-### If using get_url this is expecting github url in tar.gz format e.g.
-### https://github.com/ansible-lockdown/UBUNTU22-CIS-Audit/archive/refs/heads/benchmark-v1.0.0.tar.gz
+### If using get_url this is expecting github url in tar.gz format e.g.(Note the benchmark version)
+### https://github.com/ansible-lockdown/UBUNTU24-STIG-Audit/archive/refs/heads/benchmark-v1.0.0.tar.gz
 audit_conf_source: "some path or url to copy from"
 
 # Destination for the audit content to be placed on managed node
@@ -147,13 +147,14 @@ audit_output_destination: /opt/audit_summaries/
 ubtu24stig_100030: true
 ubtu24stig_100040: true
 ubtu24stig_100800: true
+ubtu24stig_100810: true
 ubtu24stig_102000: true
 ubtu24stig_300022: true
 ubtu24stig_300025: true
 ubtu24stig_300026: true
 ubtu24stig_300027: true
 ubtu24stig_300028: true
-ubtu24stig_200031: true
+ubtu24stig_300031: true
 ubtu24stig_400370: true
 ubtu24stig_600030: true
 ubtu24stig_600130: true
@@ -164,6 +165,7 @@ ubtu24stig_100100: true
 ubtu24stig_100110: true
 ubtu24stig_100120: true
 ubtu24stig_100130: true
+ubtu24stig_100200: true
 ubtu24stig_100300: true
 ubtu24stig_100310: true
 ubtu24stig_100400: true
@@ -361,6 +363,9 @@ ubtu24stig_901220: true
 ### 10XXXX ###
 ##############
 
+# If using sssd set to true
+ubtu24stig_use_sssd: false
+
 ## 100600 SSSD packages
 # Add extra packages for environment as required
 ubtu24stig_sssd_packages:
@@ -428,6 +433,10 @@ ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
 ### 40XXXX ###
 ##############
 
+# 400020
+# Set to true if using smart card multifactor authentication
+ubtu24stig_uses_smartcard: false
+
 # ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - system default is often yescrypt
 ubtu24stig_passwd_hash_algo: sha512  # pragma: allowlist secret
 ubtu24stig_pass_difok: '8'  # 8 is minimum for STIG
@@ -442,7 +451,7 @@ ubtu24stig_pass_minlen: '15'  # 15 is minimum for STIG
 ubtu24stig_sshd_config_clientalivecountmax: 1
 ubtu24stig_sshd_config_clientaliveinterval: 600  # max 600
 
-ubtu24cis_sysctl_network_conf: "{{ ubtu24stig_sysctl_file_default }}"
+ubtu24stig_sysctl_network_conf: "{{ ubtu24stig_sysctl_file_default }}"
 
 ##############
 ### 60XXXX ###
@@ -459,7 +468,7 @@ ubtu24stig_chrony_server_options: "iburst maxpoll 16"  # Max Settings is maxpoll
 ##############
 
 ubtu24stig_sysctl_file_default: /etc/sysctl.d/stig_kernel.conf
-ubtu24cis_sysctl_kernel_conf: "{{ ubtu24stig_sysctl_file_default }}"
+ubtu24stig_sysctl_kernel_conf: "{{ ubtu24stig_sysctl_file_default }}"
 
 ##############
 ### 91XXXX ###
@@ -493,9 +502,7 @@ ubtu24stig_faildelay: 4000000  # 4000000 is the minimum value = 4 seconds
 # maxlogins maximum number of logins per user
 ubtu24stig_maxlogins: 10
 
-###########################################################
-### 6xx - Authentication, Authorization, and Accounting ###
-###########################################################
+
 
 # 600130
 ## Users to be added to the sudo group
@@ -528,7 +535,7 @@ ubtu24stig_audit_log_filesystem: /var/log/audit
 ubtu24stig_auditd_disk_full_action: HALT  # Can be one of "SYSLOG", "SINGLE", or "HALT"
 ubtu24stig_auditd_log_group: root
 ubtu24stig_auditd_email_acct: root
-ubtu24stig_auditd_space_used: 25%
+ubtu24stig_auditd_space_left: 25%
 ubtu24stig_auditd_space_left_action: EMAIL  # Can be set to exec if running script to inform ISSO
 
 # Adjust to match remote syslog server configuration

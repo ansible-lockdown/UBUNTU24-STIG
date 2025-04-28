@@ -1,7 +1,7 @@
 ---
 
 - name: MEDIUM | UBTU-24-600000 | PATCH | Ubuntu 24.04 LTS must immediately terminate all network connections associated with SSH traffic after a period of inactivity.
-  when: ubtu_24_600000
+  when: ubtu24stig_600000
   tags:
     - UBTU-24-600000
     - CAT2
@@ -20,7 +20,7 @@
   notify: Restart_ssh
 
 - name: MEDIUM | UBTU-24-600010 | PATCH | Ubuntu 24.04 LTS must immediately terminate all network connections associated with SSH traffic at the end of the session or after 10 minutes of inactivity.
-  when: ubtu_24_600010
+  when: ubtu24stig_600010
   tags:
     - UBTU-24-600010
     - CAT2
@@ -39,7 +39,7 @@
   notify: Restart_ssh
 
 - name: MEDIUM | UBTU-24-600060 | AUDIT | Ubuntu 24.04 LTS must use DOD PKI-established certificate authorities (CAs) for verification of the establishment of protected sessions.
-  when: ubtu_24_600060
+  when: ubtu24stig_600060
   tags:
     - UBTU-24-600060
     - CAT2
@@ -69,7 +69,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-600070 | PATCH |Ubuntu 24.04 LTS must disable kernel core dumps.
-  when: ubtu_24_600070
+  when: ubtu24stig_600070
   tags:
     - UBTU-24-600070
     - CAT2
@@ -91,7 +91,7 @@
         masked: true
 
 - name: MEDIUM | UBTU-24-600090 | PATCH | Ubuntu 24.04 LTS handling data requiring "data at rest" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest.
-  when: ubtu_24_600090
+  when: ubtu24stig_600090
   tags:
     - UBTU-24-600090
     - CAT2
@@ -139,7 +139,7 @@
 
 - name: MEDIUM | UBTU-24-600150 | PATCH | Ubuntu 24.04 LTS must set a sticky bit on all public directories to prevent unauthorized and unintended information transferred via shared system resources.
   when:
-    - ubtu_24_600150
+    - ubtu24stig_600150
     - ubtu24stig_disruption_high
   tags:
     - UBTU-24-600150
@@ -185,7 +185,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-600190 | PATCH | Ubuntu 24.04 LTS must be configured to use TCP syncookies.
-  when: ubtu_24_600190
+  when: ubtu24stig_600190
   tags:
     - UBTU-24-600190
     - CAT2
@@ -205,7 +205,7 @@
       register: discovered_sysctl_conf_files
 
     - name: MEDIUM | UBTU-24-600190 | PATCH | Ubuntu 24.04 LTS must be configured to use TCP syncookies. | remove current settings
-      when: "ubtu24cis_sysctl_network_conf not in item.path"
+      when: "ubtu24stig_sysctl_network_conf not in item.path"
       ansible.builtin.replace:
         path: "{{ item.path }}"
         regexp: net.ipv4.tcp_syncookies\s*=\s*[ 0, 2 ]
@@ -216,11 +216,11 @@
       ansible.posix.sysctl:
         name: net.ipv4.tcp_syncookies
         reload: true
-        sysctl_file: "{{ ubtu24cis_sysctl_network_conf }}"
+        sysctl_file: "{{ ubtu24stig_sysctl_network_conf }}"
         value: '1'
 
 - name: MEDIUM | UBTU-24-600200 | PATCH | Ubuntu 24.04 LTS must configure the uncomplicated firewall to rate-limit impacted network interfaces.
-  when: ubtu_24_600200
+  when: ubtu24stig_600200
   tags:
     - UBTU-24-600200
     - CAT2
@@ -258,7 +258,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-600230 | PATCH | Ubuntu 24.04 LTS must disable all wireless network adapters.
-  when: ubtu_24_600230
+  when: ubtu24stig_600230
   tags:
     - UBTU-24-600230
     - CAT2
