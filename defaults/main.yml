@@ -444,7 +444,7 @@ ubtu24stig_faillock_unlock_time: '0'
 
 ## 200680
 ubtu24stig_ssh_confirm_file: etc/profile.d/ssh_confirm.sh
-blah:
+
 ##############
 ### 30XXXX ###
 ##############
