@@ -18,14 +18,13 @@
         path: "{{ item }}"
         regexp: ^(APT::Get::AllowUnauthenticated "true";)
         replace: '#\1'
-      with_fileglob:
-        - /etc/apt/*
+      loop: "{{ prelim_apt_conf_files.files }}"
 
     - name: LOW | UBTU-24-300001 | AUDIT | Ubuntu 24.04 LTS must be configured so that the Advance Package Tool (APT) prevents the installation of patches, service packs, device drivers, or operating system components without verification they have been digitally signed using a certificate that is recognized and approved by the organization.
       ansible.builtin.lineinfile:
         path: /etc/apt/apt.conf.d/01-vendor-ubuntu
-        regexp: APT::Get::AllowUnauthenticated
-        line: APT::Get::AllowUnauthenticated "true";
+        regexp: APT::Get::AllowUnauthenticated "true";
+        line: APT::Get::AllowUnauthenticated "false";
 
 - name: LOW | UBTU-24-300017 | PATCH | Ubuntu 24.04 LTS must enforce a delay of at least four seconds between logon prompts following a failed logon attempt.
   when: ubtu24stig_300017
@@ -44,3 +43,30 @@
     regexp: ^auth required pam_faildelay.so delay=
     line: "auth required pam_faildelay.so delay={{ ubtu24stig_faildelay }}"
     insertbefore: auth.*pam_unix.so nullok
+
+- name: LOW | UBTU-24-300024 | PATCH | Ubuntu 24.04 LTS must display the date and time of the last successful account logon upon logon.
+  when: ubtu24stig_300024
+  tags:
+    - UBTU-24-300024
+    - CAT3
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270710r1066619_rule
+    - V-270710
+    - NIST800-53R4_CM-6
+    - account
+    - pam
+  block:
+    - name: LOW | UBTU-24-300024 | PATCH | Ubuntu 24.04 LTS must display the date and time of the last successful account logon upon logon. | remove silent
+      ansible.builtin.lineinfile:
+        path: /etc/pam.d/login
+        backrefs: true
+        regexp: silent
+        line: ''
+
+    - name: LOW | UBTU-24-300024 | PATCH | Ubuntu 24.04 LTS must display the date and time of the last successful account logon upon logon. | Add showfailed
+      ansible.builtin.lineinfile:
+        path: /etc/pam.d/login
+        backrefs: true
+        regexp: ^session.*pam_lastlog.so
+        line: session    required    pam_lastlog.so showfailed

@@ -1,11 +1,13 @@
 ---
 
 ## metadata for Audit benchmark
-benchmark_version: 'v1.1.0'
+benchmark_version: {{ benchmark_version }}
 
 ## Benchmark name used by auditing control role
 # The audit variable found at the base
-benchmark: UBUNTU24-STIG
+benchmark: {{ benchmark }}
+
+timeout_ms: {{ audit_cmd_timeout }}
 
 # Whether to skip the OS check for supported OS's
 skip_os_check: false
@@ -45,11 +47,6 @@ ubtu24stig_system_is_chroot: {{ ubtu24stig_system_is_chroot }}
 # Set if system uses ipv6
 ubtu24stig_system_uses_ipv6: {{ ubtu24stig_system_uses_ipv6 }}
 
-# Place to find the container yml file for your environment - /vars/...
-container_vars_file: is_container.yml
-
-# Whether to skip the reboot
-skip_reboot: true
 
 # system acts or requires router networking options
 ubtu24stig_system_is_router: {{ ubtu24stig_system_is_router }}
@@ -333,9 +330,14 @@ ubtu24stig_user_inactive_days: {{ ubtu24stig_user_inactive_days }}
 
 ## 2006xx
 ## Banner
-ubtu24stig_logon_banner: "{{ ubtu24stig_workaround_for_disa_benchmark | ternary(
-        ubtu24stig_logon_banner_nice | regex_replace('(?s)(?<!\\n)\\n(?!(\n|$))', ' '),
-        ubtu24stig_logon_banner_nice) }}"
+ubtu24stig_logon_banner:
+- You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+- By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+- -The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+- -At any time, the USG may inspect and seize data stored on this IS.
+- -Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+- -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+- -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
 
 ## 200610
 # Faillock settings
@@ -367,7 +369,7 @@ ubtu24stig_faildelay: {{ ubtu24stig_faildelay }}
 ubtu24stig_uses_smartcard: {{ ubtu24stig_uses_smartcard }}
 
 # ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - system default is often yescrypt
-ubtu24stig_passwd_hash_algo: sha512  # pragma: {{ ubtu24stig_passwd_hash_algo: sha512  # pragma }}
+ubtu24stig_passwd_hash_algo: {{ ubtu24stig_passwd_hash_algo }}
 ubtu24stig_pass_difok: {{ ubtu24stig_pass_difok }}
 ubtu24stig_pass_min_days: {{ ubtu24stig_pass_min_days }}
 ubtu24stig_pass_max_days: {{ ubtu24stig_pass_max_days }}
@@ -422,12 +424,6 @@ ubtu24stig_auditd_space_left_action: {{ ubtu24stig_auditd_space_left_action }}
 ### 91XXXX ###
 ##############
 ubtu24stig_audit_tools:
-{% for path on ubtu24stig_audit_tools %}
-- /sbin/auditctl
-- /sbin/aureport
-- /sbin/ausearch
-- /sbin/autrace
-- /sbin/auditd
-- /sbin/audispd-zos-remote
-- /sbin/augenrules
+{% for path in ubtu24stig_audit_tools %}
+- {{ path }}
 {% endfor %}

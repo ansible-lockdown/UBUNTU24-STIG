@@ -71,30 +71,3 @@
           auth    [default=die]                   pam_faillock.so authfail
           auth    sufficient                      pam_faillock.so authsucc
         insertafter: auth.*pam_unix.so
-
-- name: LOW | UBTU-24-300024 | PATCH | Ubuntu 24.04 LTS must display the date and time of the last successful account logon upon logon.
-  when: ubtu24stig_300024
-  tags:
-    - UBTU-24-300024
-    - CAT3
-    - CCI-000366
-    - SRG-OS-000480-GPOS-00227
-    - SV-270710r1066619_rule
-    - V-270710
-    - NIST800-53R4_CM-6
-    - account
-    - pam
-  block:
-    - name: LOW | UBTU-24-300024 | PATCH | Ubuntu 24.04 LTS must display the date and time of the last successful account logon upon logon. | remove silent
-      ansible.builtin.lineinfile:
-        path: /etc/pam.d/login
-        backrefs: true
-        regexp: silent
-        line: ''
-
-    - name: LOW | UBTU-24-300024 | PATCH | Ubuntu 24.04 LTS must display the date and time of the last successful account logon upon logon. | Add showfailed
-      ansible.builtin.lineinfile:
-        path: /etc/pam.d/login
-        backrefs: true
-        regexp: ^session.*pam_lastlog.so
-        line: session    required    pam_lastlog.so showfailed

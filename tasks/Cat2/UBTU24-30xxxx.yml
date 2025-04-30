@@ -147,7 +147,7 @@
     warn_control_id: 'MEDIUM | UBTU-24-300009'
   block:
     - name: MEDIUM | UBTU-24-300009 | AUDIT | Ubuntu 24.04 LTS library files must be group-owned by root or system account. | Discover
-      ansible.builtin.shell: find /lib /usr/lib /lib64 ! -uid > "{{ min_int_uid }}" -type f -exec stat -c "%n" '{}' \;
+      ansible.builtin.shell: find /lib /usr/lib /lib64 -type f -uid +"{{ min_int_uid }}"  -exec stat -c "%n" '{}' \;
       changed_when: false
       failed_when: discovered_system_lib_files_group.rc not in [ 0, 1 ]
       register: discovered_system_lib_files_group
@@ -323,7 +323,7 @@
     warn_control_id: 'MEDIUM | UBTU-24-300013'
   block:
     - name: MEDIUM | UBTU-24-300013 | AUDIT | Ubuntu 24.04 LTS must have system commands group-owned by root or a system account. | Discover
-      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -uid > {{  min_int_uid }} -type f -exec stat -c "%n" '{}' \;
+      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -type f -uid +"{{ min_int_uid }}" -exec stat -c "%n" '{}' \;
       changed_when: false
       failed_when: discovered_system_bin_files_owner.rc not in [ 0, 1 ]
       register: discovered_system_bin_files_owner

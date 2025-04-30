@@ -37,7 +37,7 @@
   block:
     - name: "POST | FETCH | Fetch files and copy to controller | Warning if issues with fetch_audit_files"
       ansible.builtin.debug:
-        msg: "Warning!! Unable to write to localhost {{ audit_output_destination }} for audit file copy"
+        msg: "Warning!! Problems writing to localhost at {{ audit_output_destination }} for audit file copy"
 
     - name: "POST | FETCH | Fetch files and copy to controller | Warning if issues with fetch_audit_files"
       vars:

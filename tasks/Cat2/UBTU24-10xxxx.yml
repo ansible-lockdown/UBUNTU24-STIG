@@ -454,10 +454,9 @@
     - NIST800-53R4_AC-17
     - ssh
   ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
+    path: /etc/ssh/ssh_config
     regexp: ^Ciphers
-    line: "Ciphers {{ ubtu24stig_sshd_config_ciphers | join(',') }}"
-    validate: sshd -t -f %s
+    line: "    Ciphers {{ ubtu24stig_sshd_config_ciphers | join(',') }}"
   notify: Change_requires_reboot
 
 - name: MEDIUM | UBTU-24-100860 | PATCH | Ubuntu 24.04 LTS SSH client must be configured to use only Message Authentication Codes (MACs) employing FIPS 140-3 validated cryptographic hash algorithms.
@@ -472,10 +471,9 @@
     - NIST800-53R4_AC-17
     - ssh
   ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
+    path: /etc/ssh/ssh_config
     regexp: ^MACs
-    line: "MACs {{ ubtu24stig_sshd_config_macs | join(',') }}"
-    validate: sshd -t -f %s
+    line: "    MACs {{ ubtu24stig_sshd_config_macs | join(',') }}"
   notify: Restart_ssh
 
 - name: MEDIUM | UBTU-24-100900 | PATCH | Ubuntu 24.04 LTS must accept Personal Identity Verification (PIV) credentials.

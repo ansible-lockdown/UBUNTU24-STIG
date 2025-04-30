@@ -33,9 +33,7 @@
   when:
     - run_audit or audit_only
     - setup_audit
-  tags:
-    - setup_audit
-    - run_audit
+  tags: always
   ansible.builtin.include_vars:
     file: audit.yml
 
@@ -43,7 +41,7 @@
   when:
     - run_audit or audit_only
     - setup_audit
-  tags: run_audit
+  tags: always
   ansible.builtin.import_tasks:
     file: pre_remediation_audit.yml
 
@@ -77,6 +75,12 @@
   ansible.builtin.shell: 'cat /etc/passwd | grep -Ev "nologin|/sbin" | cut -d: -f6'
   changed_when: false
   register: ubtu24stig_interactive_users_home
+
+- name: "PRELIM | Gather apt conf file list"
+  tags: always
+  ansible.builtin.find:
+    paths: /etc/apt/*
+  register: prelim_apt_conf_files
 
 - name: "PRELIM | Gather accounts with empty password fields"
   when: ubtu24stig_300027
