@@ -162,8 +162,7 @@
         file: warning_facts.yml
 
 - name: MEDIUM | UBTU-24-901280 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands group-owned by "root".
-  when:
-    - ubtu24stig_901280
+  when: ubtu24stig_901280
   tags:
     - UBTU-24-901280
     - CAT2

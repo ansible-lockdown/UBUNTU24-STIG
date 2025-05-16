@@ -9,11 +9,11 @@ This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 1 released on 21 Febr
 ![Org Stars](https://img.shields.io/github/stars/ansible-lockdown?label=Org%20Stars&style=social)
 ![Stars](https://img.shields.io/github/stars/ansible-lockdown/ubuntu24-stig?label=Repo%20Stars&style=social)
 ![Forks](https://img.shields.io/github/forks/ansible-lockdown/ubuntu24-stig?style=social)
-![followers](https://img.shields.io/github/followers/ansible-lockdown?style=social)
+![Followers](https://img.shields.io/github/followers/ansible-lockdown?style=social)
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/AnsibleLockdown.svg?style=social&label=Follow%20%40AnsibleLockdown)](https://twitter.com/AnsibleLockdown)
 
 ![Ansible Galaxy Quality](https://img.shields.io/ansible/quality/56380?label=Quality&&logo=ansible)
-![Discord Badge](https://img.shields.io/discord/925818806838919249?logo=discord)
+![Discord Badge](https://img.shields.io/discord/925818806838919229?logo=discord)
 
 ![Release Branch](https://img.shields.io/badge/Release%20Branch-Main-brightgreen)
 ![Release Tag](https://img.shields.io/github/v/release/ansible-lockdown/UBUNTU24-STIG)
@@ -172,7 +172,7 @@ If you would are interested in dedicated support to assist or provide bespoke se
 
 ## Credits 🙏
 
-The inspriation for this work repo originated from work done by [Sam Doran](https://github.com/samdoran/ansible-role-stig)
+The inspiration for this work repo originated from work done by [Sam Doran](https://github.com/samdoran/ansible-role-stig)
 
 ## Added Extras
 
