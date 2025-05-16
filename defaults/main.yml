@@ -373,9 +373,9 @@ ubtu24stig_use_sssd: false
 ## 100600 SSSD packages
 # Add extra packages for environment as required
 ubtu24stig_sssd_packages:
-- sssd
-- libpam-sss
-- libnss-sss
+  - sssd
+  - libpam-sss
+  - libnss-sss
 
 ## 1008xxx - Network - SSHD
 ubtu24stig_sshd_config_ciphers: "{{ ubtu24stig_dod_ciphers }}"
@@ -486,15 +486,15 @@ ubtu24stig_sysctl_network_conf: "{{ ubtu24stig_sysctl_file_default }}"
 ##############
 
 ubtu24stig_time_synchronization_servers:
-- 'tick.usno.navy.mil'
-- 'tock.usno.navy.mil'
-- 'ntp2.usno.navy.mil'
+  - 'tick.usno.navy.mil'
+  - 'tock.usno.navy.mil'
+  - 'ntp2.usno.navy.mil'
 ubtu24stig_chrony_server_options: "iburst maxpoll 16"  # Max Settings is maxpoll 16
 
 # 600130
 ## Users to be added to the sudo group
 ubtu24stig_sudo_group_users:
-- vagrant
+  - vagrant
 
 ##############
 ### 70XXXX ###
@@ -518,10 +518,10 @@ ubtu24stig_auditd_space_left_action: EMAIL  # Can be set to exec if running scri
 ### 91XXXX ###
 ##############
 ubtu24stig_audit_tools:
-- /sbin/auditctl
-- /sbin/aureport
-- /sbin/ausearch
-- /sbin/autrace
-- /sbin/auditd
-- /sbin/audispd-zos-remote
-- /sbin/augenrules
+  - /sbin/auditctl
+  - /sbin/aureport
+  - /sbin/ausearch
+  - /sbin/autrace
+  - /sbin/auditd
+  - /sbin/audispd-zos-remote
+  - /sbin/augenrules
