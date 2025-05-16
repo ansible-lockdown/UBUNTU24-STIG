@@ -1,7 +1,9 @@
 ---
 
 - name: "LOW | UBTU-24-900920 | PATCH | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
-  when: ubtu24stig_900920
+  when:
+    - ubtu24stig_900920
+    - ansible_facts['mounts']| selectattr('mount', '==', ubtu24stig_audit_log_filesystem)
   tags:
     - UBTU-24-900920
     - CAT3
