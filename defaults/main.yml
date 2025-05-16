@@ -87,7 +87,7 @@ max_int_uid: 65533
 ### Goss is required on the remote host ###
 ### vars/audit.yml for other settings  ###
 
-# Allow audit to setup the requirements including installing git (if option chosen and downloading and adding goss binary to system)
+# Allow audit to setup the requirements including installing git (if option chosen and downloading and adding Goss binary to system)
 setup_audit: false
 
 # enable audits to run - this runs the audit and get the latest content
