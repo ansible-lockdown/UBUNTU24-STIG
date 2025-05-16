@@ -1,8 +1,7 @@
 ---
 
 - name: MEDIUM | UBTU-24-900040 | PATCH | Ubuntu 24.04 LTS must be configured so that audit configuration files are not write-accessible by unauthorized users.
-  when:
-    - ubtu24stig_900040
+  when: ubtu24stig_900040
   tags:
     - UBTU-24-900040
     - CCI-000171
@@ -26,8 +25,7 @@
       loop: "{{ discovered_audit_files.files }}"
 
 - name: MEDIUM | UBTU-24-900050 | PATCH | Ubuntu 24.04 LTS must permit only authorized accounts to own the audit configuration files.
-  when:
-    - ubtu24stig_900050
+  when: ubtu24stig_900050
   tags:
     - UBTU-24-900050
     - CAT2
@@ -52,8 +50,7 @@
       loop: "{{ discovered_audit_files.files }}"
 
 - name: MEDIUM | UBTU-24-900060 | PATCH | Ubuntu 24.04 LTS must permit only authorized groups to own the audit configuration files.
-  when:
-    - ubtu24stig_900060
+  when: ubtu24stig_900060
   tags:
     - UBTU-24-900060
     - CAT2

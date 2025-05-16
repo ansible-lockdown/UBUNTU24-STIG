@@ -123,7 +123,7 @@
         - discovered_system_lib_dirs_owner.stdout_lines is defined
         - not ubtu24stig_disruption_high
       ansible.builtin.debug:
-        msg: "Warning!! The following library direcrtories are not owned by root please investigate {{ discovered_system_lib_dirs_owner.stdout_lines }}"
+        msg: "Warning!! The following library directories are not owned by root please investigate {{ discovered_system_lib_dirs_owner.stdout_lines }}"
 
     - name: MEDIUM | UBTU-24-300008 | AUDIT | Ubuntu 24.04 LTS library directories must be owned by root. | Warn fact
       when:
