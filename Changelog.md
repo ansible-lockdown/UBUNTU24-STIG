@@ -1,4 +1,4 @@
-# Ubuntu22STIG
+# Ubuntu24STIG
 
 ## Based on STIG v1r1
 
