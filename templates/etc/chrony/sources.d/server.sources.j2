@@ -1,0 +1,6 @@
+## Ansible controlled file
+# Sponsored by Mindpoint Group - A Tyto Athene Company / Ansible Lockdown
+# Part of DISA {{ benchmark }} - {{ benchmark_version }}
+{% for name in ubtu24stig_time_synchronization_servers %}
+server {{ name }} {{ ubtu24stig_chrony_server_options }}
+{% endfor %}

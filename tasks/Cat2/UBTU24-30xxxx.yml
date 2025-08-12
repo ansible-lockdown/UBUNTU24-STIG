@@ -1,0 +1,504 @@
+---
+
+- name: MEDIUM | UBTU-24-300006 | PATCH | Ubuntu 24.04 LTS library files must have mode 0755 or less permissive.
+  when: ubtu24stig_300006
+  tags:
+    - UBTU-24-300006
+    - CAT2
+    - CCI-001499
+    - SRG-OS-000259-GPOS-00100
+    - SV-270696r1066577_rule
+    - V-270696
+    - NIST800-53R4_CM-5
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-300006'
+  block:
+    - name: MEDIUM | UBTU-24-300006 | AUDIT | Ubuntu 24.04 LTS library files must have mode 0755 or less permissive. | Discover
+      ansible.builtin.shell: find /lib /lib64 /usr/lib -perm /022 -type f -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_lib_files_perms.rc not in [ 0, 1 ]
+      register: discovered_system_lib_files_perms
+
+    - name: MEDIUM | UBTU-24-300006 | PATCH | Ubuntu 24.04 LTS library files must have mode 0755 or less permissive. | Fix
+      when:
+        - discovered_system_lib_files_perms.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: file
+        mode: 'go-w'
+      loop: "{{ discovered_system_lib_files_perms.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300006 | WARN | Ubuntu 24.04 LTS library files must have mode 0755 or less permissive. | Warning
+      when:
+        - discovered_system_lib_files_perms.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.debug:
+        msg: "Warning!! The following library files permissions are not correct please investigate {{ discovered_system_lib_files_perms.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300006 | WARN | Ubuntu 24.04 LTS library files must have mode 0755 or less permissive. | Warn count
+      when:
+        - discovered_system_lib_files_perms.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-300007 | PATCH | Ubuntu 24.04 LTS library files must be owned by root.
+  when: ubtu24stig_300007
+  tags:
+    - UBTU-24-300007
+    - CAT2
+    - CCI-001499
+    - SRG-OS-000259-GPOS-00100
+    - SV-270697r1066580_rule
+    - V-270697
+    - NIST800-53R4_CM-5
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-300007'
+  block:
+    - name: MEDIUM | UBTU-24-300007 | AUDIT | Ubuntu 24.04 LTS library files must be owned by root. | Discover
+      ansible.builtin.shell: find /lib /usr/lib /lib64 ! -user root -type f -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_lib_files_owner.rc not in [ 0, 1 ]
+      register: discovered_system_lib_files_owner
+
+    - name: MEDIUM | UBTU-24-300007 | PATCH | Ubuntu 24.04 LTS library files must be owned by root. | Fix
+      when:
+        - discovered_system_lib_files_owner.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: file
+        owner: root
+      loop: "{{ discovered_system_lib_files_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300007 | AUDIT | Ubuntu 24.04 LTS library files must be owned by root. | Warning
+      when:
+        - discovered_system_lib_files_owner.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.debug:
+        msg: "Warning!! The following library files are not owned by root please investigate {{ discovered_system_lib_files_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300007 | AUDIT | Ubuntu 24.04 LTS library files must be owned by root. | Warn fact
+      when:
+        - discovered_system_lib_files_owner.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-300008 | PATCH | Ubuntu 24.04 LTS library directories must be owned by root.
+  when: ubtu24stig_300008
+  tags:
+    - UBTU-24-300008
+    - CAT2
+    - CCI-001499
+    - SRG-OS-000259-GPOS-00100
+    - SV-270698r1066583_rule
+    - V-270698
+    - NIST800-53R4_CM-5
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-300008'
+  block:
+    - name: MEDIUM | UBTU-24-300008 | AUDIT | Ubuntu 24.04 LTS library directories must be owned by root. | Discover
+      ansible.builtin.shell: find /lib /usr/lib /lib64 ! -user root -type d -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_lib_dirs_owner.rc not in [ 0, 1 ]
+      register: discovered_system_lib_dirs_owner
+
+    - name: MEDIUM | UBTU-24-300008 | PATCH | Ubuntu 24.04 LTS library directories must be owned by root. | Fix
+      when:
+        - discovered_system_lib_dirs_owner.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: file
+        owner: root
+      loop: "{{ discovered_system_lib_dirs_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300008 | AUDIT | Ubuntu 24.04 LTS library directories must be owned by root. | Warning
+      when:
+        - discovered_system_lib_dirs_owner.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.debug:
+        msg: "Warning!! The following library directories are not owned by root please investigate {{ discovered_system_lib_dirs_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300008 | AUDIT | Ubuntu 24.04 LTS library directories must be owned by root. | Warn fact
+      when:
+        - discovered_system_lib_dirs_owner.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-300009 | PATCH | Ubuntu 24.04 LTS library files must be group-owned by root or system account.
+  when: ubtu24stig_300009
+  tags:
+    - UBTU-24-300009
+    - CAT2
+    - CCI-001499
+    - SRG-OS-000259-GPOS-00100
+    - SV-270699r1066586_rule
+    - V-270699
+    - NIST800-53R4_CM-5
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-300009'
+  block:
+    - name: MEDIUM | UBTU-24-300009 | AUDIT | Ubuntu 24.04 LTS library files must be group-owned by root or system account. | Discover
+      ansible.builtin.shell: find /lib /usr/lib /lib64 -type f -uid +"{{ min_int_uid }}"  -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_lib_files_group.rc not in [ 0, 1 ]
+      register: discovered_system_lib_files_group
+
+    - name: MEDIUM | UBTU-24-300009 | PATCH | Ubuntu 24.04 LTS library files must be group-owned by root or system account. | Secure if not root or system acct
+      when:
+        - discovered_system_lib_files_group.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: file
+        group: root
+      loop: "{{ discovered_system_lib_files_group.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300009 | AUDIT | Ubuntu 24.04 LTS library files must be group-owned by root or system account. | Warning
+      when:
+        - discovered_system_lib_files_group.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.debug:
+        msg: "Warning!! The following library files are not group-owned by root or system account please investigate {{ discovered_system_lib_files_group.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300009 | AUDIT | Ubuntu 24.04 LTS library files must be group-owned by root or system account. | Warn fact
+      when:
+        - discovered_system_lib_files_group.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-300010 | PATCH | Ubuntu 24.04 LTS library directories must be group-owned by root.
+  when: ubtu24stig_300010
+  tags:
+    - UBTU-24-300010
+    - CAT2
+    - CCI-001499
+    - SRG-OS-000259-GPOS-00100
+    - SV-270700r1066589_rule
+    - V-270700
+    - NIST800-53R4_CM-5
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-300010'
+  block:
+    - name: MEDIUM | UBTU-24-300010 | AUDIT | Ubuntu 24.04 LTS library directories must be group-owned by root. | Discover
+      ansible.builtin.shell: find /lib /usr/lib /lib64 ! -group root -type d -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_lib_dirs_group.rc not in [ 0, 1 ]
+      register: discovered_system_lib_dirs_group
+
+    - name: MEDIUM | UBTU-24-300010 | PATCH | Ubuntu 24.04 LTS library directories must be group-owned by root. | Fix
+      when:
+        - discovered_system_lib_dirs_group.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: file
+        group: root
+      loop: "{{ discovered_system_lib_dirs_group.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300010 | AUDIT | Ubuntu 24.04 LTS library directories must be group-owned by root. | Warning
+      when:
+        - discovered_system_lib_dirs_group.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.debug:
+        msg: "Warning!! The following library directories are not group owned by root please investigate {{ discovered_system_lib_dirs_group.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300010 | AUDIT | Ubuntu 24.04 LTS library directories must be group-owned by root. | Warn fact
+      when:
+        - discovered_system_lib_dirs_group.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-300011 | PATCH | Ubuntu 24.04 LTS must have system commands set to a mode of 755 or less permissive.
+  when: ubtu24stig_300011
+  tags:
+    - UBTU-24-300011
+    - CAT2
+    - CCI-001499
+    - SRG-OS-000259-GPOS-00100
+    - SV-270701r1066592_rule
+    - V-270701
+    - NIST800-53R4_CM-5
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-300011'
+  block:
+    - name: MEDIUM | UBTU-24-300011 | AUDIT | Ubuntu 24.04 LTS must have system commands set to a mode of 755 or less permissive. | Discover
+      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type f -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_bin_files_perms.rc not in [ 0, 1 ]
+      register: discovered_system_bin_files_perms
+
+    - name: MEDIUM | UBTU-24-300011 | PATCH | Ubuntu 24.04 LTS must have system commands set to a mode of 755 or less permissive. | Fix
+      when:
+        - discovered_system_bin_files_perms.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: file
+        mode: 'go-w'
+      loop: "{{ discovered_system_bin_files_perms.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300011 | WARN | Ubuntu 24.04 LTS must have system commands set to a mode of 755 or less permissive. | Warning
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_system_bin_files_perms.stdout_lines is defined
+      ansible.builtin.debug:
+        msg: "Warning!! The following system commands permissions need adjusting please investigate {{ discovered_system_bin_files_perms.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300011 | WARN | Ubuntu 24.04 LTS must have system commands set to a mode of 755 or less permissive. | Warn count
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_system_bin_files_perms.stdout_lines is defined
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-300012 | PATCH | Ubuntu 24.04 LTS must have system commands owned by root or a system account.
+  when: ubtu24stig_300012
+  tags:
+    - UBTU-24-300012
+    - CAT2
+    - CCI-001499
+    - SRG-OS-000259-GPOS-00100
+    - SV-270702r1066595_rule
+    - V-270702
+    - NIST800-53R4_CM-5
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-300012'
+  block:
+    - name: MEDIUM | UBTU-24-300012 | AUDIT | Ubuntu 24.04 LTS must have system commands owned by root or a system account. | Discover
+      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -uid > {{ min_int_uid }} -type f -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_bin_files_owner.rc not in [ 0, 1 ]
+      register: discovered_system_bin_files_owner
+
+    - name: MEDIUM | UBTU-24-300012 | PATCH | Ubuntu 24.04 LTS must have system commands owned by root or a system account. | Secure if not root or system acct
+      when:
+        - ubtu24stig_disruption_high
+        - discovered_system_bin_files_owner.stdout_lines is defined
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: file
+        owner: root
+      loop: "{{ discovered_system_bin_files_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300012 | AUDIT | Ubuntu 24.04 LTS must have system commands owned by root or a system account. | Warning
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_system_bin_files_owner.stdout_lines is defined
+      ansible.builtin.debug:
+        msg: "Warning!! The following files are not owned by root please investigate {{ discovered_system_bin_files_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300012 | AUDIT | Ubuntu 24.04 LTS must have system commands owned by root or a system account. | Warn count
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_system_bin_files_owner.stdout_lines is defined
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-300013 | PATCH | Ubuntu 24.04 LTS must have system commands group-owned by "root" or a system account.
+  when: ubtu24stig_300013
+  tags:
+    - UBTU-24-300013
+    - CAT2
+    - CCI-001499
+    - SRG-OS-000259-GPOS-00100
+    - SV-260496r991560_rule
+    - V-260496
+    - NIST800-53R4_CM-5
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-300013'
+  block:
+    - name: MEDIUM | UBTU-24-300013 | AUDIT | Ubuntu 24.04 LTS must have system commands group-owned by root or a system account. | Discover
+      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -type f -uid +"{{ min_int_uid }}" -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_bin_files_owner.rc not in [ 0, 1 ]
+      register: discovered_system_bin_files_owner
+
+    - name: MEDIUM | UBTU-24-300013 | PATCH | Ubuntu 24.04 LTS must have system commands group-owned by root or a system account. | Secure if not root or system acct
+      when:
+        - ubtu24stig_disruption_high
+        - discovered_system_bin_files_owner.stdout_lines is defined
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: file
+        owner: root
+      loop: "{{ discovered_system_bin_files_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300013 | AUDIT | Ubuntu 24.04 LTS must have system commands group-owned by root or a system account. | Warning
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_system_bin_files_owner.stdout_lines is defined
+      ansible.builtin.debug:
+        msg: "Warning!! The following files are not owned by root please investigate {{ discovered_system_bin_files_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-300013 | AUDIT | Ubuntu 24.04 LTS must have system commands group-owned by root or a system account. | Warn fact
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_system_bin_files_owner.stdout_lines is defined
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-300014 | PATCH | Ubuntu 24.04 LTS must prevent the use of dictionary words for passwords.
+  when: ubtu24stig_300014
+  tags:
+    - UBTU-24-300014
+    - CAT2
+    - CCI-000000
+    - SRG-OS-000480-GPOS-00225
+    - SV-270704r1066601_rule
+    - V-270704
+    - NIST800-53R4_NA
+    - password
+  ansible.builtin.lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: (?i)^(#|)dictcheck\s*=
+    line: 'dictcheck = 1'
+
+- name: MEDIUM | UBTU-24-300016 | PATCH | Ubuntu 24.04 LTS must be configured so that when passwords are changed or new passwords are established, pwquality must be used.
+  when: ubtu24stig_300016
+  tags:
+    - UBTU-24-300016
+    - CAT2
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00225
+    - SV-270705r1066604_rule
+    - V-270705
+    - NIST800-53R4_CM-6
+    - password
+  ansible.builtin.lineinfile:
+    path: /etc/security/pwquality.conf
+    regexp: (?i)^(#|)enforcing\s*=
+    line: 'enforcing = 1'
+
+- name: MEDIUM | UBTU-24-300021 | PATCH | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles.
+  when: ubtu24stig_300021
+  tags:
+    - UBTU-24-300021
+    - CAT2
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270707r1066610_rule
+    - V-270707
+    - NIST800-53R4_CM-6
+    - sudo
+  block:
+    - name: MEDIUM | UBTU-24-300021 | AUDIT | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles. | capture config
+      ansible.builtin.shell: grep -Ei '(nopasswd|!authenticate)' /etc/sudoers /etc/sudoers.d/* | cut -d':' -f1
+      changed_when: false
+      failed_when: discovered_sudo_nopasswd.rc not in [ 0, 1 ]
+      register: discovered_sudo_nopasswd
+
+    - name: MEDIUM | UBTU-24-300021 | PATCH | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles. | Remove NOPASSWD
+      when:
+        - discovered_sudo_nopasswd.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.replace:
+        path: "{{ item }}"
+        regexp: ((?i)nopasswd|!authenticate)
+        replace: ''
+      loop: "{{ discovered_sudo_nopasswd.stdout_lines }}"
+
+- name: MEDIUM | UBTU-24-300023 | PATCH | Ubuntu 24.04 LTS SSH daemon must prevent remote hosts from connecting to the proxy display.
+  when: ubtu24stig_300023
+  tags:
+    - UBTU-24-300023
+    - CAT2
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270709r1066616_rule
+    - SV-270709
+    - NIST800-53R4_CM-6
+    - ssh
+  ansible.builtin.lineinfile:
+    path: "{{ ubtu24stig_sshd_config_file }}"
+    regexp: (?i)^(#|)X11UseLocalhost\s\d*
+    line: "X11UseLocalhost yes"
+    validate: sshd -t -f %s
+    mode: 'go-rwx'
+  notify: Restart_ssh
+
+- name: MEDIUM | UBTU-24-300029 | Ubuntu 24.04 LTS must generate audit records for all events that affect the systemd journal files.
+  when: ubtu24stig_300029
+  tags:
+    - UBTU-24-300029
+    - CAT2
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270715r1066634_rule
+    - V-270715
+    - NIST800-53R4_CM-6
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-300030 | PATCH | Ubuntu 24.04 LTS default filesystem permissions must be defined in such a way that all authenticated users can read and modify only their own files.
+  when: ubtu24stig_300030
+  tags:
+    - UBTU-24-300030
+    - CAT2
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00228
+    - SV-270716r1066637_rule
+    - V-270716
+    - NIST800-53R4_CM-6
+    - session
+  ansible.builtin.replace:
+    path: /etc/login.defs
+    regexp: ^UMASK\s*(?!077)\d\d\d
+    replace: UMASK 077
+
+- name: MEDIUM | UBTU-24-300039 | PATCH | Ubuntu 24.04 LTS must disable automatic mounting of Universal Serial Bus (USB) mass storage driver.
+  when: ubtu24stig_300039
+  tags:
+    - UBTU-24-300039
+    - CAT2
+    - CCI-001958
+    - SRG-OS-000690-GPOS-00140
+    - SRG-OS-000378-GPOS-00163
+    - SV-270718r1067128_rule
+    - V-270718
+    - NIST800-53R4_IA-3
+    - hardware
+  vars:
+    blacklist: 'usb-storage'
+  ansible.builtin.template:
+    dest: "/etc/modprobe.d/{{ blacklist }}.conf"
+    src: etc/modprobe.d/module.conf.j2
+    mode: 'go-wx'
+  notify: Change_requires_reboot
+
+- name: MEDIUM | UBTU-24-300041 | PATCH | Ubuntu 24.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessments.
+  when: ubtu24stig_300041
+  tags:
+    - UBTU-24-300041
+    - CAT2
+    - CCI-000382
+    - SRG-OS-000096-GPOS-00050
+    - SV-270719r1067172_rule
+    - V-270719
+    - NIST800-53R4_CM-7
+    - firewall
+  vars:
+    warn_control_id: "MEDIUM | UBTU-24-300041"
+  block:
+    - name: MEDIUM | UBTU-24-300041 | WARN | Ubuntu 24.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessments. | warning
+      ansible.builtin.debug:
+        msg: "Warning!! Please investigate ufw ruling matches site policy run the command ```sudo ufw show raw```"
+
+    - name: MEDIUM | UBTU-24-300041 | WARN | Ubuntu 24.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessments.| warn_count
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml

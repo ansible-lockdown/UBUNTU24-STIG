@@ -1,0 +1,133 @@
+---
+
+- name: "LOW | UBTU-24-900920 | PATCH | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
+  when:
+    - ubtu24stig_900920
+    - ansible_facts['mounts']| selectattr('mount', '==', ubtu24stig_audit_log_filesystem)
+  tags:
+    - UBTU-24-900920
+    - CAT3
+    - CCI-001849
+    - SRG-OS-000341-GPOS-00132
+    - SV-270816r1066937_rule
+    - V-270816
+    - NIST800-53R4_AU-4
+    - auditd
+  vars:
+    warn_control_id: "LOW | UBTU-24-900920"
+  block:
+    - name: "LOW | UBTU-24-900920 | AUDIT | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
+      ansible.builtin.shell: grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      changed_when: false
+      register: discovered_auditd_logfile
+
+    - name: "LOW | UBTU-24-900920 | AUDIT | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
+      ansible.builtin.set_fact:
+        audit_filesystem_space_left: "{{ (audit_mount.size_available / 1024 / 1024) | int }}"
+      vars:
+        audit_mount: "{{ ansible_facts.mounts | selectattr('mount', 'equalto', ubtu24stig_audit_log_filesystem) | list | first }}"
+
+    - name: "LOW | UBTU-24-900920 | WARN | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
+      ansible.builtin.debug:
+        msg:
+          - "WARNING!! Below is the path and size of the partition for the audit logs."
+          - "Please make sure there is enough disk space for 1 week of logs"
+          - "Mount: {{ ubtu24stig_audit_log_filesystem }}"
+          - "Logfile: {{ discovered_auditd_logfile.stdout }}"
+          - "Disk Space remaining: {{ audit_filesystem_space_left }}MB"
+
+    - name: "LOW | UBTU-24-900920 | WARN | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: LOW | UBTU-24-900950 | PATCH | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems.
+  when: ubtu24stig_900950
+  tags:
+    - UBTU-24-900950
+    - CAT3
+    - CCI-001851
+    - SRG-OS-000479-GPOS-00224
+    - SV-270817r1066940_rule
+    - V-270817
+    - NIST800-53R4_AU-4
+    - auditd
+  vars:
+    warn_control_id: 'LOW | UBTU-24-900950'
+  block:
+    - name: LOW | UBTU-24-900950 | AUDIT | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems. | get files containing audit
+      ansible.builtin.find:
+        paths: /etc/cron.weekly
+        contains: "{{ ubtu24stig_audit_log_filesystem }}"
+        read_whole_file: true
+      register: discovered_audit_cron_copy
+
+    - name: LOW | UBTU-24-900950 | AUDIT | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems. | Warning
+      when: discovered_audit_cron_copy.files is not defined
+      ansible.builtin.debug:
+        msg: "Warning!! No job for auditd to have logs copied off the system have been found"
+
+    - name: LOW | UBTU-24-900950 | AUDIT | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems.| Warn count
+      when: discovered_audit_cron_copy.files is not defined
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: LOW | UBTU-24-900960 | PATCH | Ubuntu 24.04 LTS must immediately notify the system administrator (SA) and information system security officer (ISSO) (at a minimum) when allocated audit record storage volume reaches 75 percent of the repository maximum audit record storage capacity.
+  when: ubtu24stig_900960
+  tags:
+    - UBTU-24-900960
+    - CAT3
+    - CCI-001855
+    - SRG-OS-000343-GPOS-00134
+    - SV-270818r1066943_rule
+    - V-270818
+    - NIST800-53R4_AU-5
+    - auditd
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^(#|)space_left\s*=\s*', line: 'space_left = {{ ubtu24stig_auditd_space_left }}' }
+    - { regexp: '^(#|)space_left_action\s*=\s*', line: 'space_left_action = {{ ubtu24stig_auditd_space_left_action }}' }
+  notify: Restart_auditd
+
+- name: "LOW | UBTU-24-900980 | PATCH | Ubuntu 24.04 LTS must alert the information system security officer (ISSO) and system administrator (SA) in the event of an audit processing failure."
+  when: ubtu24stig_900980
+  tags:
+    - UBTU-24-900980
+    - CAT3
+    - CCI-000139
+    - SRG-OS-000046-GPOS-00022
+    - SV-270819r1068390_rule
+    - V-270819
+    - NIST800-53R4_AU-5
+    - auditd
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: (?i)^(#|)action_mail_acct\s*=\s*
+    line: "action_mail_acct = {{ ubtu24stig_auditd_email_acct }}"
+  notify: Restart_auditd
+
+- name: LOW | UBTU-24-901220 | PATCH | Ubuntu 24.04 LTS must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT).
+  when: ubtu24stig_901220
+  tags:
+    - UBTU-24-901220
+    - CAT3
+    - CCI-001890
+    - RG-OS-000359-GPOS-00146
+    - SV-270820r1066949_rule
+    - V-270820
+    - NIST800-53R4_AU-8
+    - service
+    - time
+  block:
+    - name: LOW | UBTU-24-901220 | AUDIT | Ubuntu 24.04 LTS must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT). | current settings
+      ansible.builtin.shell: timedatectl status | grep "Time zone"
+      changed_when: false
+      failed_when: discovered_timezone.rc not in [ 0 , 1 ]
+      register: discovered_timezone
+
+    - name: LOW | UBTU-24-901220 | PATCH | Ubuntu 24.04 LTS must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT). | change if required
+      when: "'Etc/UTC (UTC, +0000)' not in discovered_timezone.stdout"
+      ansible.builtin.command: timedatectl set-timezone Etc/UTC
+      changed_when: true

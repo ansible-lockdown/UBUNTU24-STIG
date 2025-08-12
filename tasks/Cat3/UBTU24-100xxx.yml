@@ -1,0 +1,85 @@
+---
+
+- name: LOW | UBTU-24-100010 | PATCH | Ubuntu 24.04 LTS must not have the "systemd-timesyncd" package installed.
+  when: ubtu24stig_100010
+  tags:
+    - UBTU-24-100010
+    - CAT3
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270645r1068357_rule
+    - V-270645
+    - NIST800-53R4_CM-6
+    - packages
+    - time
+  ansible.builtin.package:
+    name: systemd-timesyncd
+    state: absent
+
+- name: LOW | UBTU-24-100020 | PATCH | Ubuntu 24.04 LTS must not have the "ntp" package installed.
+  when: ubtu24stig_100020
+  tags:
+    - UBTU-24-100020
+    - CAT3
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270646r1068358_rule
+    - V-270646
+    - NIST800-53R4_CM-6
+    - packages
+    - time
+  ansible.builtin.package:
+    name: ntp
+    state: absent
+
+- name: LOW | UBTU-24-100450 | PATCH | Ubuntu 24.04 LTS audit event multiplexor must be configured to offload audit logs onto a different system or storage media from the system being audited.
+  when: ubtu24stig_100450
+  tags:
+    - UBTU-24-100450
+    - CAT3
+    - CCI-001851
+    - SRG-OS-000342-GPOS-00133
+    - SRG-OS-000479-GPOS-00224
+    - SV-270658r1067151_rule
+    - V-270658
+    - NIST800-53R4_AU-4
+    - auditd
+  block:
+    - name: LOW | UBTU-24-100450 | PATCH | Ubuntu 24.04 LTS audit event multiplexor must be configured to offload audit logs onto a different system or storage media from the system being audited.
+      ansible.builtin.package:
+        name: audispd-plugins
+        state: present
+
+    - name: LOW | UBTU-24-100450 | PATCH | Ubuntu 24.04 LTS audit event multiplexor must be configured to offload audit logs onto a different system or storage media from the system being audited.
+      ansible.builtin.lineinfile:
+        path: /etc/audit/plugins.d/au-remote.conf
+        regexp: (?i)active\s*=\s*no
+        line: active = yes
+        mode: 'u-x,go-rwx'
+        create: true
+      notify: Restart_auditd
+
+    - name: LOW | UBTU-24-100450 | PATCH | Ubuntu 24.04 LTS audit event multiplexor must be configured to offload audit logs onto a different system or storage media from the system being audited.
+      ansible.builtin.lineinfile:
+        path: /etc/audit/plugins.d/audisp-remote.conf
+        regexp: remote_server\s*=\s*
+        line: "remote_server = {{ ubtu24stig_remotelog_server_address }}"
+        mode: 'u-x,go-rwx'
+        create: true
+      notify: Restart_auditd
+
+- name: LOW | UBTU-24-100700 | PATCH | Ubuntu 24.04 LTS must have the "chrony" package installed.
+  when: ubtu24stig_100700
+  tags:
+    - UBTU-24-100700
+    - CAT3
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270664r1068359_rule
+    - V-270664
+    - NIST800-53R4_CM-6
+    - packages
+    - time
+  ansible.builtin.package:
+    name: chrony
+    state: present

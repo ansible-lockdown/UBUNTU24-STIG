@@ -1,0 +1,618 @@
+---
+
+- name: MEDIUM | UBTU-24-900040 | PATCH | Ubuntu 24.04 LTS must be configured so that audit configuration files are not write-accessible by unauthorized users.
+  when: ubtu24stig_900040
+  tags:
+    - UBTU-24-900040
+    - CCI-000171
+    - SRG-OS-000063-GPOS-00032
+    - SV-270775r1068369_rule
+    - V-270775
+    - NIST800-53R4_AU-12
+    - auditd
+  block:
+    - name: MEDIUM | UBTU-24-900040 | AUDIT | Ubuntu 24.04 LTS must be configured so that audit configuration files are not write-accessible by unauthorized users.
+      ansible.builtin.find:
+        paths: /etc/audit
+        file_type: file
+        recurse: true
+      register: discovered_audit_files
+
+    - name: MEDIUM | UBTU-24-900040 | PATCH | Ubuntu 24.04 LTS must be configured so that audit configuration files are not write-accessible by unauthorized users.
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        mode: 'g-wx,o-rwx'
+      loop: "{{ discovered_audit_files.files }}"
+
+- name: MEDIUM | UBTU-24-900050 | PATCH | Ubuntu 24.04 LTS must permit only authorized accounts to own the audit configuration files.
+  when: ubtu24stig_900050
+  tags:
+    - UBTU-24-900050
+    - CAT2
+    - CCI-000171
+    - SRG-OS-000063-GPOS-00032
+    - SV-270776r1066817_rule
+    - V-270776
+    - NIST800-53R4_AU-12
+    - auditd
+  block:
+    - name: MEDIUM | UBTU-24-900050 | AUDIT | Ubuntu 24.04 LTS must permit only authorized accounts to own the audit configuration files.
+      ansible.builtin.find:
+        paths: /etc/audit
+        file_type: file
+        recurse: true
+      register: discovered_audit_files
+
+    - name: MEDIUM | UBTU-24-900050 | PATCH | Ubuntu 24.04 LTS must permit only authorized accounts to own the audit configuration files.
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        owner: root
+      loop: "{{ discovered_audit_files.files }}"
+
+- name: MEDIUM | UBTU-24-900060 | PATCH | Ubuntu 24.04 LTS must permit only authorized groups to own the audit configuration files.
+  when: ubtu24stig_900060
+  tags:
+    - UBTU-24-900060
+    - CAT2
+    - CCI-000171
+    - SRG-OS-000063-GPOS-00032
+    - SV-270777r1066820_rule
+    - V-270777
+    - NIST800-53R4_AU-12
+    - auditd
+  block:
+    - name: MEDIUM | UBTU-24-900060 | AUDIT | Ubuntu 24.04 LTS must permit only authorized groups to own the audit configuration files.
+      ansible.builtin.find:
+        paths: /etc/audit
+        file_type: file
+        recurse: true
+      register: discovered_audit_files
+
+    - name: MEDIUM | UBTU-24-900060 | PATCH | Ubuntu 24.04 LTS must permit only authorized groups to own the audit configuration files.
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        group: root
+      loop: "{{ discovered_audit_files.files }}"
+
+- name: MEDIUM | UBTU-24-900070 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the su command.
+  when: ubtu24stig_900070
+  tags:
+    - UBTU-24-900070
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270778r1066823_rule
+    - V-270778
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900080 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chfn command.
+  when: ubtu24stig_900080
+  tags:
+    - UBTU-24-900080
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270779r1066826_rule
+    - V-270779
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900090 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the mount command.
+  when: ubtu24stig_900090
+  tags:
+    - UBTU-24-900090
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270780r1066829_rulee
+    - V-270780
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900100 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the umount command.
+  when: ubtu24stig_900100
+  tags:
+    - UBTU-24-900100
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270781r1066832_rule
+    - V-270781
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900110 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the ssh-agent command.
+  when: ubtu24stig_900110
+  tags:
+    - UBTU-24-900110
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270782r1066835_rule
+    - V-270782
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900120 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the ssh-keysign command.
+  when: ubtu24stig_900120
+  tags:
+    - UBTU-24-900120
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270783r1066838_rule
+    - V-270783
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900130 | Ubuntu 24.04 LTS must generate audit records for any use of the setxattr, fsetxattr, lsetxattr, removexattr, fremovexattr, and lremovexattr system calls.
+  when: ubtu24stig_900130
+  tags:
+    - UBTU-24-900130
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000462-GPOS-00206
+    - SV-270784r1068371_rule
+    - V-270784
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900140 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chown, fchown, fchownat, and lchown system calls.
+  when: ubtu24stig_900140
+  tags:
+    - UBTU-24-900140
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000462-GPOS-00206
+    - SV-270785r1068373_rule
+    - V-270785
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900150 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chmod, fchmod, and fchmodat system calls.
+  when: ubtu24stig_900150
+  tags:
+    - UBTU-24-900150
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000462-GPOS-00206
+    - SV-270786r1068375_rule
+    - V-270786
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900160 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the creat, open, openat, open_by_handle_at, truncate, and ftruncate system calls.
+  when: ubtu24stig_900160
+  tags:
+    - UBTU-24-900160
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000474-GPOS-00219
+    - SV-270787r1068378_rule
+    - V-270787
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900170 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the sudo command.
+  when: ubtu24stig_900170
+  tags:
+    - UBTU-24-900170
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270788r1066853_rule
+    - V-270788
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900180 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the sudoedit command.
+  when: ubtu24stig_900180
+  tags:
+    - UBTU-24-900180
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270789r1066856_rule
+    - V-270789
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900190 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chsh command.
+  when: ubtu24stig_900190
+  tags:
+    - UBTU-24-900190
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270790r1068380_rule
+    - V-270790
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900200 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the newgrp command.
+  when: ubtu24stig_900200
+  tags:
+    - UBTU-24-900200
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-260616r958446_rule
+    - V-260616
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900210 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chcon command.
+  when: ubtu24stig_900210
+  tags:
+    - UBTU-24-900210
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270792r1066865_rule
+    - V-270792
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900220 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the apparmor_parser command.
+  when: ubtu24stig_900220
+  tags:
+    - UBTU-24-900220
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270793r1066868_rule
+    - V-270793
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900230 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the setfacl command.
+  when: ubtu24stig_900230
+  tags:
+    - UBTU-24-900230
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270794r1066871_rule
+    - V-270794
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900240 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chacl command.
+  when: ubtu24stig_900240
+  tags:
+    - UBTU-24-900240
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270795r1066874_rule
+    - V-270795
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900250 | Ubuntu 24.04 LTS must generate audit records for the use and modification of faillog file.
+  when: ubtu24stig_900250
+  tags:
+    - UBTU-24-900250
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000470-GPOS-00214
+    - SRG-OS-000473-GPOS-00218
+    - SV-270796r1066877_rule
+    - V-270796
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900260 | Ubuntu 24.04 LTS must generate audit records for the use and modification of the lastlog file.
+  when: ubtu24stig_900260
+  tags:
+    - UBTU-24-900260
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000470-GPOS-00214
+    - SRG-OS-000473-GPOS-00218
+    - SV-270797r1066880_rule
+    - V-270797
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900270 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the passwd command.
+  when: ubtu24stig_900270
+  tags:
+    - UBTU-24-900270
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270798r1068382_rule
+    - V-270798
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900280 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the unix_update command.
+  when: ubtu24stig_900280
+  tags:
+    - UBTU-24-900280
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270799r1066886_rule
+    - V-270799
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900290 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the gpasswd command.
+  when: ubtu24stig_900290
+  tags:
+    - UBTU-24-900290
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270800r1066889_rule
+    - V-270800
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900300 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chage command.
+  when:
+    - ubtu24stig_900300
+  tags:
+    - UBTU-24-900300
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270801r1066892_rule
+    - V-270801
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900310 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the usermod command.
+  when: ubtu24stig_900310
+  tags:
+    - UBTU-24-900310
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270802r1066895_rule
+    - V-270802
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900320 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the crontab command.
+  when: ubtu24stig_900320
+  tags:
+    - UBTU-24-900320
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270803r1066898_rule
+    - V-270803
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900330 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the pam_timestamp_check command.
+  when: ubtu24stig_900330
+  tags:
+    - UBTU-24-900330
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270804r1066901_rule
+    - V-270804
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900340 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the init_module and finit_module system calls.
+  when: ubtu24stig_900340
+  tags:
+    - UBTU-24-900340
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000471-GPOS-00216
+    - SV-270805r1068384_rule
+    - V-270805
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900350 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the delete_module system call.
+  when: ubtu24stig_900350
+  tags:
+    - UBTU-24-900350
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000477-GPOS-00222
+    - SV-270806r1068386_rule
+    - V-270806
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900510 | Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to modify the /etc/sudoers file occur.
+  when: ubtu24stig_900510
+  tags:
+    - UBTU-24-900510
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000466-GPOS-00210
+    - SV-270807r1066910_rule
+    - V-270807
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900520 | Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to modify the /etc/sudoers.d directory occur.
+  when: ubtu24stig_900520
+  tags:
+    - UBTU-24-900520
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000466-GPOS-00210
+    - SV-270808r1067100_rule
+    - V-270808
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900540 | Ubuntu 24.04 LTS must generate audit records for any successful/unsuccessful use of unlink, unlinkat, rename, renameat, and rmdir system calls.
+  when: ubtu24stig_900540
+  tags:
+    - UBTU-24-900540
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000468-GPOS-00212
+    - SV-270809r1068388_rule
+    - V-270809
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900590 | Ubuntu 24.04 LTS must generate audit records for the /var/log/wtmp file.
+  when: ubtu24stig_900590
+  tags:
+    - UBTU-24-900590
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000472-GPOS-00217
+    - SV-270810r1066919_rule
+    - V-270810
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900600 | Ubuntu 24.04 LTS must generate audit records for the /var/run/utmp file.
+  when: ubtu24stig_900600
+  tags:
+    - UBTU-24-900600
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000472-GPOS-00217
+    - SV-270811r1066922_rule
+    - V-270811
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900610 | Ubuntu 24.04 LTS must generate audit records for the /var/log/btmp file.
+  when: ubtu24stig_900610
+  tags:
+    - UBTU-24-900610
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000472-GPOS-00217
+    - SV-270812r1066925_rule
+    - V-270812
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900730 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful attempts to use modprobe command.
+  when: ubtu24stig_900730
+  tags:
+    - UBTU-24-900730
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000477-GPOS-00222
+    - SV-270813r1066928_rule
+    - V-270813
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900740 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful attempts to use the kmod command.
+  when: ubtu24stig_900740
+  tags:
+    - UBTU-24-900740
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270814r1066931_rule
+    - V-270814
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-900750 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful attempts to use the fdisk command.
+  when: ubtu24stig_900750
+  tags:
+    - UBTU-24-900750
+    - CAT2
+    - CCI-000172
+    - SRG-OS-000064-GPOS-00033
+    - SV-270815r1066934_rule
+    - V-270815
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true

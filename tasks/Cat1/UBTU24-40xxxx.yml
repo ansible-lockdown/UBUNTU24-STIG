@@ -1,0 +1,20 @@
+---
+
+- name: HIGH | UBTU-24-400370 | PATCH | Ubuntu 24.04 LTS must map the authenticated identity to the user or group account for PKI-based authentication.
+  when:
+    - ubtu24stig_400370
+    - "'pam-pkcs11' in ansible_facts.packages"
+  tags:
+    - UBTU-24-400370
+    - CAT1
+    - CCI-000187
+    - SRG-OS-000068-GPOS-00036
+    - SV-270736r1066697_rule
+    - V-270736
+    - NIST800-53R4_IA-5
+    - multifactor
+  ansible.builtin.lineinfile:
+    path: /etc/sssd/sssd.conf
+    backrefs: true
+    regexp: ^(|#)\s*ldap_user_certificate\s*=
+    line: ldap_user_certificate=userCertificate;binary
