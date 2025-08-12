@@ -8,7 +8,7 @@
     fail_msg: "This role can only be run against Ubuntu 24. {{ ansible_facts.distribution }} {{ ansible_facts.distribution_major_version }} is not supported."
     success_msg: "This role is running against a supported OS {{ ansible_facts.distribution }} {{ ansible_facts.distribution_major_version }}"
 
-- name: "Check ansible version"
+- name: "Check Ansible Version"
   tags: always
   ansible.builtin.assert:
     that: ansible_version.full is version_compare(min_ansible_version, '>=')
