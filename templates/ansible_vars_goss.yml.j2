@@ -1,0 +1,429 @@
+---
+
+## metadata for Audit benchmark
+benchmark_version: {{ benchmark_version }}
+
+## Benchmark name used by auditing control role
+# The audit variable found at the base
+benchmark: {{ benchmark }}
+
+timeout_ms: {{ audit_cmd_timeout }}
+
+# Whether to skip the OS check for supported OS's
+skip_os_check: false
+
+ubtu24stig_cat1: {{ ubtu24stig_cat1 }}
+ubtu24stig_cat2: {{ ubtu24stig_cat2 }}
+ubtu24stig_cat3: {{ ubtu24stig_cat3 }}
+
+# We've defined complexity-high to mean that we cannot automatically remediate
+# the rule in question.  In the future this might mean that the remediation
+# may fail in some cases.
+ubtu24stig_complexity_high: {{ ubtu24stig_complexity_high }}
+
+# Show "changed" for complex items not remediated per complexity-high setting
+# to make them stand out.  "changed" items on a second run of the role would
+# indicate items requiring manual review.
+ubtu24stig_audit_complex: {{ ubtu24stig_audit_complex }}
+
+# We've defined disruption-high to indicate items that are likely to cause
+# disruption in a normal workflow.  These items can be remediated automatically
+# but are disabled by default to avoid disruption.
+ubtu24stig_disruption_high: {{ ubtu24stig_disruption_high }}
+
+# Allow aide check to run - this can be very resource intensive - not good on shared storage multiple hosts
+ubtu24stig_allow_aide_check: {{ ubtu24stig_allow_aide_check }}
+
+ubtu24stig_workaround_for_disa_benchmark: {{ ubtu24stig_workaround_for_disa_benchmark }}
+
+## Unrestricted boot
+# Setting this variable to false enables the system to
+# boot *without* querying for the bootloader password.
+ubtu24stig_ask_passwd_to_boot: {{ ubtu24stig_ask_passwd_to_boot }}
+
+# tweak role to run in a chroot, such as in kickstart %post script
+ubtu24stig_system_is_chroot: {{ ubtu24stig_system_is_chroot }}
+
+# Set if system uses ipv6
+ubtu24stig_system_uses_ipv6: {{ ubtu24stig_system_uses_ipv6 }}
+
+
+# system acts or requires router networking options
+ubtu24stig_system_is_router: {{ ubtu24stig_system_is_router }}
+
+# System is based on ec2
+system_is_ec2: {{ system_is_ec2 }}
+
+# Whether to purge apt pages when removed
+ubtu24stig_purge_apt: {{ ubtu24stig_purge_apt }}
+
+# UID settings for interactive users
+# These are discovered via logins.def if set true
+ubtu24stig_discover_int_uid: {{ ubtu24stig_discover_int_uid }}
+# This variable sets the minimum number from which to search for UID
+# Note that the value will be dynamically overwritten if variable `ubtu24stig_discover_int_uid` has
+# been set to `true`.
+min_int_uid: 1000
+
+### Controls:
+# - Ensure local interactive user home directories exist
+# - Ensure local interactive users own their home directories
+# This variable sets the maximum number at which the search stops for UID
+# Note that the value will be dynamically overwritten if variable `ubtu24stig_discover_int_uid` has
+# been set to `true`.
+max_int_uid: 65533
+
+#### CAT 1
+
+ubtu24stig_100030: {{ ubtu24stig_100030 }}
+ubtu24stig_100040: {{ ubtu24stig_100040 }}
+ubtu24stig_100800: {{ ubtu24stig_100800 }}
+ubtu24stig_100810: {{ ubtu24stig_100810 }}
+ubtu24stig_102000: {{ ubtu24stig_102000 }}
+ubtu24stig_300022: {{ ubtu24stig_300022 }}
+ubtu24stig_300025: {{ ubtu24stig_300025 }}
+ubtu24stig_300026: {{ ubtu24stig_300026 }}
+ubtu24stig_300027: {{ ubtu24stig_300027 }}
+ubtu24stig_300028: {{ ubtu24stig_300028 }}
+ubtu24stig_300031: {{ ubtu24stig_300031 }}
+ubtu24stig_400370: {{ ubtu24stig_400370 }}
+ubtu24stig_600030: {{ ubtu24stig_600030 }}
+ubtu24stig_600130: {{ ubtu24stig_600130 }}
+
+#### CAT 2
+## 10XXXX
+ubtu24stig_100100: {{ ubtu24stig_100100 }}
+ubtu24stig_100110: {{ ubtu24stig_100110 }}
+ubtu24stig_100120: {{ ubtu24stig_100120 }}
+ubtu24stig_100130: {{ ubtu24stig_100130 }}
+ubtu24stig_100200: {{ ubtu24stig_100200 }}
+ubtu24stig_100300: {{ ubtu24stig_100300 }}
+ubtu24stig_100310: {{ ubtu24stig_100310 }}
+ubtu24stig_100400: {{ ubtu24stig_100400 }}
+ubtu24stig_100410: {{ ubtu24stig_100410 }}
+ubtu24stig_100500: {{ ubtu24stig_100500 }}
+ubtu24stig_100510: {{ ubtu24stig_100510 }}
+ubtu24stig_100600: {{ ubtu24stig_100600 }}
+ubtu24stig_100650: {{ ubtu24stig_100650 }}
+ubtu24stig_100660: {{ ubtu24stig_100660 }}
+ubtu24stig_100820: {{ ubtu24stig_100820 }}
+ubtu24stig_100830: {{ ubtu24stig_100830 }}
+ubtu24stig_100840: {{ ubtu24stig_100840 }}
+ubtu24stig_100850: {{ ubtu24stig_100850 }}
+ubtu24stig_100860: {{ ubtu24stig_100860 }}
+ubtu24stig_100900: {{ ubtu24stig_100900 }}
+ubtu24stig_100910: {{ ubtu24stig_100910 }}
+ubtu24stig_101000: {{ ubtu24stig_101000 }}
+ubtu24stig_102010: {{ ubtu24stig_102010 }}
+
+## 20XXXX
+ubtu24stig_200020: {{ ubtu24stig_200020 }}
+ubtu24stig_200040: {{ ubtu24stig_200040 }}
+ubtu24stig_200060: {{ ubtu24stig_200060 }}
+ubtu24stig_200090: {{ ubtu24stig_200090 }}
+ubtu24stig_200250: {{ ubtu24stig_200250 }}
+ubtu24stig_200260: {{ ubtu24stig_200260 }}
+ubtu24stig_200280: {{ ubtu24stig_200280 }}
+ubtu24stig_200290: {{ ubtu24stig_200290 }}
+ubtu24stig_200300: {{ ubtu24stig_200300 }}
+ubtu24stig_200310: {{ ubtu24stig_200310 }}
+ubtu24stig_200320: {{ ubtu24stig_200320 }}
+ubtu24stig_200580: {{ ubtu24stig_200580 }}
+ubtu24stig_200640: {{ ubtu24stig_200640 }}
+ubtu24stig_200650: {{ ubtu24stig_200650 }}
+ubtu24stig_200660: {{ ubtu24stig_200660 }}
+ubtu24stig_200680: {{ ubtu24stig_200680 }}
+
+## 30XXXX
+ubtu24stig_300006: {{ ubtu24stig_300006 }}
+ubtu24stig_300007: {{ ubtu24stig_300007 }}
+ubtu24stig_300008: {{ ubtu24stig_300008 }}
+ubtu24stig_300009: {{ ubtu24stig_300009 }}
+ubtu24stig_300010: {{ ubtu24stig_300010 }}
+ubtu24stig_300011: {{ ubtu24stig_300011 }}
+ubtu24stig_300012: {{ ubtu24stig_300012 }}
+ubtu24stig_300013: {{ ubtu24stig_300013 }}
+ubtu24stig_300014: {{ ubtu24stig_300014 }}
+ubtu24stig_300016: {{ ubtu24stig_300016 }}
+ubtu24stig_300021: {{ ubtu24stig_300021 }}
+ubtu24stig_300023: {{ ubtu24stig_300023 }}
+ubtu24stig_300029: {{ ubtu24stig_300029 }}
+ubtu24stig_300030: {{ ubtu24stig_300030 }}
+ubtu24stig_300039: {{ ubtu24stig_300039 }}
+ubtu24stig_300041: {{ ubtu24stig_300041 }}
+
+## 40XXXX
+ubtu24stig_400000: {{ ubtu24stig_400000 }}
+ubtu24stig_400020: {{ ubtu24stig_400020 }}
+ubtu24stig_400030: {{ ubtu24stig_400030 }}
+ubtu24stig_400060: {{ ubtu24stig_400060 }}
+ubtu24stig_400110: {{ ubtu24stig_400110 }}
+ubtu24stig_400220: {{ ubtu24stig_400220 }}
+ubtu24stig_400260: {{ ubtu24stig_400260 }}
+ubtu24stig_400270: {{ ubtu24stig_400270 }}
+ubtu24stig_400280: {{ ubtu24stig_400280 }}
+ubtu24stig_400290: {{ ubtu24stig_400290 }}
+ubtu24stig_400300: {{ ubtu24stig_400300 }}
+ubtu24stig_400310: {{ ubtu24stig_400310 }}
+ubtu24stig_400320: {{ ubtu24stig_400320 }}
+ubtu24stig_400330: {{ ubtu24stig_400330 }}
+ubtu24stig_400360: {{ ubtu24stig_400360 }}
+ubtu24stig_400375: {{ ubtu24stig_400375 }}
+ubtu24stig_400380: {{ ubtu24stig_400380 }}
+ubtu24stig_400400: {{ ubtu24stig_400400 }}
+
+## 50XXXX
+ubtu24stig_500010: {{ ubtu24stig_500010 }}
+ubtu24stig_500050: {{ ubtu24stig_500050 }}
+
+## 60XXXX
+ubtu24stig_600000: {{ ubtu24stig_600000 }}
+ubtu24stig_600010: {{ ubtu24stig_600010 }}
+ubtu24stig_600060: {{ ubtu24stig_600060 }}
+ubtu24stig_600070: {{ ubtu24stig_600070 }}
+ubtu24stig_600090: {{ ubtu24stig_600090 }}
+ubtu24stig_600150: {{ ubtu24stig_600150 }}
+ubtu24stig_600190: {{ ubtu24stig_600190 }}
+ubtu24stig_600200: {{ ubtu24stig_600200 }}
+ubtu24stig_600230: {{ ubtu24stig_600230 }}
+
+## 70XXXX
+ubtu24stig_700010: {{ ubtu24stig_700010 }}
+ubtu24stig_700020: {{ ubtu24stig_700020 }}
+ubtu24stig_700030: {{ ubtu24stig_700030 }}
+ubtu24stig_700040: {{ ubtu24stig_700040 }}
+ubtu24stig_700050: {{ ubtu24stig_700050 }}
+ubtu24stig_700060: {{ ubtu24stig_700060 }}
+ubtu24stig_700070: {{ ubtu24stig_700070 }}
+ubtu24stig_700080: {{ ubtu24stig_700080 }}
+ubtu24stig_700090: {{ ubtu24stig_700090 }}
+ubtu24stig_700100: {{ ubtu24stig_700100 }}
+ubtu24stig_700110: {{ ubtu24stig_700110 }}
+ubtu24stig_700120: {{ ubtu24stig_700120 }}
+ubtu24stig_700130: {{ ubtu24stig_700130 }}
+ubtu24stig_700140: {{ ubtu24stig_700140 }}
+ubtu24stig_700150: {{ ubtu24stig_700150 }}
+ubtu24stig_700300: {{ ubtu24stig_700300 }}
+ubtu24stig_700310: {{ ubtu24stig_700310 }}
+ubtu24stig_700320: {{ ubtu24stig_700320 }}
+ubtu24stig_700400: {{ ubtu24stig_700400 }}
+
+## 900XXX
+ubtu24stig_900040: {{ ubtu24stig_900040 }}
+ubtu24stig_900050: {{ ubtu24stig_900050 }}
+ubtu24stig_900060: {{ ubtu24stig_900060 }}
+ubtu24stig_900070: {{ ubtu24stig_900070 }}
+ubtu24stig_900080: {{ ubtu24stig_900080 }}
+ubtu24stig_900090: {{ ubtu24stig_900090 }}
+ubtu24stig_900100: {{ ubtu24stig_900100 }}
+ubtu24stig_900110: {{ ubtu24stig_900110 }}
+ubtu24stig_900120: {{ ubtu24stig_900120 }}
+ubtu24stig_900130: {{ ubtu24stig_900130 }}
+ubtu24stig_900140: {{ ubtu24stig_900140 }}
+ubtu24stig_900150: {{ ubtu24stig_900150 }}
+ubtu24stig_900160: {{ ubtu24stig_900160 }}
+ubtu24stig_900170: {{ ubtu24stig_900170 }}
+ubtu24stig_900180: {{ ubtu24stig_900180 }}
+ubtu24stig_900190: {{ ubtu24stig_900190 }}
+ubtu24stig_900200: {{ ubtu24stig_900200 }}
+ubtu24stig_900210: {{ ubtu24stig_900210 }}
+ubtu24stig_900220: {{ ubtu24stig_900220 }}
+ubtu24stig_900230: {{ ubtu24stig_900230 }}
+ubtu24stig_900240: {{ ubtu24stig_900240 }}
+ubtu24stig_900250: {{ ubtu24stig_900250 }}
+ubtu24stig_900260: {{ ubtu24stig_900260 }}
+ubtu24stig_900270: {{ ubtu24stig_900270 }}
+ubtu24stig_900280: {{ ubtu24stig_900280 }}
+ubtu24stig_900290: {{ ubtu24stig_900290 }}
+ubtu24stig_900300: {{ ubtu24stig_900300 }}
+ubtu24stig_900310: {{ ubtu24stig_900310 }}
+ubtu24stig_900320: {{ ubtu24stig_900320 }}
+ubtu24stig_900330: {{ ubtu24stig_900330 }}
+ubtu24stig_900340: {{ ubtu24stig_900340 }}
+ubtu24stig_900350: {{ ubtu24stig_900350 }}
+ubtu24stig_900500: {{ ubtu24stig_900500 }}
+ubtu24stig_900510: {{ ubtu24stig_900510 }}
+ubtu24stig_900520: {{ ubtu24stig_900520 }}
+ubtu24stig_900540: {{ ubtu24stig_900540 }}
+ubtu24stig_900590: {{ ubtu24stig_900590 }}
+ubtu24stig_900600: {{ ubtu24stig_900600 }}
+ubtu24stig_900610: {{ ubtu24stig_900610 }}
+ubtu24stig_900730: {{ ubtu24stig_900730 }}
+ubtu24stig_900740: {{ ubtu24stig_900740 }}
+ubtu24stig_900750: {{ ubtu24stig_900750 }}
+
+## 901XXX
+ubtu24stig_901230: {{ ubtu24stig_901230 }}
+ubtu24stig_901240: {{ ubtu24stig_901240 }}
+ubtu24stig_901250: {{ ubtu24stig_901250 }}
+ubtu24stig_901260: {{ ubtu24stig_901260 }}
+ubtu24stig_901270: {{ ubtu24stig_901270 }}
+ubtu24stig_901280: {{ ubtu24stig_901280 }}
+ubtu24stig_901300: {{ ubtu24stig_901300 }}
+ubtu24stig_901310: {{ ubtu24stig_901310 }}
+ubtu24stig_901350: {{ ubtu24stig_901350 }}
+ubtu24stig_901380: {{ ubtu24stig_901380 }}
+ubtu24stig_901890: {{ ubtu24stig_901890 }}
+
+## 909XXX
+ubtu24stig_909000: {{ ubtu24stig_909000 }}
+
+#### CAT 3
+ubtu24stig_100010: {{ ubtu24stig_100010 }}
+ubtu24stig_100020: {{ ubtu24stig_100020 }}
+ubtu24stig_100450: {{ ubtu24stig_100450 }}
+ubtu24stig_100700: {{ ubtu24stig_100700 }}
+ubtu24stig_200000: {{ ubtu24stig_200000 }}
+ubtu24stig_200610: {{ ubtu24stig_200610 }}
+ubtu24stig_300001: {{ ubtu24stig_300001 }}
+ubtu24stig_300017: {{ ubtu24stig_300017 }}
+ubtu24stig_300024: {{ ubtu24stig_300024 }}
+ubtu24stig_400340: {{ ubtu24stig_400340 }}
+ubtu24stig_600140: {{ ubtu24stig_600140 }}
+ubtu24stig_600160: {{ ubtu24stig_600160 }}
+ubtu24stig_600180: {{ ubtu24stig_600180 }}
+ubtu24stig_900920: {{ ubtu24stig_900920 }}
+ubtu24stig_900950: {{ ubtu24stig_900950 }}
+ubtu24stig_900960: {{ ubtu24stig_900960 }}
+ubtu24stig_900980: {{ ubtu24stig_900980 }}
+ubtu24stig_901220: {{ ubtu24stig_901220 }}
+
+### CONTROLS
+
+##############
+### 10XXXX ###
+##############
+
+# 100450
+# Adjust to match remote syslog server configuration
+ubtu24stig_remotelog_server_address: {{ ubtu24stig_remotelog_server_address }}
+
+# If using sssd set to true
+ubtu24stig_use_sssd: {{ ubtu24stig_use_sssd }}
+
+
+## 1008xxx - Network - SSHD
+ubtu24stig_sshd_config_ciphers: {{ ubtu24stig_sshd_config_ciphers }}
+ubtu24stig_sshd_config_macs: {{ ubtu24stig_sshd_config_macs }}
+ubtu24stig_sshd_config_kex: {{ ubtu24stig_sshd_config_kex }}
+
+## 102000 Bootloader/Grub settings
+ubtu24stig_bootloader_password_hash: {{ ubtu24stig_bootloader_password_hash }}
+ubtu24stig_set_bootloader_password: {{ ubtu24stig_set_bootloader_password }}
+
+##############
+### 20XXXX ###
+##############
+
+## 200000
+# Max number of logins 10 max set by STIG
+ubtu24stig_maxlogins: {{ ubtu24stig_maxlogins }}
+
+### 2000xx - Gnome Desktop
+### Graphical/Gnome interface required
+ubtu24stig_gui: {{ ubtu24stig_gui }}
+
+## 200260
+# Number of days account is active before disabled
+# 35 is max set by STIG
+ubtu24stig_user_inactive_days: {{ ubtu24stig_user_inactive_days }}
+
+## 2006xx
+## Banner
+ubtu24stig_logon_banner:
+- You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.
+- By using this IS (which includes any device attached to this IS), you consent to the following conditions:
+- -The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.
+- -At any time, the USG may inspect and seize data stored on this IS.
+- -Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.
+- -This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.
+- -Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.
+
+## 200610
+# Faillock settings
+ubtu24stig_faillock_deny: {{ ubtu24stig_faillock_deny }}
+ubtu24stig_faillock_fail_interval: {{ ubtu24stig_faillock_fail_interval }}
+ubtu24stig_faillock_unlock_time: {{ ubtu24stig_faillock_unlock_time }}
+
+## 200680
+ubtu24stig_ssh_confirm_file: {{ ubtu24stig_ssh_confirm_file }}
+
+##############
+### 30XXXX ###
+##############
+
+## 30xxxx - ssh
+ubtu24stig_ssh_required: {{ ubtu24stig_ssh_required }}
+ubtu24stig_sshd_config_file: {{ ubtu24stig_sshd_config_file }}
+
+# 300017 Session
+# faildelay
+ubtu24stig_faildelay: {{ ubtu24stig_faildelay }}
+
+##############
+### 40XXXX ###
+##############
+
+# 400020
+# Set to true if using smart card multifactor authentication
+ubtu24stig_uses_smartcard: {{ ubtu24stig_uses_smartcard }}
+
+# ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - system default is often yescrypt
+ubtu24stig_passwd_hash_algo: {{ ubtu24stig_passwd_hash_algo }}
+ubtu24stig_pass_difok: {{ ubtu24stig_pass_difok }}
+ubtu24stig_pass_min_days: {{ ubtu24stig_pass_min_days }}
+ubtu24stig_pass_max_days: {{ ubtu24stig_pass_max_days }}
+ubtu24stig_pass_minlen: {{ ubtu24stig_pass_minlen }}
+
+##############
+### 50XXXX ###
+##############
+
+ubtu24stig_sshd_config_clientalivecountmax: {{ ubtu24stig_sshd_config_clientalivecountmax }}
+ubtu24stig_sshd_config_clientaliveinterval: {{ ubtu24stig_sshd_config_clientaliveinterval }}
+
+ubtu24stig_sysctl_network_conf: {{ ubtu24stig_sysctl_network_conf }}
+
+##############
+### 60XXXX ###
+##############
+
+ubtu24stig_time_synchronization_servers:
+{% for server in ubtu24stig_time_synchronization_servers %}
+- {{ server }}
+{% endfor %}
+
+ubtu24stig_chrony_server_options: {{ ubtu24stig_chrony_server_options }}
+
+# 600130
+## Users to be added to the sudo group
+ubtu24stig_sudo_group_users:
+{% for user in ubtu24stig_sudo_group_users %}
+- {{ user }}
+{% endfor %}
+
+##############
+### 70XXXX ###
+##############
+
+ubtu24stig_sysctl_file_default: {{ ubtu24stig_sysctl_file_default }}
+ubtu24stig_sysctl_kernel_conf: {{ ubtu24stig_sysctl_kernel_conf }}
+
+##############
+### 90XXXX ###
+##############
+### AUDITD
+ubtu24stig_audit_log_filesystem: {{ ubtu24stig_audit_log_filesystem }}
+ubtu24stig_auditd_disk_full_action: {{ ubtu24stig_auditd_disk_full_action }}
+ubtu24stig_auditd_log_group: {{ ubtu24stig_auditd_log_group }}
+ubtu24stig_auditd_email_acct: {{ ubtu24stig_auditd_email_acct }}
+ubtu24stig_auditd_space_left: {{ ubtu24stig_auditd_space_left }}
+ubtu24stig_auditd_space_left_action: {{ ubtu24stig_auditd_space_left_action }}
+
+##############
+### 91XXXX ###
+##############
+ubtu24stig_audit_tools:
+{% for path in ubtu24stig_audit_tools %}
+- {{ path }}
+{% endfor %}

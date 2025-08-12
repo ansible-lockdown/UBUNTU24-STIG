@@ -1,0 +1,51 @@
+---
+
+## 1XX
+- name: Cat 2 STIG 10xxxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-10xxxx.yml
+
+## 2XX
+- name: Cat 2 STIG 20xxxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-20xxxx.yml
+
+## 3XX
+- name: Cat 2 STIG 30xxxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-30xxxx.yml
+
+## 4XX
+- name: Cat 2 STIG 40xxxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-40xxxx.yml
+
+## 5XX
+- name: Cat 2 STIG 50xxxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-50xxxx.yml
+
+## 6XX
+- name: Cat 2 STIG 60xxxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-60xxxx.yml
+
+## 7XX
+- name: Cat 2 STIG 70xxxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-70xxxx.yml
+
+## 900
+- name: Cat 2 STIG 900xxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-900xxx.yml
+
+## 901
+- name: Cat 2 STIG 901xxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-901xxx.yml
+
+## 909
+- name: Cat 2 STIG 909xxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-909xxx.yml

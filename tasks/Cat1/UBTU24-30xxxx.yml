@@ -1,0 +1,141 @@
+---
+
+- name: HIGH | UBTU-24-300022 | PATCH | Ubuntu 24.04 LTS must be configured so that remote X connections are disabled, unless to fulfill documented and validated mission requirements.
+  when: ubtu24stig_300022
+  tags:
+    - UBTU-24-300022
+    - CAT1
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270708r1066613_rule
+    - V-270708
+    - NIST800-53R4_CM-6
+    - ssh
+  notify: Restart_ssh
+  ansible.builtin.lineinfile:
+    path: "{{ item.path }}"
+    regex: (?i)^\s*(#|)X11Forwarding
+    line: X11Forwarding no
+    validate: 'sshd -t -f %s'
+  loop: "{{ prelim_sshd_config_files.files }}"
+
+- name: HIGH | UBTU-24-300025 | PATCH | Ubuntu 24.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence if a graphical user interface is installed.
+  when:
+    - ubtu24stig_300025
+    - ubtu24stig_gui
+  tags:
+    - UBTU-24-300025
+    - CAT1
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270711r1066622_rule
+    - V-270711
+    - NIST800-53R4_CM-6
+    - gnome
+  block:
+    - name: HIGH | UBTU-24-300025 | AUDIT | Ubuntu 24.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence if a graphical user interface is installed.
+      ansible.builtin.command: gsettings get org.gnome.settings-daemon.plugins.media-keys logout
+      changed_when: true
+      register: discovered_gui_ctrl_alt_del
+
+    - name: HIGH | UBTU-24-300025 | PATCH | Ubuntu 24.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence if a graphical user interface is installed.
+      when: "'@as []' in discovered_gui_ctrl_alt_del.stdout"
+      ansible.builtin.command: gsettings set org.gnome.settings-daemon.plugins.media-keys logout []
+      changed_when: true
+      notify: Update_dconf
+
+- name: HIGH | UBTU-24-300026 | PATCH | Ubuntu 24.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence.
+  when: ubtu24stig_300026
+  tags:
+    - UBTU-24-300026
+    - CAT1
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270712r1068363_rule
+    - V-270712
+    - NIST800-53R4_CM-6
+    - compliance
+  ansible.builtin.systemd:
+    name: ctrl-alt-del.target
+    masked: true
+  notify: Systemd_daemon_reload
+
+- name: HIGH | UBTU-24-300027 | PATCH | Ubuntu 24.04 LTS must not have accounts configured with blank or null passwords.
+  when: ubtu24stig_300027
+  tags:
+    - UBTU-24-300027
+    - CAT1
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-260571r991589_rule
+    - V-260571
+    - NIST800-53R4_CM-6
+    - password
+  vars:
+    warn_control_id: "HIGH | UBTU-24-300027"
+  block:
+    - name: HIGH | UBTU-24-300027 | PATCH | Ubuntu 24.04 LTS must not have accounts configured with blank or null passwords.
+      ansible.builtin.shell: "cat /etc/shadow | awk -F: '($2 == \"\" ) {j++;print $1; } END {exit j}'"
+      changed_when: false
+      failed_when: discovered_empty_password_accounts.rc not in [ 0, 1 ]
+      register: discovered_empty_password_accounts
+
+    - name: HIGH | UBTU-24-300027 | PATCH | Ubuntu 24.04 LTS must not have accounts configured with blank or null passwords.
+      when:
+        - ubtu24stig_disruption_high
+        - discovered_empty_password_accounts.stdout | length > 0
+      ansible.builtin.user:
+        name: "{{ item }}"
+        password_lock: true
+      loop: "{{ discovered_empty_password_accounts.stdout_lines }}"
+
+    - name: HIGH | UBTU-24-300027 | WARN | Ubuntu 24.04 LTS must not have accounts configured with blank or null passwords.
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_empty_password_accounts.stdout | length > 0
+      ansible.builtin.debug:
+        msg: "Warning!! The following accounts have blank passwords {{ discovered_empty_password_accounts.stdout_lines }} "
+
+    - name: HIGH| UBTU-24-300027 | WARN | Ubuntu 24.04 LTS must not have accounts configured with blank or null passwords.
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_empty_password_accounts.stdout | length > 0
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: HIGH | UBTU-24-300028 | PATCH | Ubuntu 24.04 LTS must not allow accounts configured in Pluggable Authentication Modules (PAM) with blank or null passwords.
+  when: ubtu24stig_300028
+  tags:
+    - UBTU-24-300028
+    - CAT1
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00227
+    - SV-270714r1067119_rule
+    - V-270714
+    - NIST800-53R4_CM-6
+    - password
+  ansible.builtin.replace:
+    path: /etc/pam.d/common-password
+    regexp: (.*) nullok(.*)
+    replace: \1\2
+
+- name: HIGH | UBTU-24-300031 | PATCH | Ubuntu 24.04 LTS must not allow unattended or automatic login via SSH.
+  when: ubtu24stig_300031
+  tags:
+    - UBTU-24-300031
+    - CAT1
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00229
+    - SV-270717r1067177_rule
+    - V-270717
+    - NIST800-53R4_CM-6
+    - ssh
+  notify: Restart_ssh
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regex: "{{ item.regex }}"
+    line: "{{ item.line }}"
+    validate: 'sshd -t -f %s'
+  loop:
+    - { regex: '^\s*(#|)PermitEmptyPasswords', line: 'PermitEmptyPasswords no'}
+    - { regex: '^\s*(#|)PermitUserEnvironment', line: 'PermitUserEnvironment no'}

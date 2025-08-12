@@ -1,0 +1,73 @@
+---
+
+- name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types.
+  when: ubtu24stig_200000
+  tags:
+    - UBTU-24-200000
+    - CAT3
+    - CCI-000054
+    - SRG-OS-000027-GPOS-00008
+    - SV-270677r1066520_rule
+    - V-270677
+    - NIST800-53R4_AC-10
+    - account
+    - pam
+  block:
+    - name: LOW | UBTU-24-200000 | AUDIT | Ubuntu 24.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types. | find current settings
+      ansible.builtin.find:
+        paths: /etc/security
+        contains: \* hard maxlogins
+        recurse: true
+        patterns: '*.conf'
+        read_whole_file: true
+      register: discovered_security_maxlogins
+
+    - name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types. | comment out settings
+      when: "'/etc/security/limits.conf' not in item.path"
+      ansible.builtin.lineinfile:
+        path: "{{ item.path }}"
+        regexp: ^\* hard maxlogins
+        line: '#* hard maxlogins'
+      loop: "{{ discovered_security_maxlogins.files }}"
+
+    - name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types. | Ensure settings
+      ansible.builtin.lineinfile:
+        path: /etc/security/limits.conf
+        regexp: ^\* hard maxlogins
+        line: '* hard maxlogins {{ ubtu24stig_maxlogins }}'
+
+- name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.
+  when: ubtu24stig_200610
+  tags:
+    - UBTU-24-200610
+    - CAT3
+    - CCI-000044
+    - CCI-002238
+    - SRG-OS-000021-GPOS-00005
+    - SRG-OS-000329-GPOS-00128
+    - SV-270690r1067126_rule
+    - V-270690
+    - NIST800-53R4_AC-7
+    - account
+    - pam
+  block:
+    - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.
+      ansible.builtin.lineinfile:
+        path: /etc/security/faillock.conf
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: '^(#|)\s*audit', line: 'audit' }
+        - { regexp: '^(#|)\s*silent', line: 'silent' }
+        - { regexp: '^(#|)\s*deny', line: 'deny = {{ ubtu24stig_faillock_deny }}' }
+        - { regexp: '^(#|)\s*fail_interval', line: 'fail_interval = {{ ubtu24stig_faillock_fail_interval }}' }
+        - { regexp: '^(#|)\s*unlock_time', line: 'unlock_time = {{ ubtu24stig_faillock_unlock_time }}' }
+
+    - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.
+      ansible.builtin.blockinfile:
+        path: /etc/pam.d/common-auth
+        marker: "# {mark} Faillock config Ubuntu2404 STIG - Ansible-lockdown Sponsored by Mindpoint Group - A Tyto Athene Company / Ansible Lockdown"
+        block: |
+          auth    [default=die]                   pam_faillock.so authfail
+          auth    sufficient                      pam_faillock.so authsucc
+        insertafter: auth.*pam_unix.so

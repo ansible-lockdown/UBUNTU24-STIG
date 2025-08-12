@@ -1,0 +1,105 @@
+---
+
+- name: HIGH | UBTU-24-100030 | PATCH | Ubuntu 24.04 LTS must not have the telnet package installed.
+  when: ubtu24stig_100030
+  tags:
+    - UBTU-24-100030
+    - CAT1
+    - CCI-000197
+    - SRG-OS-000074-GPOS-00042
+    - SV-270647r1066430_rule
+    - V-270647
+    - NIST800-53R4_IA-5
+    - packages
+  ansible.builtin.package:
+    name: telnet
+    state: absent
+    purge: "{{ ubtu24stig_purge_apt }}"
+
+- name: HIGH | UBTU-24-100040 | PATCH | Ubuntu 24.04 LTS must not have the  rsh-server package installed.
+  when: ubtu24stig_100040
+  tags:
+    - UBTU-24-100030
+    - CAT1
+    - CCI-000381
+    - SRG-OS-000095-GPOS-00049
+    - SV-270648r1066433_rule
+    - V-270648
+    - NIST800-53R4_CM-7
+    - packages
+  ansible.builtin.package:
+    name: rsh-server
+    state: absent
+    purge: "{{ ubtu24stig_purge_apt }}"
+
+- name: HIGH | UBTU-24-100800 | PATCH | Ubuntu 24.04 LTS must have SSH installed.
+  when: ubtu24stig_100800
+  tags:
+    - UBTU-24-100800
+    - CAT1
+    - CCI-002418
+    - CCI-002420
+    - CCI-002422
+    - SRG-OS-000423-GPOS-00187
+    - SRG-OS-000425-GPOS-00189
+    - SRG-OS-000426-GPOS-00190
+    - SV-270665r1067133_rule
+    - V-270665
+    - NIST800-53R4_SC-8
+    - ssh
+  ansible.builtin.package:
+    name: ssh
+    state: present
+
+- name: HIGH | UBTU-24-100810 | PATCH | Ubuntu 24.04 LTS must use SSH to protect the confidentiality and integrity of transmitted information.
+  when: ubtu24stig_100810
+  tags:
+    - UBTU-24-100810
+    - CAT1
+    - CCI-002418
+    - CCI-002420
+    - CCI-002422
+    - SRG-OS-000423-GPOS-00187
+    - SRG-OS-000425-GPOS-00189
+    - SRG-OS-000426-GPOS-00190
+    - SV-270666r1066487_rule
+    - V-270666
+    - NIST800-53R4_SC-8
+    - ssh
+  ansible.builtin.systemd:
+    name: ssh
+    state: started
+    enabled: true
+
+- name: HIGH | UBTU-24-102000 | PATCH | Ubuntu 24.04 LTS when booted must require authentication upon booting into single-user and maintenance modes.
+  when:
+    - ubtu24stig_102000
+    - ubtu24stig_set_bootloader_password
+  tags:
+    - UBTU-24-102000
+    - CAT1
+    - CCI-000213
+    - SRG-OS-000080-GPOS-00048
+    - SV-270675r1066514_rule
+    - V-270675
+    - NIST800-53R4_AC-3
+    - bootloader
+  block:
+    - name: HIGH | UBTU-24-102000 | PATCH | Ubuntu 24.04 LTS when booted must require authentication upon booting into single-user and maintenance modes.
+      ansible.builtin.lineinfile:
+        path: /etc/grub.d/40_custom
+        regex: "{{ item.regex }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regex: '^set superusers=', line: 'set superusers="root"' }
+        - { regex: '^password_pbkdf2 root', line: 'password_pbkdf2 root {{ ubtu24stig_bootloader_password_hash }}' }
+      notify: Update_grub
+
+    - name: HIGH | UBTU-24-102000 | PATCH | Ubuntu 24.04 LTS when booted must require authentication upon booting into single-user and maintenance modes.
+      when: not ubtu24stig_ask_passwd_to_boot
+      ansible.builtin.lineinfile:
+        path: "/etc/grub.d/10_linux"
+        regexp: '(^CLASS="--class gnu-linux --class gnu --class os).*"$'
+        line: '\g<1> --unrestricted"'
+        backrefs: true
+      notify: Update_grub

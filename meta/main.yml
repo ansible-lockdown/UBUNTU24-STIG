@@ -1,0 +1,41 @@
+---
+
+galaxy_info:
+  author: "Mark Bolwell"
+  description: "Apply the Ubuntu24 STIG using ansible"
+  company: "MindPoint Group"
+  license: MIT
+  role_name: ubuntu24_stig
+  namespace: mindpointgroup
+  min_ansible_version: 2.12.1
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+  galaxy_tags:
+    - ubuntu
+    - ubuntu24
+    - ubuntu2404
+    - ubuntuserver
+    - ubuntuserver
+    - ubuntusecurity
+    - ubuntuhardening
+    - ubuntucompliance
+    - securitybaseline
+    - oshardening
+    - serverhardening
+    - system
+    - security
+    - stig
+    - hardening
+    - benchmark
+    - compliance
+    - complianceascode
+    - disa
+    - ansible
+    - automation
+collections:
+  - community.general
+  - community.crypto
+  - ansible.posix
+dependencies: []

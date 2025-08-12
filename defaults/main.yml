@@ -1,0 +1,527 @@
+---
+
+## metadata for Audit benchmark
+benchmark_version: 'v1.1.0'
+
+## Benchmark name used by auditing control role
+# The audit variable found at the base
+benchmark: UBUNTU24-STIG
+
+# Whether to skip the OS check for supported OS's
+skip_os_check: false
+
+ubtu24stig_cat1: true
+ubtu24stig_cat2: true
+ubtu24stig_cat3: true
+
+# We've defined complexity-high to mean that we cannot automatically remediate
+# the rule in question.  In the future this might mean that the remediation
+# may fail in some cases.
+ubtu24stig_complexity_high: false
+
+# Show "changed" for complex items not remediated per complexity-high setting
+# to make them stand out.  "changed" items on a second run of the role would
+# indicate items requiring manual review.
+ubtu24stig_audit_complex: true
+
+# We've defined disruption-high to indicate items that are likely to cause
+# disruption in a normal workflow.  These items can be remediated automatically
+# but are disabled by default to avoid disruption.
+ubtu24stig_disruption_high: false
+
+# Allow aide check to run - this can be very resource intensive - not good on shared storage multiple hosts
+ubtu24stig_allow_aide_check: false
+
+ubtu24stig_workaround_for_disa_benchmark: true
+
+## Unrestricted boot
+# Setting this variable to false enables the system to
+# boot *without* querying for the bootloader password.
+ubtu24stig_ask_passwd_to_boot: true
+
+# tweak role to run in a chroot, such as in kickstart %post script
+ubtu24stig_system_is_chroot: "{{ ansible_is_chroot | default(False) }}"
+
+# Set if system uses ipv6
+ubtu24stig_system_uses_ipv6: false
+
+# Place to find the container yml file for your environment - /vars/...
+container_vars_file: is_container.yml
+
+# Whether to skip the reboot
+skip_reboot: true
+
+# system acts or requires router networking options
+ubtu24stig_system_is_router: false
+
+# System is based on ec2
+system_is_ec2: false
+
+# Whether to purge apt pages when removed
+ubtu24stig_purge_apt: false
+
+# Create managed not custom local_facts files
+create_benchmark_facts: true
+ansible_facts_path: /etc/ansible/facts.d
+
+# UID settings for interactive users
+# These are discovered via logins.def if set true
+ubtu24stig_discover_int_uid: true
+# This variable sets the minimum number from which to search for UID
+# Note that the value will be dynamically overwritten if variable `ubtu24stig_discover_int_uid` has
+# been set to `true`.
+min_int_uid: 1000
+### Controls:
+# - Ensure local interactive user home directories exist
+# - Ensure local interactive users own their home directories
+# This variable sets the maximum number at which the search stops for UID
+# Note that the value will be dynamically overwritten if variable `ubtu24stig_discover_int_uid` has
+# been set to `true`.
+max_int_uid: 65533
+
+###
+### Settings for associated Audit role using Goss
+###
+
+###########################################
+### Goss is required on the remote host ###
+### vars/audit.yml for other settings  ###
+
+# Allow audit to setup the requirements including installing git (if option chosen and downloading and adding Goss binary to system)
+setup_audit: false
+
+# enable audits to run - this runs the audit and get the latest content
+run_audit: false
+# Run heavy tests - some tests can have more impact on a system enabling these can have greater impact on a system
+audit_run_heavy_tests: true
+
+## Only run Audit do not remediate
+audit_only: false
+
+#############################
+
+# How to retrieve audit binary
+# Options are copy or download - detailed settings at the bottom of this file
+# you will need to access to either github or the file already downloaded
+get_audit_binary_method: download
+
+## if get_audit_binary_method - copy the following needs to be updated for your environment
+## it is expected that it will be copied from somewhere accessible to the control node
+## e.g copy from ansible control node to remote host
+audit_bin_copy_location: /some/accessible/path
+
+# how to get audit files onto host options
+# options are git/copy/archive/get_url other e.g. if you wish to run from already downloaded conf
+audit_content: git
+
+# If using either archive, copy, get_url:
+## Note will work with .tar files - zip will require extra configuration
+### If using get_url this is expecting github url in tar.gz format e.g.(Note the benchmark version)
+### https://github.com/ansible-lockdown/UBUNTU24-STIG-Audit/archive/refs/heads/benchmark-v1.0.0.tar.gz
+audit_conf_source: "some path or url to copy from"
+
+# Destination for the audit content to be placed on managed node
+# note may not need full path e.g. /opt with the directory being the {{ benchmark }}-Audit directory
+audit_conf_dest: "/opt"
+
+# Where the audit logs are stored
+audit_log_dir: '/opt'
+
+# Method of getting,uploading the summary files
+## Enable the collection of audit files
+fetch_audit_output: false
+## Ensure access and permissions are available for these to occur.
+## options are
+# fetch - fetches from server and moves to location on the ansible controller (could be a mount point available to controller)
+# copy - copies file to a location available to the managed node
+audit_output_collection_method: fetch
+
+# Location to put the audit files
+audit_output_destination: /opt/audit_summaries/
+
+### Goss Settings ##
+####### END ########
+
+#### CAT 1
+
+ubtu24stig_100030: true
+ubtu24stig_100040: true
+ubtu24stig_100800: true
+ubtu24stig_100810: true
+ubtu24stig_102000: true
+ubtu24stig_300022: true
+ubtu24stig_300025: true
+ubtu24stig_300026: true
+ubtu24stig_300027: true
+ubtu24stig_300028: true
+ubtu24stig_300031: true
+ubtu24stig_400370: true
+ubtu24stig_600030: true
+ubtu24stig_600130: true
+
+#### CAT 2
+## 10XXXX
+ubtu24stig_100100: true
+ubtu24stig_100110: true
+ubtu24stig_100120: true
+ubtu24stig_100130: true
+ubtu24stig_100200: true
+ubtu24stig_100300: true
+ubtu24stig_100310: true
+ubtu24stig_100400: true
+ubtu24stig_100410: true
+ubtu24stig_100500: true
+ubtu24stig_100510: true
+ubtu24stig_100600: true
+ubtu24stig_100650: true
+ubtu24stig_100660: true
+ubtu24stig_100820: true
+ubtu24stig_100830: true
+ubtu24stig_100840: true
+ubtu24stig_100850: true
+ubtu24stig_100860: true
+ubtu24stig_100900: true
+ubtu24stig_100910: true
+ubtu24stig_101000: true
+ubtu24stig_102010: true
+
+## 20XXXX
+ubtu24stig_200020: true
+ubtu24stig_200040: true
+ubtu24stig_200060: true
+ubtu24stig_200090: true
+ubtu24stig_200250: true
+ubtu24stig_200260: true
+ubtu24stig_200280: true
+ubtu24stig_200290: true
+ubtu24stig_200300: true
+ubtu24stig_200310: true
+ubtu24stig_200320: true
+ubtu24stig_200580: true
+ubtu24stig_200640: true
+ubtu24stig_200650: true
+ubtu24stig_200660: true
+ubtu24stig_200680: true
+
+## 30XXXX
+ubtu24stig_300006: true
+ubtu24stig_300007: true
+ubtu24stig_300008: true
+ubtu24stig_300009: true
+ubtu24stig_300010: true
+ubtu24stig_300011: true
+ubtu24stig_300012: true
+ubtu24stig_300013: true
+ubtu24stig_300014: true
+ubtu24stig_300016: true
+ubtu24stig_300021: true
+ubtu24stig_300023: true
+ubtu24stig_300029: true
+ubtu24stig_300030: true
+ubtu24stig_300039: true
+ubtu24stig_300041: true
+
+## 40XXXX
+ubtu24stig_400000: true
+ubtu24stig_400020: true
+ubtu24stig_400030: true
+ubtu24stig_400060: true
+ubtu24stig_400110: true
+ubtu24stig_400220: true
+ubtu24stig_400260: true
+ubtu24stig_400270: true
+ubtu24stig_400280: true
+ubtu24stig_400290: true
+ubtu24stig_400300: true
+ubtu24stig_400310: true
+ubtu24stig_400320: true
+ubtu24stig_400330: true
+ubtu24stig_400360: true
+ubtu24stig_400375: true
+ubtu24stig_400380: true
+ubtu24stig_400400: true
+
+## 50XXXX
+ubtu24stig_500010: true
+ubtu24stig_500050: true
+
+## 60XXXX
+ubtu24stig_600000: true
+ubtu24stig_600010: true
+ubtu24stig_600060: true
+ubtu24stig_600070: true
+ubtu24stig_600090: true
+ubtu24stig_600150: true
+ubtu24stig_600190: true
+ubtu24stig_600200: true
+ubtu24stig_600230: true
+
+## 70XXXX
+ubtu24stig_700010: true
+ubtu24stig_700020: true
+ubtu24stig_700030: true
+ubtu24stig_700040: true
+ubtu24stig_700050: true
+ubtu24stig_700060: true
+ubtu24stig_700070: true
+ubtu24stig_700080: true
+ubtu24stig_700090: true
+ubtu24stig_700100: true
+ubtu24stig_700110: true
+ubtu24stig_700120: true
+ubtu24stig_700130: true
+ubtu24stig_700140: true
+ubtu24stig_700150: true
+ubtu24stig_700300: true
+ubtu24stig_700310: true
+ubtu24stig_700320: true
+ubtu24stig_700400: true
+
+## 900XXX
+ubtu24stig_900040: true
+ubtu24stig_900050: true
+ubtu24stig_900060: true
+ubtu24stig_900070: true
+ubtu24stig_900080: true
+ubtu24stig_900090: true
+ubtu24stig_900100: true
+ubtu24stig_900110: true
+ubtu24stig_900120: true
+ubtu24stig_900130: true
+ubtu24stig_900140: true
+ubtu24stig_900150: true
+ubtu24stig_900160: true
+ubtu24stig_900170: true
+ubtu24stig_900180: true
+ubtu24stig_900190: true
+ubtu24stig_900200: true
+ubtu24stig_900210: true
+ubtu24stig_900220: true
+ubtu24stig_900230: true
+ubtu24stig_900240: true
+ubtu24stig_900250: true
+ubtu24stig_900260: true
+ubtu24stig_900270: true
+ubtu24stig_900280: true
+ubtu24stig_900290: true
+ubtu24stig_900300: true
+ubtu24stig_900310: true
+ubtu24stig_900320: true
+ubtu24stig_900330: true
+ubtu24stig_900340: true
+ubtu24stig_900350: true
+ubtu24stig_900500: true
+ubtu24stig_900510: true
+ubtu24stig_900520: true
+ubtu24stig_900540: true
+ubtu24stig_900590: true
+ubtu24stig_900600: true
+ubtu24stig_900610: true
+ubtu24stig_900730: true
+ubtu24stig_900740: true
+ubtu24stig_900750: true
+
+## 901XXX
+ubtu24stig_901230: true
+ubtu24stig_901240: true
+ubtu24stig_901250: true
+ubtu24stig_901260: true
+ubtu24stig_901270: true
+ubtu24stig_901280: true
+ubtu24stig_901300: true
+ubtu24stig_901310: true
+ubtu24stig_901350: true
+ubtu24stig_901380: true
+ubtu24stig_901890: true
+
+## 909XXX
+ubtu24stig_909000: true
+
+#### CAT 3
+ubtu24stig_100010: true
+ubtu24stig_100020: true
+ubtu24stig_100450: true
+ubtu24stig_100700: true
+ubtu24stig_200000: true
+ubtu24stig_200610: true
+ubtu24stig_300001: true
+ubtu24stig_300017: true
+ubtu24stig_300024: true
+ubtu24stig_400340: true
+ubtu24stig_600140: true
+ubtu24stig_600160: true
+ubtu24stig_600180: true
+ubtu24stig_900920: true
+ubtu24stig_900950: true
+ubtu24stig_900960: true
+ubtu24stig_900980: true
+ubtu24stig_901220: true
+
+### CONTROLS
+
+##############
+### 10XXXX ###
+##############
+
+# 100450
+# Adjust to match remote syslog server configuration
+ubtu24stig_remotelog_server_address: 10.10.10.10
+
+# If using sssd set to true
+ubtu24stig_use_sssd: false
+
+## 100600 SSSD packages
+# Add extra packages for environment as required
+ubtu24stig_sssd_packages:
+  - sssd
+  - libpam-sss
+  - libnss-sss
+
+## 1008xxx - Network - SSHD
+ubtu24stig_sshd_config_ciphers: "{{ ubtu24stig_dod_ciphers }}"
+ubtu24stig_sshd_config_macs: "{{ ubtu24stig_dod_macs }}"
+ubtu24stig_sshd_config_kex: "{{ ubtu24stig_dod_kex }}"
+
+## 102000 Bootloader/Grub settings
+ubtu24stig_bootloader_password_hash: 'grub.pbkdf2.sha512.changethispassword'  # pragma: allowlist secret
+ubtu24stig_set_bootloader_password: false
+
+##############
+### 20XXXX ###
+##############
+
+## 200000
+# Max number of logins 10 max set by STIG
+ubtu24stig_maxlogins: 10
+
+### 2000xx - Gnome Desktop
+### Graphical/Gnome interface required
+ubtu24stig_gui: "{{ ubtu24_gnome_present.stat.exists | default(false) }}"
+
+## 200260
+# Number of days account is active before disabled
+# 35 is max set by STIG
+ubtu24stig_user_inactive_days: '35'
+
+## 2006xx
+## Banner
+ubtu24stig_logon_banner: "{{ ubtu24stig_workaround_for_disa_benchmark | ternary(
+        ubtu24stig_logon_banner_nice | regex_replace('(?s)(?<!\\n)\\n(?!(\n|$))', ' '),
+        ubtu24stig_logon_banner_nice) }}"
+ubtu24stig_logon_banner_nice: |
+    You are accessing a U.S. Government (USG) Information System (IS) that is
+    provided for USG-authorized use only.
+
+    By using this IS (which includes any device attached to this IS), you consent
+    to the following conditions:
+
+    -The USG routinely intercepts and monitors communications on this IS for
+    purposes including, but not limited to, penetration testing, COMSEC monitoring,
+    network operations and defense, personnel misconduct (PM), law enforcement
+    (LE), and counterintelligence (CI) investigations.
+
+    -At any time, the USG may inspect and seize data stored on this IS.
+
+    -Communications using, or data stored on, this IS are not private, are subject
+    to routine monitoring, interception, and search, and may be disclosed or used
+    for any USG-authorized purpose.
+
+    -This IS includes security measures (e.g., authentication and access controls)
+    to protect USG interests--not for your personal benefit or privacy.
+
+    -Notwithstanding the above, using this IS does not constitute consent to PM, LE
+    or CI investigative searching or monitoring of the content of privileged
+    communications, or work product, related to personal representation or services
+    by attorneys, psychotherapists, or clergy, and their assistants. Such
+    communications and work product are private and confidential. See User
+    Agreement for details.
+
+## 200610
+# Faillock settings
+ubtu24stig_faillock_deny: '3'  # 3 or less but not 0
+ubtu24stig_faillock_fail_interval: '900'  # 900 or less is required
+ubtu24stig_faillock_unlock_time: '0'
+
+## 200680
+ubtu24stig_ssh_confirm_file: etc/profile.d/ssh_confirm.sh
+
+##############
+### 30XXXX ###
+##############
+
+## 30xxxx - ssh
+ubtu24stig_ssh_required: true
+ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
+
+# 300017 Session
+# faildelay
+ubtu24stig_faildelay: 4000000  # 4000000 is the minimum value = 4 seconds
+
+##############
+### 40XXXX ###
+##############
+
+# 400020
+# Set to true if using smart card multifactor authentication
+ubtu24stig_uses_smartcard: false
+
+# ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - system default is often yescrypt
+ubtu24stig_passwd_hash_algo: sha512  # pragma: allowlist secret
+ubtu24stig_pass_difok: '8'  # 8 is minimum for STIG
+ubtu24stig_pass_min_days: '1'
+ubtu24stig_pass_max_days: '60'
+ubtu24stig_pass_minlen: '15'  # 15 is minimum for STIG
+
+##############
+### 50XXXX ###
+##############
+
+ubtu24stig_sshd_config_clientalivecountmax: 1
+ubtu24stig_sshd_config_clientaliveinterval: 600  # max 600
+
+ubtu24stig_sysctl_network_conf: "{{ ubtu24stig_sysctl_file_default }}"
+
+##############
+### 60XXXX ###
+##############
+
+ubtu24stig_time_synchronization_servers:
+  - 'tick.usno.navy.mil'
+  - 'tock.usno.navy.mil'
+  - 'ntp2.usno.navy.mil'
+ubtu24stig_chrony_server_options: "iburst maxpoll 16"  # Max Settings is maxpoll 16
+
+# 600130
+## Users to be added to the sudo group
+ubtu24stig_sudo_group_users:
+  - vagrant
+
+##############
+### 70XXXX ###
+##############
+
+ubtu24stig_sysctl_file_default: /etc/sysctl.d/stig_kernel.conf
+ubtu24stig_sysctl_kernel_conf: "{{ ubtu24stig_sysctl_file_default }}"
+
+##############
+### 90XXXX ###
+##############
+### AUDITD
+ubtu24stig_audit_log_filesystem: /var/log/audit
+ubtu24stig_auditd_disk_full_action: HALT  # Can be one of "SYSLOG", "SINGLE", or "HALT"
+ubtu24stig_auditd_log_group: root
+ubtu24stig_auditd_email_acct: root
+ubtu24stig_auditd_space_left: 25%
+ubtu24stig_auditd_space_left_action: EMAIL  # Can be set to exec if running script to inform ISSO
+
+##############
+### 91XXXX ###
+##############
+ubtu24stig_audit_tools:
+  - /sbin/auditctl
+  - /sbin/aureport
+  - /sbin/ausearch
+  - /sbin/autrace
+  - /sbin/auditd
+  - /sbin/audispd-zos-remote
+  - /sbin/augenrules
