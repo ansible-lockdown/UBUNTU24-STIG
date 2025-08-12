@@ -1,0 +1,36 @@
+---
+
+- name: MEDIUM | UBTU-24-500010 | Ubuntu 24.04 LTS must generate audit records for privileged activities, nonlocal maintenance, diagnostic sessions and other system-level access.
+  when: ubtu24stig_500010
+  tags:
+    - UBTU-24-500010
+    - CAT2
+    - CCI-000172
+    - CCI-002884
+    - SRG-OS-000392-GPOS-00172
+    - SRG-OS-000471-GPOS-00215
+    - SV-270740r1066709_rule
+    - V-270740
+    - NIST800-53R4_AU-12
+    - NIST800-53R4_MA-4
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-500050 | PATCH | Ubuntu 24.04 LTS must use strong authenticators in establishing nonlocal maintenance and diagnostic sessions
+  when: ubtu24stig_500050
+  tags:
+    - UBTU-24-500050
+    - CAT2
+    - CCI-000877
+    - SRG-OS-000125-GPOS-00065
+    - SV-270741r1066712_rule
+    - V-27074
+    - NIST800-53R4_MA-4
+    - ssh
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^UsePAM
+    line: "UsePAM yes"
+    validate: sshd -t -f %s
+  notify: Restart_ssh

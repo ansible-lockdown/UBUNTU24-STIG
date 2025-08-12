@@ -1,0 +1,424 @@
+---
+
+- name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity.
+  when:
+    - ubtu24stig_200020
+    - ubtu24stig_gui
+  tags:
+    - UBTU-24-200020
+    - CAT2
+    - CCI-000057
+    - SRG-OS-000029-GPOS-00010
+    - SV-270678r1066523_rule
+    - V-270678
+    - NIST800-53R4_AC-11
+    - gnome
+  block:
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | get lock-enabled
+      ansible.builtin.command: gsettings get org.gnome.desktop.screensaver lock-enabled
+      changed_when: false
+      failed_when: discovered_gnome_screensaver_lock_enabled.rc not in [ 0, 1 ]
+      register: discovered_gnome_screensaver_lock_enabled
+
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | set lock-enabled
+      when: "'true' not in discovered_gnome_screensaver_lock_enabled.stdout"
+      ansible.builtin.command: gsettings set org.gnome.desktop.screensaver lock-enabled true
+      changed_when: true
+
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | get lock-delay
+      ansible.builtin.command: gsettings get org.gnome.desktop.screensaver lock-delay
+      changed_when: false
+      failed_when: discovered_gnome_screensaver_lock_delay.rc not in [ 0, 1 ]
+      register: discovered_gnome_screensaver_lock_delay
+
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | set lock-delay
+      when: "'uint32' not in discovered_gnome_screensaver_lock_delay.stdout"
+      ansible.builtin.command: gsettings set org.gnome.desktop.screensaver lock-delay 0
+      changed_when: true
+
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | get idle-delay
+      ansible.builtin.command: gsettings get org.gnome.desktop.session idle-delay
+      changed_when: false
+      failed_when: discovered_gnome_session_idle_delay.rc not in [ 0, 1 ]
+      register: discovered_gnome_session_idle_delay
+
+    - name: MEDIUM | UBTU-24-200020 | PATCH | Ubuntu 24.04 LTS must initiate a graphical session lock after 10 minutes of inactivity. | set idle-delay
+      when: "'uint32 900' not in discovered_gnome_session_idle_delay.stdout"
+      ansible.builtin.command: gsettings set org.gnome.desktop.session idle-delay 600
+      changed_when: true
+
+- name: MEDIUM | UBTU-24-200040 | PATCH | Ubuntu 24.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures.
+  when:
+    - ubtu24stig_200040
+    - ubtu24stig_gui
+  tags:
+    - UBTU-24-200040
+    - CAT2
+    - CCI-000056
+    - SRG-OS-000028-GPOS-00009
+    - SV-270679r1066526_rule
+    - V-270679
+    - NIST800-53R4_AC-11
+    - gnome
+  block:
+    - name: MEDIUM | UBTU-24-200040 | AUDIT | Ubuntu 24.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures. | get settings
+      ansible.builtin.command: gsettings get org.gnome.desktop.screensaver lock-enabled
+      changed_when: false
+      register: discovered_gui_screensaver_lock
+
+    - name: MEDIUM | UBTU-24-200040 | PATCH | Ubuntu 24.04 LTS must retain a user's session lock until that user reestablishes access using established identification and authentication procedures. | set settings
+      when: "'true' not in discovered_gui_screensaver_lock"
+      ansible.builtin.command: gsettings set org.gnome.desktop.screensaver lock-enabled true
+      changed_when: true
+
+- name: MEDIUM | UBTU-24-200060 | PATCH | Ubuntu 24.04 LTS must automatically terminate a user session after inactivity timeouts have expired.
+  when: ubtu24stig_200060
+  tags:
+    - UBTU-24-200060
+    - CAT2
+    - CCI-002361
+    - CCI-000060
+    - SRG-OS-000279-GPOS-00109
+    - SV-270680r1066529_rule
+    - V-270680
+    - NIST800-53R4_AC-12
+    - session
+  block:
+    - name: MEDIUM | UBTU-24-200060 | AUDIT | Ubuntu 24.04 LTS must automatically terminate a user session after inactivity timeouts have expired. | capture current settings
+      ansible.builtin.shell: grep -E "\bTMOUT=" /etc/bash.bashrc /etc/profile.d/* | cut -d':' -f1
+      changed_when: false
+      failed_when: discovered_shell_tmout.rc not in [ 0, 1 ]
+      register: discovered_shell_tmout
+
+    - name: MEDIUM | UBTU-24-200060 | AUDIT | Ubuntu 24.04 LTS must automatically terminate a user session after inactivity timeouts have expired. | remove current settings
+      when:
+        - discovered_shell_tmout.stdout is defined
+        - "'/etc/profile.d/99-terminal_tmout.sh' not in item"
+      ansible.builtin.replace:
+        path: "{{ item }}"
+        regexp: (^\s*TMOUT=)
+        replace: '#\1'
+      loop: "{{ discovered_shell_tmout.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-200060 | PATCH | Ubuntu 24.04 LTS must automatically terminate a user session after inactivity timeouts have expired. | add profile file
+      ansible.builtin.template:
+        src: etc/profile.d/99-terminal_tmout.sh.j2
+        dest: /etc/profile.d/99-terminal_tmout.sh
+        owner: root
+        group: root
+        mode: 'go-wx'
+
+- name: MEDIUM | UBTU-24_200090 | PATCH | Ubuntu 24.04 LTS must monitor remote access methods.
+  when: ubtu24stig_200090
+  tags:
+    - UBTU-24-200090
+    - CAT2
+    - CCI-000067
+    - SRG-OS-000032-GPOS-00013
+    - SV-270681r1066532_rule
+    - V-270681
+    - NIST800-53R4_AC-17
+    - syslog
+  block:
+    - name: MEDIUM | UBTU-24-200090 | PATCH | Ubuntu 24.04 LTS must monitor remote access methods.
+      ansible.builtin.replace:
+        name: /etc/rsyslog.conf
+        regexp: "{{ item }}"
+        replace: "#{{ item }}"
+      loop:
+        - auth(priv|).*
+        - daemon.*
+      notify: Restart_rsyslog
+
+    - name: MEDIUM | UBTU-24-200090 | PATCH | Ubuntu 24.04 LTS must monitor remote access methods.
+      ansible.builtin.template:
+        src: etc/rsyslog.d/50-default.conf.j2
+        dest: /etc/rsyslog.d/50-default.conf
+        owner: root
+        group: root
+        mode: 'go-wx'
+      notify: Restart_rsyslog
+
+- name: MEDIUM | UBTU-24-200250 | WARN | Ubuntu 24.04 LTS must automatically remove or disable emergency accounts after 72 hours.
+  when: ubtu24stig_200250
+  tags:
+    - UBTU-24-200250
+    - CAT2
+    - CCI-000016
+    - CCI-001682
+    - SRG-OS-000123-GPOS-00064
+    - SRG-OS-000002-GPOS-00002
+    - SV-270682r1066535_rule
+    - V-270682
+    - NIST800-53R4_AC-2
+    - account
+  ansible.builtin.debug:
+    msg:
+      - "Warning!!  Please check temporary/emergency accounts for expiration dates to be 72 hours or less."
+      - "To do this please run sudo chage -l account_name for the accounts you need to check"
+      - "The results will display the Account Expires information"
+      - 'To set account expire run sudo chage -E `date -d "+3 days" +%Y-%m-%d` account_name'
+
+- name: MEDIUM | UBTU-24-200260 | PATCH | Ubuntu 24.04 LTS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity.
+  when: ubtu24stig_200260
+  tags:
+    - UBTU-24-200260
+    - CAT2
+    - CCI-000000
+    - SRG-OS-000118-GPOS-00060
+    - SRG-OS-000590-GPOS-00110
+    - SV-270683r1066538_rule
+    - V-270683
+    - NIST800-53R4_NA
+    - account
+  ansible.builtin.lineinfile:
+    path: /etc/default/useradd
+    regexp: (?i)^(#|)INACTIVE\s*=\s*\d*
+    line: "INACTIVE {{ ubtu24stig_user_inactive_days }}"
+
+- name: MEDIUM | UBTU-24-200280 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/passwd.
+  when: ubtu24stig_200280
+  tags:
+    - UBTU-24-200280
+    - CAT2
+    - CCI-000018
+    - CCI-000172
+    - CCI-001403
+    - CCI-001404
+    - CCI-001405
+    - CCI-002130
+    - SRG-OS-000004-GPOS-00004
+    - SRG-OS-000239-GPOS-00089
+    - SRG-OS-000240-GPOS-00090
+    - SRG-OS-000241-GPOS-00091
+    - SRG-OS-000303-GPOS-00120
+    - SRG-OS-000458-GPOS-00203
+    - SRG-OS-000463-GPOS-00207
+    - SRG-OS-000476-GPOS-00221
+    - SV-270684r1066541_rule
+    - V-270684
+    - NIST800-53R4_AC-2
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-200290 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/group.
+  when: ubtu24stig_200290
+  tags:
+    - UBTU-24-200290
+    - CAT2
+    - CCI-000018
+    - CCI-000172
+    - CCI-001403
+    - CCI-001404
+    - CCI-001405
+    - CCI-002130
+    - SRG-OS-000004-GPOS-00004
+    - SRG-OS-000239-GPOS-00089
+    - SRG-OS-000240-GPOS-00090
+    - SRG-OS-000241-GPOS-00091
+    - SRG-OS-000303-GPOS-00120
+    - SRG-OS-000458-GPOS-00203
+    - SRG-OS-000463-GPOS-00207
+    - SRG-OS-000476-GPOS-00221
+    - SV-270685r1066544_rule
+    - V-270685
+    - NIST800-53R4_AC-2
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-200300 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/shadow.
+  when: ubtu24stig_200300
+  tags:
+    - UBTU-24-200300
+    - CAT2
+    - CCI-000018
+    - CCI-000172
+    - CCI-001403
+    - CCI-001404
+    - CCI-001405
+    - CCI-002130
+    - SRG-OS-000004-GPOS-00004
+    - SRG-OS-000239-GPOS-00089
+    - SRG-OS-000240-GPOS-00090
+    - SRG-OS-000241-GPOS-00091
+    - SRG-OS-000303-GPOS-00120
+    - SRG-OS-000458-GPOS-00203
+    - SRG-OS-000463-GPOS-00207
+    - SRG-OS-000476-GPOS-00221
+    - SV-270686r1066547_rule
+    - V-270686
+    - NIST800-53R4_AC-2
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-200310 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/gshadow.
+  when: ubtu24stig_200310
+  tags:
+    - UBTU-24-200310
+    - CAT2
+    - CCI-000018
+    - CCI-000172
+    - CCI-001403
+    - CCI-001404
+    - CCI-001405
+    - CCI-002130
+    - SRG-OS-000004-GPOS-00004
+    - SRG-OS-000239-GPOS-00089
+    - SRG-OS-000240-GPOS-00090
+    - SRG-OS-000241-GPOS-00091
+    - SRG-OS-000303-GPOS-00120
+    - SRG-OS-000458-GPOS-00203
+    - SRG-OS-000463-GPOS-00207
+    - SRG-OS-000476-GPOS-00221
+    - SV-270687r1066550_rule
+    - V-270687
+    - NIST800-53R4_AC-2
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-200320 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/opasswd.
+  when: ubtu24stig_200320
+  tags:
+    - UBTU-24-200320
+    - CAT2
+    - CCI-000018
+    - CCI-000172
+    - CCI-001403
+    - CCI-001404
+    - CCI-001405
+    - CCI-002130
+    - SRG-OS-000004-GPOS-00004
+    - SRG-OS-000239-GPOS-00089
+    - SRG-OS-000240-GPOS-00090
+    - SRG-OS-000241-GPOS-00091
+    - SRG-OS-000303-GPOS-00120
+    - SRG-OS-000458-GPOS-00203
+    - SRG-OS-000463-GPOS-00207
+    - SRG-OS-000476-GPOS-00221
+    - S-270688r1066553_rule
+    - V-270688
+    - NIST800-53R4_AC-2
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-200580 | Ubuntu 24.04 LTS must prevent all software from executing at higher privilege levels than users executing the software and the audit system must be configured to audit the execution of privileged functions.
+  when: ubtu24stig_200580
+  tags:
+    - UBTU-24-200580
+    - CAT2
+    - CCI-002233
+    - CCI-002234
+    - SRG-OS-000326-GPOS-00126
+    - SRG-OS-000327-GPOS-00127
+    - SRG-OS-000755-GPOS-00220
+    - SV-270689r1066556_rule
+    - V-270689
+    - NIST800-53R4_AC-6
+    - auditd
+  ansible.builtin.set_fact:
+    update_audit_template: true
+
+- name: MEDIUM | UBTU-24-200640 | PATCH | Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting access to via an SSH logon.
+  when: ubtu24stig_200640
+  tags:
+    - UBTU-24-200640
+    - CAT2
+    - CCI-000048
+    - CCI-001384
+    - CCI-001385
+    - CCI-001386
+    - CCI-001387
+    - CCI-001388
+    - SRG-OS-000023-GPOS-00006
+    - SRG-OS-000228-GPOS-00088
+    - SV-270691r1066562_rule
+    - V-270691
+    - NIST800-53R4_AC-8
+  block:
+    - name: MEDIUM | UBTU-24-200640 | PATCH | Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting access to via an SSH logon. | sshd_config
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '(?i)^#?Banner'
+        line: 'Banner /etc/issue.net'
+      notify: Restart_ssh
+
+    - name: MEDIUM | UBTU-24-200640 | PATCH | Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting access to via an SSH logon. | Set banner message
+      ansible.builtin.template:
+        src: etc/issue.net.j2
+        dest: /etc/issue.net
+        group: root
+        mode: 'go-wx'
+        owner: root
+
+- name: MEDIUM | UBTU-24-200650 | PATCH | Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.
+  when:
+    - ubtu24stig_200650
+    - ubtu24stig_gui
+  tags:
+    - UBTU-24-200650
+    - CAT2
+    - CCI-000048
+    - SRG-OS-000023-GPOS-00006
+    - SV-270692r1066565_rule
+    - V-270692
+    - NIST800-53R4_AC-8
+    - gnome
+  community.general.ini_file:
+    path: /etc/gdm3/greeter.dconf-defaults
+    section: 'org/gnome/login-screen'
+    option: banner-message-text
+    value: "{{ ubtu24stig_logon_banner | join('\n') }}"
+    mode: 'go-wx'
+  notify:
+    - Update_dconf
+    - Restart_gdm3
+
+- name: MEDIUM | UBTU-24-200660 | PATCH | Ubuntu 24.04 LTS must enable the graphical user logon banner to display the Standard Mandatory DOD Notice and Consent Banner before granting local access to the system via a graphical user logon.
+  when:
+    - ubtu24stig_200660
+    - ubtu24stig_gui
+  tags:
+    - UBTU-24-200660
+    - CAT2
+    - CCI-000048
+    - SRG-OS-000023-GPOS-00006
+    - SV-270693r1066568_rule
+    - V-270693
+    - NIST800-53R4_AC-8
+    - gnome
+  community.general.ini_file:
+    path: /etc/gdm3/greeter.dconf-defaults
+    section: 'org/gnome/login-screen'
+    option: banner-message-enable
+    value: 'true'
+    mode: 'go-wx'
+  notify:
+    - Update_dconf
+    - Restart_gdm3
+
+- name: MEDIUM | UBTU-24-200680 | PATCH | Ubuntu 24.04 LTS must be configured to enforce the acknowledgement of the Standard Mandatory DOD Notice and Consent Banner for all SSH connections.
+  when: ubtu24stig_200680
+  tags:
+    - UBTU-24-200680
+    - CAT2
+    - CCI-000050
+    - SRG-OS-000024-GPOS-00007
+    - SV-270694r1066571_rule
+    - V-270694
+    - NIST800-53R4_AC-8
+  ansible.builtin.template:
+    src: "{{ ubtu24stig_ssh_confirm_file }}.j2"
+    dest: "/{{ ubtu24stig_ssh_confirm_file }}"
+    owner: root
+    group: root
+    mode: 'a=r'

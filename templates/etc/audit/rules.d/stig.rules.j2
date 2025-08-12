@@ -1,0 +1,215 @@
+## Auditd Configured by ansible-lockdown UBUNTU24-STIG
+
+{% if ubtu24stig_200280 %}
+# UBUNTU24-STIG rule 200280
+-w /etc/passwd -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu24stig_200290 %}
+# UBUNTU24-STIG rule 200290
+-w /etc/group -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu24stig_200300 %}
+# UBUNTU24-STIG rule 200300
+-w /etc/shadow -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu24stig_200310 %}
+# UBUNTU24-STIG rule 200310
+-w /etc/gshadow -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu24stig_200320 %}
+# UBUNTU24-STIG rule 200320
+-w /etc/security/opasswd -p wa -k usergroup_modification
+{% endif %}
+{% if ubtu24stig_200580 %}
+# UBUNTU24-STIG rule 200580
+-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -F key=execpriv
+-a always,exit -F arch=b64 -S execve -C gid!=egid -F egid=0 -F key=execpriv
+-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -F key=execpriv
+-a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -F key=execpriv
+{% endif %}
+{% if ubtu24stig_300029 %}
+# UBUNTU24-STIG rule 300029
+-w /var/log/journal -p wa -k systemd_journal
+{% endif %}
+{% if ubtu24stig_500010 %}
+# UBUNTU24-STIG rule 500010
+-w /var/log/sudo.log -p wa -k maintenance
+{% endif %}
+{% if ubtu24stig_900070 %}
+# UBUNTU24-STIG rule 900070
+-a always,exit -F path=/bin/su -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-priv_change
+{% endif %}
+{% if ubtu24stig_900080 %}
+# UBUNTU24-STIG rule 900080
+-a always,exit -F path=/usr/bin/chfn -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-chfn
+{% endif %}
+{% if ubtu24stig_900090 %}
+# UBUNTU24-STIG rule 900090
+-a always,exit -F path=/usr/bin/mount -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-mount
+{% endif %}
+{% if ubtu24stig_900100 %}
+# UBUNTU24-STIG rule 900100
+-a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-umount
+{% endif %}
+{% if ubtu24stig_900110 %}
+# UBUNTU24-STIG rule 900110
+-a always,exit -F path=/usr/bin/ssh-agent -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-ssh
+{% endif %}
+{% if ubtu24stig_900120 %}
+# UBUNTU24-STIG rule 900120
+-a always,exit -F path=/usr/lib/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-ssh
+{% endif %}
+{% if ubtu24stig_900130 %}
+# UBUNTU24-STIG rule 900130
+-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=-1 -k perm_mod
+-a always,exit -F arch=b32 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid>=1000 -F auid!=-1 -k perm_mod
+-a always,exit -F arch=b64 -S setxattr,fsetxattr,lsetxattr,removexattr,fremovexattr,lremovexattr -F auid=0 -k perm_mod
+{% endif %}
+{% if ubtu24stig_900140 %}
+# UBUNTU24-STIG rule 900140
+-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=-1 -k perm_chng
+-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=-1 -k perm_chng
+{% endif %}
+{% if ubtu24stig_900150 %}
+# UBUNTU24-STIG rule 900150
+-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=-1 -k perm_chng
+-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=-1 -k perm_chng
+{% endif %}
+{% if ubtu24stig_900160 %}
+# UBUNTU24-STIG rule 900160
+-a always,exit -F arch=b32 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=-1 -k perm_access
+-a always,exit -F arch=b32 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=-1 -k perm_access
+-a always,exit -F arch=b64 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=-1 -k perm_access
+-a always,exit -F arch=b64 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=-1 -k perm_access
+{% endif %}
+{% if ubtu24stig_900170 %}
+# UBUNTU24-STIG rule 900170
+-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=-1 -k priv_cmd
+{% endif %}
+{% if ubtu24stig_900180 %}
+# UBUNTU24-STIG rule 900180
+-a always,exit -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=-1 -k priv_cmd
+{% endif %}
+{% if ubtu24stig_900190 %}
+# UBUNTU24-STIG rule 900190
+-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=-1 -k priv_cmd
+{% endif %}
+{% if ubtu24stig_900200 %}
+# UBUNTU24-STIG rule 900200
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=-1 -k priv_cmd
+{% endif %}
+{% if ubtu24stig_900210 %}
+# UBUNTU24-STIG rule 900210
+-a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=-1 -k perm_chng
+{% endif %}
+{% if ubtu24stig_900220 %}
+# UBUNTU24-STIG rule 900220
+-a always,exit -F path=/sbin/apparmor_parser -F perm=x -F auid>=1000 -F auid!=-1 -k perm_chng
+{% endif %}
+{% if ubtu24stig_900230 %}
+# UBUNTU24-STIG rule 900230
+-a always,exit -F path=/usr/bin/setfacl -F perm=x -F auid>=1000 -F auid!=-1 -k perm_chng
+{% endif %}
+{% if ubtu24stig_900240 %}
+# UBUNTU24-STIG rule 900240
+-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>=1000 -F auid!=-1 -k perm_chng
+{% endif %}
+{% if ubtu24stig_900250 %}
+# UBUNTU24-STIG rule 900250
+-w /var/log/faillog -p wa -k logins
+{% endif %}
+{% if ubtu24stig_900260 %}
+# UBUNTU24-STIG rule 900260
+-w /var/log/lastlog -p wa -k logins
+{% endif %}
+{% if ubtu24stig_900270 %}
+# UBUNTU24-STIG rule 900270
+-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-passwd
+{% endif %}
+{% if ubtu24stig_900280 %}
+# UBUNTU24-STIG rule 900280
+-a always,exit -F path=/sbin/unix_update -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-unix-update
+{% endif %}
+{% if ubtu24stig_900290 %}
+# UBUNTU24-STIG rule 900290
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-gpasswd
+{% endif %}
+{% if ubtu24stig_900300 %}
+# UBUNTU24-STIG rule 900300
+-a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-chage
+{% endif %}
+{% if ubtu24stig_900310 %}
+# UBUNTU24-STIG rule 900310
+-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-usermod
+{% endif %}
+{% if ubtu24stig_900320 %}
+# UBUNTU24-STIG rule 900320
+-a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-crontab
+{% endif %}
+{% if ubtu24stig_900330 %}
+# UBUNTU24-STIG rule 900330
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=-1 -k privileged-pam_timestamp_check
+{% endif %}
+{% if ubtu24stig_900340 %}
+# UBUNTU24-STIG rule 900340
+-a always,exit -F arch=b32 -S init_module,finit_module -F auid>=1000 -F auid!=-1 -k module_chng
+-a always,exit -F arch=b64 -S init_module,finit_module -F auid>=1000 -F auid!=-1 -k module_chng
+{% endif %}
+{% if ubtu24stig_900350 %}
+# UBUNTU24-STIG rule 900350
+-a always,exit -F arch=b32 -S delete_module -F auid>=1000 -F auid!=-1 -k module_chng
+-a always,exit -F arch=b64 -S delete_module -F auid>=1000 -F auid!=-1 -k module_chng
+{% endif %}
+{% if ubtu24stig_900510 %}
+# UBUNTU24-STIG rule 900510
+-w /etc/sudoers -p wa -k privilege_modification
+{% endif %}
+{% if ubtu24stig_900520 %}
+# UBUNTU24-STIG rule 900520
+-w /etc/sudoers.d -p wa -k privilege_modification
+{% endif %}
+{% if ubtu24stig_900540 %}
+# UBUNTU24-STIG rule 900540
+-a always,exit -F arch=b64 -S unlink,unlinkat,rename,renameat,rmdir -F auid>=1000 -F auid!=-1 -k delete
+-a always,exit -F arch=b32 -S unlink,unlinkat,rename,renameat,rmdir -F auid>=1000 -F auid!=-1 -k delete
+{% endif %}
+{% if ubtu24stig_900590 %}
+# UBUNTU24-STIG rule 900590
+-w /var/log/wtmp -p wa -k logins
+{% endif %}
+{% if ubtu24stig_900600 %}
+# UBUNTU24-STIG rule 900600
+-w /var/run/utmp -p wa -k logins
+{% endif %}
+{% if ubtu24stig_900610 %}
+# UBUNTU24-STIG rule 900610
+-w /var/log/btmp -p wa -k logins
+{% endif %}
+{% if ubtu24stig_900730 %}
+# UBUNTU24-STIG rule 900730
+-w /sbin/modprobe -p x -k modules
+{% endif %}
+{% if ubtu24stig_900740 %}
+# UBUNTU24-STIG rule 900740
+-w /bin/kmod -p x -k modules
+{% endif %}
+{% if ubtu24stig_900750 %}
+# UBUNTU24-STIG rule 900750
+-w /usr/sbin/fdisk -p x -k fdisk
+{% endif %}
+{% if ubtu24stig_909000 %}
+# UBUNTU24-STIG rule 909000
+-e 2
+{% endif %}
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,90 @@
+---
+
+- name: LOW | UBTU-24-600140 | PATCH | Ubuntu 24.04 LTS must restrict access to the kernel message buffer.
+  when: ubtu24stig_600140
+  tags:
+    - UBTU-24-600140
+    - CAT3
+    - CCI-001090
+    - SRG-OS-000138-GPOS-00069
+    - SV-270749r1067179_rule
+    - V-270749
+    - NIST800-53R4_SC-4
+    - kernel
+  block:
+    - name: LOW | UBTU-24-600140 | PATCH | Ubuntu 24.04 LTS must restrict access to the kernel message buffer. | find existing settings
+      ansible.builtin.find:
+        paths: [ '/etc/sysctl.d', '/run/sysctl.d', '/usr/local/lib/sysctl.d', '/usr/lib/sysctl.d', '/lib/sysctl.d' ]
+        pattern: '*.conf'
+        contains: kernel.dmesg_restrict
+      register: discovered_sysctl_conf_files
+
+    - name: LOW | UBTU-24-600140 | PATCH | Ubuntu 24.04 LTS must restrict access to the kernel message buffer. | remove existing
+      when: "ubtu24stig_sysctl_kernel_conf not in item"
+      ansible.builtin.replace:
+        path: "{{ item.path | default(item) }}"
+        regexp: ^\s*kernel.dmesg_restrict\s*=\s*[ 0, 1 ]
+        replace: ''
+      with_items:
+        - "{{ discovered_sysctl_conf_files.files | map(attribute='path') }}"
+        - /etc/sysctl.conf
+
+    - name: LOW | UBTU-24-600140 | PATCH | Ubuntu 24.04 LTS must restrict access to the kernel message buffer. | add file specific settings
+      ansible.posix.sysctl:
+        name: kernel.dmesg_restrict
+        value: '1'
+        state: present
+        sysctl_file: "{{ ubtu24stig_sysctl_kernel_conf }}"
+        reload: true
+        sysctl_set: true
+        ignoreerrors: true
+
+- name: LOW | UBTU-24-600160 | PATCH | Ubuntu 24.04 LTS must compare internal information system clocks at least every 24 hours with an authoritative time server.
+  when: ubtu24stig_600160
+  tags:
+    - UBTU-24-600160
+    - CAT3
+    - CCI-000000
+    - SRG-OS-000355-GPOS-00143
+    - SRG-OS-000785-GPOS-00250
+    - SV-270751r1066742_rule
+    - V-270751
+    - NIST800-53R4_NA
+    - service
+    - time
+  block:
+    - name: LOW | UBTU-24-600160 | PATCH | Ubuntu 24.04 LTS must compare internal information system clocks at least every 24 hours with an authoritative time server. | sources
+      ansible.builtin.template:
+        src: "{{ item }}.j2"
+        dest: "/{{ item }}"
+        mode: 'go-wx'
+        owner: root
+        group: root
+      loop:
+        - etc/chrony/sources.d/server.sources
+      notify: Restart_chrony
+
+    - name: LOW | UBTU-24-600160 | PATCH | Ubuntu 24.04 LTS must compare internal information system clocks at least every 24 hours with an authoritative time server. | load sources
+      ansible.builtin.lineinfile:
+        path: /etc/chrony/chrony.conf
+        regexp: '^sourcedir /etc/chrony/sources.d'
+        line: sourcedir /etc/chrony/sources.d
+      notify: Restart_chrony
+
+- name: LOW | UBTU-24-600180 | PATCH | Ubuntu 24.04 LTS must synchronize internal information system clocks to the authoritative time source when the time difference is greater than one second.
+  when: ubtu24stig_600180
+  tags:
+    - UBTU-24-600180
+    - CAT3
+    - CCI-000000
+    - SRG-OS-000356-GPOS-00144
+    - SV-270752r1068365_rule
+    - V-270752
+    - NIST800-53R4_NA
+    - service
+    - time
+  ansible.builtin.lineinfile:
+    path: /etc/chrony/chrony.conf
+    regexp: ^(#|)makestep
+    line: makestep 1 1
+  notify: Restart_chrony

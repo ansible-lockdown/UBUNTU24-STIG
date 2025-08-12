@@ -1,0 +1,324 @@
+---
+
+- name: MEDIUM | UBTU-24-901230 | PATCH | Ubuntu 24.04 LTS must configure audit tools with a mode of "755" or less permissive.
+  when:
+    - ubtu24stig_901230
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-901230
+    - CAT2
+    - CCI-001493
+    - CCI-001494
+    - SRG-OS-000256-GPOS-00097
+    - SRG-OS-000257-GPOS-00098
+    - SV-270821r1068391_rule
+    - V-270821
+    - NIST800-53R4_AU-9
+    - permissions
+    - auditd
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: file
+    mode: 'go-w'
+  failed_when: discovered_audit_tools.state not in '[ file, absent ]'
+  register: discovered_audit_tools
+  loop: "{{ ubtu24stig_audit_tools }}"
+
+- name: MEDIUM | UBTU-24-901240 | PATCH | Ubuntu 24.04 LTS must configure audit tools to be owned by root.
+  when:
+    - ubtu24stig_901240
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-901240
+    - CAT2
+    - CCI-001493
+    - CCI-001494
+    - SRG-OS-000256-GPOS-00097
+    - SRG-OS-000257-GPOS-00098
+    - SV-270822r1068392_rule
+    - V-270822
+    - NIST800-53R4_AU-9
+    - auditd
+    - permissions
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: file
+    owner: root
+  failed_when: discovered_audit_tools.state not in '[ file, absent ]'
+  register: discovered_audit_tools
+  loop: "{{ ubtu24stig_audit_tools }}"
+
+- name: MEDIUM | UBTU-24-901250 | PATCH | Ubuntu 24.04 LTS must configure audit tools to be group-owned by root.
+  when:
+    - ubtu24stig_901250
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-901250
+    - CAT2
+    - CCI-001493
+    - CCI-001494
+    - SRG-OS-000256-GPOS-00097
+    - SRG-OS-000257-GPOS-00098
+    - SV-270823r1068393_rule
+    - V-270823
+    - NIST800-53R4_AU-9
+    - auditd
+    - permissions
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: file
+    group: root
+  failed_when: discovered_audit_tools.state not in '[ file, absent ]'
+  register: discovered_audit_tools
+  loop: "{{ ubtu24stig_audit_tools }}"
+
+- name: MEDIUM | UBTU-24-901260 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive.
+  when: ubtu24stig_901260
+  tags:
+    - UBTU-24-901260
+    - CAT2
+    - CCI-001495
+    - SRG-OS-000258-GPOS-00099
+    - SV-270824r1066961_rule
+    - V-270824
+    - NIST800-53R4_AU-9
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-901260'
+  block:
+    - name: MEDIUM | UBTU-24-901260 | AUDIT | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive. | Discover
+      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type d -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_bin_dirs_perms.rc not in [ 0, 1 ]
+      register: discovered_system_bin_dirs_perms
+
+    - name: MEDIUM | UBTU-24-901260 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive. | Fix
+      when:
+        - discovered_system_bin_dirs_perms.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: 'go-w'
+      loop: "{{ discovered_system_bin_dirs_perms.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-901260 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive. | Warning
+      when:
+        - discovered_system_bin_dirs_perms.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.debug:
+        msg: "Warning!! The following system directories permissions are not correct please investigate {{ discovered_system_bin_dirs_perms.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-901260 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive. | Warn count
+      when:
+        - discovered_system_bin_dirs_perms.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-901270 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands owned by "root".
+  when: ubtu24stig_901270
+  tags:
+    - UBTU-24-901270
+    - CAT2
+    - CCI-001495
+    - SRG-OS-000258-GPOS-00099
+    - SV-270825r1066964_rule
+    - V-270825
+    - NIST800-53R4_AU-9
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-901270'
+  block:
+    - name: MEDIUM | UBTU-24-901270 | AUDIT | Ubuntu 24.04 LTS must have directories that contain system commands owned by "root". | Discover
+      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -user root -type d -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_bin_dirs_owner.rc not in [ 0, 1 ]
+      register: discovered_system_bin_dirs_owner
+
+    - name: MEDIUM | UBTU-24-901270 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands owned by "root". | Fix
+      when:
+        - discovered_system_bin_dirs_owner.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        mode: 'go-w'
+      loop: "{{ discovered_system_bin_dirs_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-901270 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands owned by "root". | Warning
+      when:
+        - discovered_system_bin_dirs_owner.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.debug:
+        msg: "Warning!! The following system directory ownership is not correct please investigate {{ discovered_system_bin_dirs_owner.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-901270 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands owned by "root". | Warn count
+      when:
+        - discovered_system_bin_dirs_owner.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-901280 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands group-owned by "root".
+  when: ubtu24stig_901280
+  tags:
+    - UBTU-24-901280
+    - CAT2
+    - CCI-001495
+    - SRG-OS-000258-GPOS-00099
+    - SV-270826r1066967_rule
+    - V-270826
+    - NIST800-53R4_AU-9
+    - permissions
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-901280'
+  block:
+    - name: MEDIUM | UBTU-24-901280 | AUDIT | Ubuntu 24.04 LTS must have directories that contain system commands group-owned by "root". | Discover
+      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -group root -type d -exec stat -c "%n" '{}' \;
+      changed_when: false
+      failed_when: discovered_system_bin_dirs_group.rc not in [ 0, 1 ]
+      register: discovered_system_bin_dirs_group
+
+    - name: MEDIUM | UBTU-24-901280 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands group-owned by "root". | Fix
+      when:
+        - discovered_system_bin_dirs_group.stdout_lines is defined
+        - ubtu24stig_disruption_high
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        group: root
+        mode: 'go-w'
+      loop: "{{ discovered_system_bin_dirs_group.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-901280 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands group-owned by "root". | Warning
+      when:
+        - discovered_system_bin_dirs_group.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.debug:
+        msg: "Warning!! The following system directory group ownership is not correct please investigate {{ discovered_system_bin_dirs_group.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-901280 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands group-owned by "root". | Warn count
+      when:
+        - discovered_system_bin_dirs_group.stdout_lines is defined
+        - not ubtu24stig_disruption_high
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-901300 | PATCH | Ubuntu 24.04 LTS must be configured so that audit log files are not read or write-accessible by unauthorized users.
+  when: ubtu24stig_901300
+  tags:
+    - UBTU-24-901300
+    - CAT2
+    - CCI-000162
+    - CCI-000163
+    - SRG-OS-000057-GPOS-00027
+    - SRG-OS-000058-GPOS-00028
+    - SV-270827r1066970_rule
+    - V-270827
+    - NIST800-53R4_AU-9
+    - auditd
+  block:
+    - name: MEDIUM | UBTU-24-901300 | PATCH | Ubuntu 24.04 LTS must be configured so that audit log files are not read or write-accessible by unauthorized users. | discover file
+      ansible.builtin.shell: grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      changed_when: false
+      register: discovered_auditd_logfile
+
+    - name: MEDIUM | UBTU-24-901300 | PATCH | Ubuntu 24.04 LTS must be configured so that audit log files are not read or write-accessible by unauthorized users.
+      ansible.builtin.file:
+        path: "{{ discovered_auditd_logfile.stdout }}"
+        mode: 'go-rwx'
+
+- name: MEDIUM | UBTU-24-901310 | PATCH | Ubuntu 24.04 LTS must be configured to permit only authorized users ownership of the audit log files.
+  when: ubtu24stig_901310
+  tags:
+    - UBTU-24-901310
+    - CAT2
+    - CCI-000162
+    - CCI-000163
+    - CCI-000164
+    - SRG-OS-000057-GPOS-00027
+    - SRG-OS-000058-GPOS-00028
+    - SRG-OS-000059-GPOS-00029
+    - SV-270828r1066973_rule
+    - V-270828
+    - NIST800-53R4_AU-9
+    - auditd
+  block:
+    - name: MEDIUM | UBTU-24-901310 | PATCH | Ubuntu 24.04 LTS must be configured to permit only authorized users ownership of the audit log files. | discover file
+      ansible.builtin.shell: grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      changed_when: false
+      register: discovered_auditd_logfile
+
+    - name: MEDIUM | UBTU-24-901310 | PATCH |Ubuntu 24.04 LTS must be configured to permit only authorized users ownership of the audit log files.
+      ansible.builtin.file:
+        path: "{{ discovered_auditd_logfile.stdout }}"
+        owner: root
+
+- name: MEDIUM | UBTU-24-901350 | PATCH | Ubuntu 24.04 LTS must permit only authorized groups ownership of the audit log files.
+  when: ubtu24stig_901350
+  tags:
+    - UBTU-24-901350
+    - CAT2
+    - CCI-000162
+    - CCI-000163
+    - CCI-000164
+    - SRG-OS-000057-GPOS-00027
+    - SRG-OS-000058-GPOS-00028
+    - SRG-OS-000059-GPOS-00029
+    - SV-270829r1066976_rule
+    - V-270829
+    - NIST800-53R4_AU-9
+    - auditd
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: (?i)^(#|)log_group\s*=\s*
+    line: "log_group = {{ ubtu24stig_auditd_log_group }}"
+
+- name: MEDIUM | UBTU-24-901380 | PATCH | Ubuntu 24.04 LTS must be configured so that the audit log directory is not write-accessible by unauthorized users.
+  when: ubtu24stig_901380
+  tags:
+    - UBTU-24-901380
+    - CAT2
+    - CCI-000164
+    - SRG-OS-000059-GPOS-00029
+    - SV-270830r1068397_rule
+    - V-270830
+    - NIST800-53R4_AU-9
+    - auditd
+  block:
+    - name: MEDIUM | UBTU-24-901380 | AUDIT | Ubuntu 24.04 LTS must be configured so that the audit log directory is not write-accessible by unauthorized users. | discover file
+      ansible.builtin.shell: grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      changed_when: false
+      register: discovered_auditd_logfile
+
+    - name: MEDIUM | UBTU-24-901380 | AUDIT | Ubuntu 24.04 LTS must be configured so that the audit log directory is not write-accessible by unauthorized users.
+      ansible.builtin.file:
+        path: "{{ discovered_auditd_logfile.stdout | dirname }}"
+        state: directory
+        mode: 'g-w,o-rwx'
+
+- name: MEDIUM | UBTU-24-901890 | PATCH | Ubuntu 24.04 LTS must use cryptographic mechanisms to protect the integrity of audit tools.
+  when: ubtu24stig_901890
+  tags:
+    - UBTU-24-901890
+    - CAT2
+    - CCI-001496
+    - SRG-OS-000278-GPOS-00108
+    - SV-270831r1066982_rule
+    - V-270831
+    - NIST800-53R4_AU-9
+    - aide
+  ansible.builtin.lineinfile:
+    path: /etc/aide/aide.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.regexp }} {{ item.line }}"
+  loop:
+    - { regexp: '/sbin/auditctl', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/auditd', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/ausearch', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/aureport', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/autrace', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/audispd', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/augenrules', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }

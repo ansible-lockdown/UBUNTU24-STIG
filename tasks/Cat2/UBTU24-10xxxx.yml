@@ -1,0 +1,558 @@
+---
+
+- name: MEDIUM | UBTU-24-100100 | PATCH | Ubuntu 24.04 LTS must use a file integrity tool to verify correct operation of all security functions.
+  when: ubtu24stig_100100
+  tags:
+    - UBTU-24-100100
+    - CAT2
+    - CCI-002696
+    - SRG-OS-000445-GPOS-00199
+    - SV-270649r1067136_rule
+    - V-270649
+    - NIST800-53R4_SI-6
+    - aide
+  ansible.builtin.package:
+    name: aide
+    state: present
+
+- name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system.
+  when:
+    - ubtu24stig_100110
+    - ubtu24stig_disruption_high
+    - ubtu24stig_allow_aide_check
+  tags:
+    - UBTU-24-100110
+    - CAT2
+    - CCI-002696
+    - SRG-OS-000445-GPOS-00199
+    - SV-270650r1066439_rule
+    - V-270650
+    - NIST800-53R4_SI-6
+    - aide
+  block:
+    - name: MEDIUM | UBTU-24-100110 | AUDIT | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system. | Get DB file
+      ansible.builtin.shell: grep -E ^database_in /etc/aide/aide.conf | cut -d ':' -f2
+      changed_when: false
+      failed_when: discovered_aide_db_file.rc not in [ 0, 1 ]
+      register: discovered_aide_db_file
+
+    - name: MEDIUM | UBTU-24-100110 | AUDIT | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system. | Get DB file
+      ansible.builtin.stat:
+        path: "{{ discovered_aide_db_file.stdout }}"
+      register: discovered_aide_db_present
+
+    - name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system. | Run aide check
+      when: discovered_aide_db_present.stat.exists
+      ansible.builtin.command: aide -c /etc/aide/aide.conf --check
+      changed_when: false
+      failed_when: discovered_aide_check.rc not in [ 0, 7 ]
+      register: discovered_aide_check
+
+    - name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system. | Initiate aide DB
+      when: not discovered_aide_db_present.stat.exists or discovered_aide_check.rc != 0
+      ansible.builtin.command: aideinit
+      changed_when: true
+
+- name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default.
+  when:
+    - ubtu24stig_100120
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-100120
+    - CAT2
+    - CCI-002699
+    - SRG-OS-000446-GPOS-00200
+    - SV-270651r1068395_rule
+    - V-270651
+    - NIST800-53R4_SI-6
+    - aide
+  block:
+    - name: MEDIUM | UBTU-24-100120 | AUDIT | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | capture sha1sum
+      ansible.builtin.command: sha256sum /etc/aide/aide.conf 2>/dev/null
+      changed_when: false
+      failed_when: discovered_cron_script_sha256.rc not in [ 0, 1 ]
+      register: discovered_cron_script_sha256
+
+    - name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | replace if needed
+      when: "'458aea46ab75906c3d9ad7f174a03b4ab62ee389fc4b8fb3c0330aae3c765441' not in discovered_cron_script_sha256.stdout"
+      ansible.builtin.shell: |
+        apt download aide-common; dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | sudo tar -x --wildcards ./usr/share/aide/config/cron.daily/dailyaidecheck -C /; cp -f /usr/share/aide/config/cron.daily/dailyaidecheck /etc/cron.daily/dailyaidecheck*
+      changed_when: true
+      args:
+        chdir: /tmp
+
+- name: MEDIUM | UBTU-24-100130 | PATCH | Ubuntu 24.04 LTS must notify designated personnel if baseline configurations are changed in an unauthorized manner. The file integrity tool must notify the system administrator when changes to the baseline configuration or anomalies in the operation of any security functions are discovered.
+  when: ubtu24stig_100130
+  tags:
+    - UBTU-24-100130
+    - CAT2
+    - CCI-001744
+    - CCI-002702
+    - SRG-OS-000363-GPOS-00150
+    - SRG-OS-000447-GPOS-00201
+    - SV-270652r1067138_rule
+    - V-270652
+    - NIST800-53R4_CM-3
+    - NIST800-53R4_SI-6
+    - aide
+  ansible.builtin.lineinfile:
+    path: /etc/default/aide
+    regexp: (?i)^(#|)silentreports\s*=\s*(yes|true)
+    line: SILENTREPORTS=no
+
+- name: MEDIUM | UBTU-24-100200 | PATCH | Ubuntu 24.04 LTS must be configured to preserve log records from failure events.
+  when: ubtu24stig_100200
+  tags:
+    - UBTU-24-100200
+    - CAT2
+    - CCI-001665
+    - SRG-OS-000269-GPOS-00103
+    - SV-270653r1067141_rule
+    - V-270653
+    - NIST800-53R4_SC-24
+    - syslog
+  block:
+    - name: MEDIUM | UBTU-24-100200 | PATCH | Ubuntu 24.04 LTS must be configured to preserve log records from failure events.
+      ansible.builtin.package:
+        name: rsyslog
+        state: present
+
+    - name: MEDIUM | UBTU-24-100200 | PATCH | Ubuntu 24.04 LTS must be configured to preserve log records from failure events.
+      ansible.builtin.systemd_service:
+        name: rsyslog
+        enabled: true
+        state: started
+
+- name: MEDIUM | UBTU-24-100300 | PATCH | Ubuntu 24.04 LTS must have an application firewall installed in order to control remote access methods.
+  when:
+    - ubtu24stig_100300
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-100300
+    - CAT2
+    - CCI-002314
+    - SRG-OS-000297-GPOS-00115
+    - SV-270654r1067143_rule
+    - V-270654
+    - NIST800-53R4_AC-17
+    - firewall
+  ansible.builtin.package:
+    name: ufw
+    state: present
+
+- name: MEDIUM | UBTU-24-100310 | PATCH | Ubuntu 24.04 LTS must enable and run the Uncomplicated Firewall (ufw).
+  when:
+    - ubtu24stig_100310
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-100310
+    - CAT2
+    - CCI-002314
+    - SRG-OS-000297-GPOS-00115
+    - SV-270655r1067145_rule
+    - V-270655
+    - NIST800-53R4_AC-17
+    - firewall
+  ansible.builtin.systemd_service:
+    name: ufw
+    enabled: true
+    state: started
+
+- name: MEDIUM | UBTU-24-100400 | PATCH | Ubuntu 24.04 LTS must have the "auditd" package installed.
+  when: ubtu24stig_100400
+  tags:
+    - UBTU-24-100400
+    - CAT2
+    - CCI-000132
+    - CCI-000133
+    - CCI-000134
+    - CCI-000135
+    - CCI-000154
+    - CCI-000158
+    - CCI-000169
+    - CCI-000172
+    - CCI-001875
+    - CCI-001876
+    - CCI-001877
+    - CCI-001878
+    - CCI-001879
+    - CCI-001880
+    - CCI-001881
+    - CCI-001882
+    - CCI-001914
+    - SRG-OS-000037-GPOS-00015
+    - SRG-OS-000038-GPOS-00016
+    - SRG-OS-000039-GPOS-00017
+    - SRG-OS-000040-GPOS-00018
+    - SRG-OS-000041-GPOS-00019
+    - SRG-OS-000042-GPOS-00020
+    - SRG-OS-000042-GPOS-00021
+    - SRG-OS-000051-GPOS-00024
+    - SRG-OS-000054-GPOS-00025
+    - SRG-OS-000062-GPOS-00031
+    - SRG-OS-000122-GPOS-00063
+    - SRG-OS-000337-GPOS-00129
+    - SRG-OS-000348-GPOS-00136
+    - SRG-OS-000349-GPOS-00137
+    - SRG-OS-000350-GPOS-00138
+    - SRG-OS-000351-GPOS-00139
+    - SRG-OS-000352-GPOS-00140
+    - SRG-OS-000353-GPOS-00141
+    - SRG-OS-000354-GPOS-00142
+    - SRG-OS-000365-GPOS-00152
+    - SRG-OS-000475-GPOS-00220
+    - SV-270656r1067148_rule
+    - V-270656
+    - NIST800-53R4_AU-3
+    - NIST800-53R4_AU-6
+    - NIST800-53R4_AU-7
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.package:
+    name: auditd
+    state: present
+
+- name: MEDIUM | UBTU-24-100410 | PATCH | Ubuntu 24.04 LTS must produce audit records and reports containing information to establish when, where, what type, the source, and the outcome for all DOD-defined auditable events and actions in near real time.
+  when: ubtu24stig_100410
+  tags:
+    - UBTU-24-100410
+    - CAT2
+    - CCI-000132
+    - CCI-000133
+    - CCI-000134
+    - CCI-000135
+    - CCI-000154
+    - CCI-000158
+    - CCI-000169
+    - CCI-000172
+    - CCI-001875
+    - CCI-001876
+    - CCI-001877
+    - CCI-001878
+    - CCI-001879
+    - CCI-001880
+    - CCI-001881
+    - CCI-001882
+    - CCI-001914
+    - SRG-OS-000037-GPOS-00015
+    - SRG-OS-000038-GPOS-00016
+    - SRG-OS-000039-GPOS-00017
+    - SRG-OS-000040-GPOS-00018
+    - SRG-OS-000041-GPOS-00019
+    - SRG-OS-000042-GPOS-00020
+    - SRG-OS-000042-GPOS-00021
+    - SRG-OS-000051-GPOS-00024
+    - SRG-OS-000054-GPOS-00025
+    - SRG-OS-000062-GPOS-00031
+    - SRG-OS-000122-GPOS-00063
+    - SRG-OS-000337-GPOS-00129
+    - SRG-OS-000348-GPOS-00136
+    - SRG-OS-000349-GPOS-00137
+    - SRG-OS-000350-GPOS-00138
+    - SRG-OS-000351-GPOS-00139
+    - SRG-OS-000352-GPOS-00140
+    - SRG-OS-000353-GPOS-00141
+    - SRG-OS-000354-GPOS-00142
+    - SRG-OS-000365-GPOS-00152
+    - SRG-OS-000475-GPOS-00220
+    - SV-270657r1066460_rule
+    - V-270657
+    - NIST800-53R4_AU-3
+    - NIST800-53R4_AU-6
+    - NIST800-53R4_AU-7
+    - NIST800-53R4_AU-12
+    - auditd
+  ansible.builtin.systemd_service:
+    name: auditd
+    enabled: true
+    state: started
+
+- name: MEDIUM | UBTU-24-100500 | PATCH | Ubuntu 24.04 LTS must have AppArmor installed.
+  when: ubtu24stig_100500
+  tags:
+    - UBTU-24-100500
+    - CAT2
+    - CCI-001764
+    - CCI-001774
+    - CCI-002165
+    - SRG-OS-000312-GPOS-00124
+    - SRG-OS-000368-GPOS-00154
+    - SRG-OS-000370-GPOS-00155
+    - SV-270659r1066466_rule
+    - V-270659
+    - NIST800-53R4_AC-3
+    - NIST800-53R4_CM-7
+    - apparmor
+  ansible.builtin.package:
+    name: apparmor
+    state: present
+
+- name: MEDIUM | UBTU-24-100510 | PATCH | Ubuntu 24.04 LTS must be configured to use AppArmor.
+  when:
+    - ubtu24stig_100510
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-100510
+    - CAT2
+    - CCI-001764
+    - CCI-001774
+    - CCI-002165
+    - SRG-OS-000312-GPOS-00124
+    - SRG-OS-000368-GPOS-00154
+    - SRG-OS-000370-GPOS-00155
+    - SV-270660r1066469_rule
+    - V-270660
+    - NIST800-53R4_AC-3
+    - NIST800-53R4_CM-7
+    - apparmor
+  ansible.builtin.systemd_service:
+    name: apparmor
+    state: started
+    enabled: true
+
+- name: MEDIUM | UBTU-24-100600 | PATCH | Ubuntu 24.04 LTS must have the "libpam-pwquality" package installed.
+  when: ubtu24stig_100600
+  tags:
+    - UBTU-24-100600
+    - CAT2
+    - CCI-000366
+    - SRG-OS-000480-GPOS-00225
+    - SV-260478r991587_rule
+    - V-260478
+    - NIST800-53R4_CM-6
+    - packages
+  ansible.builtin.package:
+    name: libpam-pwquality
+    state: present
+
+- name: MEDIUM | UBTU-24-100650 | PATCH | Ubuntu 24.04 LTS must have the "SSSD" package installed.
+  when:
+    - ubtu24stig_100600
+    - ubtu24stig_use_sssd
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-100650
+    - CAT2
+    - CCI-000765
+    - CCI-000766
+    - SRG-OS-000705-GPOS-00150
+    - SRG-OS-000105-GPOS-00052
+    - SRG-OS-000106-GPOS-00053
+    - SRG-OS-000107-GPOS-00054
+    - SRG-OS-000108-GPOS-00055
+    - SRG-OS-000375-GPOS-00160
+    - SV-270662r1067156_rule
+    - V-270662
+    - NIST800-53R4_IA-2
+    - packages
+  ansible.builtin.package:
+    name: libpam-sss
+    state: present
+  loop: "{{ ubtu24stig_sssd_packages }}"
+
+- name: MEDIUM | UBTU-24-100660 | PATCH | Ubuntu 24.04 LTS must use the "SSSD" package for multifactor authentication services.
+  when:
+    - ubtu24stig_100660
+    - ubtu24stig_use_sssd
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-100660
+    - CAT2
+    - CCI-000765
+    - CCI-000766
+    - SRG-OS-000705-GPOS-00150
+    - SRG-OS-000105-GPOS-00052
+    - SRG-OS-000106-GPOS-00053
+    - SRG-OS-000107-GPOS-00054
+    - SRG-OS-000108-GPOS-00055
+    - SRG-OS-000375-GPOS-00160
+    - SV-270663r1066478_rule
+    - V-270663
+    - NIST800-53R4_AC-3
+    - NIST800-53R4_CM-7
+    - apparmor
+  ansible.builtin.systemd_service:
+    name: sssd
+    state: started
+    enabled: true
+
+- name: MEDIUM | UBTU-24-100820 | PATCH | Ubuntu 24.04 LTS must configure the SSH daemon to use FIPS 140-3-approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
+  when: ubtu24stig_100820
+  tags:
+    - UBTU-24-100820
+    - CAT2
+    - CCI-000068
+    - CCI-002421
+    - CCI-003123
+    - SRG-OS-000033-GPOS-00014
+    - SRG-OS-000394-GPOS-00174
+    - SRG-OS-000424-GPOS-00188
+    - SV-270667r1067107_rule
+    - V-270667
+    - NIST800-53R4_AC-17
+    - NIST800-53R4_SC-8
+    - NIST800-53R4_MA-4
+    - ssh
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^Ciphers
+    line: "Ciphers {{ ubtu24stig_sshd_config_ciphers | join(',') }}"
+    validate: sshd -t -f %s
+  notify: Change_requires_reboot
+
+- name: MEDIUM | UBTU-24-100830 | PATCH | Ubuntu 24.04 LTS must configure the SSH daemon to use Message Authentication Codes (MACs) employing FIPS 140-3-approved cryptographic hashes to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
+  when: ubtu24stig_100830
+  tags:
+    - UBTU-24-100830
+    - CAT2
+    - CCI-001453
+    - CCI-002421
+    - CCI-002890
+    - SRG-OS-000250-GPOS-00093
+    - SRG-OS-000393-GPOS-00173
+    - SRG-OS-000424-GPOS-00188
+    - SV-270668r1067110_rule
+    - V-270668
+    - NIST800-53R4_AC-17
+    - NIST800-53R4_SC-8
+    - NIST800-53R4_MA-4
+    - ssh
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^MACs
+    line: "MACs {{ ubtu24stig_sshd_config_macs | join(',') }}"
+    validate: sshd -t -f %s
+  notify: Change_requires_reboot
+
+- name: MEDIUM | UBTU-24-100840 | PATCH | Ubuntu 24.04 LTS SSH server must be configured to use only FIPS-validated key exchange algorithms.
+  when: ubtu24stig_100840
+  tags:
+    - UBTU-24-100840
+    - CAT2
+    - CCI-000068
+    - SRG-OS-000033-GPOS-00014
+    - SV-270669r1067112_rule
+    - V-270669
+    - NIST800-53R4_AC-17
+    - ssh
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: ^KexAlgorithms
+    line: "KexAlgorithms {{ ubtu24stig_sshd_config_kex | join(',') }}"
+    validate: sshd -t -f %s
+  notify: Restart_ssh
+
+- name: MEDIUM | UBTU-24-100850 | PATCH | Ubuntu 24.04 LTS must configure the SSH client to use FIPS 140-3 approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
+  when: ubtu24stig_100850
+  tags:
+    - UBTU-24-100850
+    - CAT2
+    - CCI-001453
+    - SRG-OS-000250-GPOS-00093
+    - SV-270670r1067115_rule
+    - V-270670
+    - NIST800-53R4_AC-17
+    - ssh
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/ssh_config
+    regexp: ^Ciphers
+    line: "    Ciphers {{ ubtu24stig_sshd_config_ciphers | join(',') }}"
+  notify: Change_requires_reboot
+
+- name: MEDIUM | UBTU-24-100860 | PATCH | Ubuntu 24.04 LTS SSH client must be configured to use only Message Authentication Codes (MACs) employing FIPS 140-3 validated cryptographic hash algorithms.
+  when: ubtu24stig_100860
+  tags:
+    - UBTU-24-100860
+    - CAT2
+    - CCI-001453
+    - SRG-OS-000250-GPOS-00093
+    - SV-270671r1067118_rule
+    - V-270671
+    - NIST800-53R4_AC-17
+    - ssh
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/ssh_config
+    regexp: ^MACs
+    line: "    MACs {{ ubtu24stig_sshd_config_macs | join(',') }}"
+  notify: Restart_ssh
+
+- name: MEDIUM | UBTU-24-100900 | PATCH | Ubuntu 24.04 LTS must accept Personal Identity Verification (PIV) credentials.
+  when: ubtu24stig_100900
+  tags:
+    - UBTU-24-100900
+    - CAT2
+    - CCI-001953
+    - SRG-OS-000376-GPOS-00161
+    - SV-270672r1067161_rule
+    - V-270672
+    - NIST800-53R4_IA-2
+    - multifactor
+  ansible.builtin.package:
+    name: opensc-pkcs11
+    state: present
+
+- name: MEDIUM | UBTU-24-100910 | PATCH | Ubuntu 24.04 LTS must accept Personal Identity Verification (PIV) credentials managed through the Privileged Access Management (PAM)  framework.
+  when: ubtu24stig_100910
+  tags:
+    - UBTU-24-100910
+    - CAT2
+    - CCI-001953
+    - SRG-OS-000376-GPOS-00161
+    - SV-270673r1067164_rule
+    - V-270673
+    - NIST800-53R4_IA-2
+    - multifactor
+  ansible.builtin.package:
+    name: libpam-pkcs11
+    state: present
+
+- name: MEDIUM | UBTU-24-101000 | PATCH | Ubuntu 24.04 LTS must allow users to directly initiate a session lock for all connection types.
+  when: ubtu24stig_101000
+  tags:
+    - UBTU-24-101000
+    - CAT2
+    - CCI-000057
+    - CCI-000060
+    - SRG-OS-000031-GPOS-00012
+    - SV-270674r1067167_rule
+    - V-270674
+    - NIST800-53R4_AC-11
+    - session
+  ansible.builtin.package:
+    name: vlock
+    state: present
+
+- name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup.
+  when: ubtu24stig_102010
+  tags:
+    - UBTU-24-102010
+    - CAT2
+    - CCI-001464
+    - SRG-OS-000254-GPOS-00095
+    - SV-260471r991555_rule
+    - V-260471
+    - NIST800-53R4_AU-14
+    - bootloader
+  block:
+    - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup. | Get GRUB_CMDLINE_LINUX
+      ansible.builtin.shell: grep "GRUB_CMDLINE_LINUX=" /etc/default/grub | cut -f2 -d'"'
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      register: discovered_audit_enabled_cmdline_settings
+
+    - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup. | Add setting if doesn't exist
+      when: "'audit=' not in discovered_audit_enabled_cmdline_settings.stdout"
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX='
+        line: 'GRUB_CMDLINE_LINUX="audit=1 {{ discovered_audit_enabled_cmdline_settings.stdout }}"'
+      notify: Update_grub
+
+    - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup. | Update setting if exists
+      when: "'audit=' in discovered_audit_enabled_cmdline_settings.stdout"
+      ansible.builtin.replace:
+        dest: /etc/default/grub
+        regexp: 'audit=(0|[2-9]$|[1-9]\d+)'
+        replace: 'audit=1'
+      notify: Update_grub

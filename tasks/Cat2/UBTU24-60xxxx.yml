@@ -1,0 +1,290 @@
+---
+
+- name: MEDIUM | UBTU-24-600000 | PATCH | Ubuntu 24.04 LTS must immediately terminate all network connections associated with SSH traffic after a period of inactivity.
+  when: ubtu24stig_600000
+  tags:
+    - UBTU-24-600000
+    - CAT2
+    - CCI-001133
+    - SRG-OS-000163-GPOS-00072
+    - SV-270742r1066715_rule
+    - SV-270742
+    - NIST800-53R4_SC-10
+    - ssh
+  ansible.builtin.lineinfile:
+    path: "{{ ubtu24stig_sshd_config_file }}"
+    regexp: (?i)^(#|)ClientAliveCountMax\s\d*
+    line: "ClientAliveCountMax {{ ubtu24stig_sshd_config_clientalivecountmax }}"
+    validate: sshd -t -f %s
+    mode: 'go-rwx'
+  notify: Restart_ssh
+
+- name: MEDIUM | UBTU-24-600010 | PATCH | Ubuntu 24.04 LTS must immediately terminate all network connections associated with SSH traffic at the end of the session or after 10 minutes of inactivity.
+  when: ubtu24stig_600010
+  tags:
+    - UBTU-24-600010
+    - CAT2
+    - CCI-001133
+    - SRG-OS-000163-GPOS-00072
+    - SV-270743r1066718_rule
+    - SV-270743
+    - NIST800-53R4_SC-10
+    - ssh
+  ansible.builtin.lineinfile:
+    path: "{{ ubtu24stig_sshd_config_file }}"
+    regexp: (?i)^(#|)ClientAliveInterval\s\d*
+    line: "ClientAliveInterval {{ ubtu24stig_sshd_config_clientaliveinterval }}"
+    validate: sshd -t -f %s
+    mode: 'go-rwx'
+  notify: Restart_ssh
+
+- name: MEDIUM | UBTU-24-600060 | AUDIT | Ubuntu 24.04 LTS must use DOD PKI-established certificate authorities (CAs) for verification of the establishment of protected sessions.
+  when: ubtu24stig_600060
+  tags:
+    - UBTU-24-600060
+    - CAT2
+    - CCI-002470
+    - SRG-OS-000403-GPOS-00182
+    - SV-270745r1066724_rule
+    - SV-270745
+    - NIST800-53R4_SC-23
+    - authorization
+  vars:
+    warn_control_id: "MEDIUM | UBTU-24-600060"
+  block:
+    - name: MEDIUM | UBTU-24-600060 | AUDIT | Ubuntu 24.04 LTS must use DOD PKI-established certificate authorities (CAs) for verification of the establishment of protected sessions.
+      ansible.builtin.find:
+        paths: /etc/ssl/certs
+        patterns: DOD*.pem
+      register: discovered_dod_certs
+
+    - name: MEDIUM | UBTU-24-600060 | AUDIT | Ubuntu 24.04 LTS must use DOD PKI-established certificate authorities (CAs) for verification of the establishment of protected sessions. | warning
+      when: discovered_dod_certs.matched == 0
+      ansible.builtin.debug:
+        msg: "Warning!! Please add the DOD certificate authority files and dpkg-reconfigure ca-certificates "
+
+    - name: MEDIUM | UBTU-24-600060 | AUDIT | Ubuntu 24.04 LTS must use DOD PKI-established certificate authorities (CAs) for verification of the establishment of protected sessions. | warn_count
+      when: discovered_dod_certs.matched == 0
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-600070 | PATCH |Ubuntu 24.04 LTS must disable kernel core dumps.
+  when: ubtu24stig_600070
+  tags:
+    - UBTU-24-600070
+    - CAT2
+    - CCI-001190
+    - SRG-OS-000184-GPOS-00078
+    - SV-270746r1066727_rule
+    - V-270746
+    - NIST800-53R4_SC-24
+  block:
+    - name: MEDIUM | UBTU-24-600070 | PATCH | Ubuntu 24.04 LTS must disable kernel core dumps. | stop if installed
+      when: "'linux-crashdump' in ansible_facts.packages"
+      ansible.builtin.systemd:
+        name: kdump
+        state: stopped
+
+    - name: MEDIUM | UBTU-24-600070 | PATCH | Ubuntu 24.04 LTS must disable kernel core dumps. | mask
+      ansible.builtin.systemd:
+        name: kdump
+        masked: true
+
+- name: MEDIUM | UBTU-24-600090 | PATCH | Ubuntu 24.04 LTS handling data requiring "data at rest" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest.
+  when: ubtu24stig_600090
+  tags:
+    - UBTU-24-600090
+    - CAT2
+    - CCI-001199
+    - CCI-002475
+    - CCI-002476
+    - SRG-OS-000185-GPOS-00079
+    - SRG-OS-000404-GPOS-00183
+    - SRG-OS-000405-GPOS-00184
+    - SRG-OS-000780-GPOS-00240
+    - SV-270747r1066730_rule
+    - V-270747
+    - NIST800-53R4_SC-28
+    - filesystems
+  vars:
+    warn_control_id: 'UBTU-24-600090'
+  block:
+    - name: MEDIUM | UBTU-24-600090 | AUDIT | Ubuntu 24.04 LTS handling data requiring "data at rest" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. | Get encrypted partitions
+      ansible.builtin.shell: more /etc/crypttab | sed 1d
+      changed_when: false
+      failed_when: false
+      register: discovered_crypttab_status
+
+    - name: MEDIUM | UBTU-24-600090 | AUDIT | Ubuntu 24.04 LTS handling data requiring "data at rest" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. | Alert no partitions are encrypted
+      when: discovered_crypttab_status.stdout | length == 0
+      ansible.builtin.debug:
+        msg: "Warning!! There are no encrypted partitions. Please make sure all permanent partitions are encrypted"
+
+    - name: MEDIUM | UBTU-24-600090 | AUDIT | Ubuntu 24.04 LTS handling data requiring "data at rest" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. | Set warning count
+      when: discovered_crypttab_status.stdout | length == 0
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+    - name: MEDIUM | UBTU-24-600090 | AUDIT | Ubuntu 24.04 LTS handling data requiring "data at rest" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. | Alert no partitions are encrypted
+      when: discovered_crypttab_status.stdout | length > 0
+      ansible.builtin.debug:
+        msg:
+          - "Warning!! Please review that no permanent partitions are missing. All permanent partitions need to be encrypted"
+          - "{{ discovered_crypttab_status.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-600090 | AUDIT | Ubuntu 24.04 LTS handling data requiring "data at rest" protections must employ cryptographic mechanisms to prevent unauthorized disclosure and modification of the information at rest. | Set warning count
+      when: discovered_crypttab_status.stdout | length > 0
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-600150 | PATCH | Ubuntu 24.04 LTS must set a sticky bit on all public directories to prevent unauthorized and unintended information transferred via shared system resources.
+  when:
+    - ubtu24stig_600150
+    - ubtu24stig_disruption_high
+  tags:
+    - UBTU-24-600150
+    - CAT2
+    - CCI-001090
+    - SRG-OS-000138-GPOS-00069
+    - SV-270750r1066739_rule
+    - V-270750
+    - NIST800-53R4_SC-4
+    - permissions
+  vars:
+    warn_control_id: "MEDIUM | UBTU-24-600150"
+  block:
+    - name: MEDIUM | UBTU-24-600150 | AUDIT | Ubuntu 24.04 LTS must set a sticky bit on all public directories to prevent unauthorized and unintended information transferred via shared system resources.
+      ansible.builtin.shell: df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -type d -perm -0002 -a ! -perm -1000 2>/dev/null
+      changed_when: false
+      failed_when: discovered_public_dirs_stickybit.rc not in [ 0, 1 ]
+      register: discovered_public_dirs_stickybit
+
+    - name: MEDIUM | UBTU-24-600150 | PATCH | Ubuntu 24.04 LTS must set a sticky bit on all public directories to prevent unauthorized and unintended information transferred via shared system resources.
+      when:
+        - ubtu24stig_disruption_high
+        - discovered_public_dirs_stickybit.stdout | length > 0
+      ansible.builtin.file:
+        path: "{{ item }}"
+        mode: +t
+      loop: "{{ discovered_public_dirs_stickybit.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-600150 | WARN | Ubuntu 24.04 LTS must set a sticky bit on all public directories to prevent unauthorized and unintended information transferred via shared system resources.
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_public_dirs_stickybit.stdout | length > 0
+      ansible.builtin.debug:
+        msg:
+          - "Warning!! The following file require sticky bit to be set"
+          - "{{ discovered_public_dirs_stickybit.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-600150 | WARN | Ubuntu 24.04 LTS must set a sticky bit on all public directories to prevent unauthorized and unintended information transferred via shared system resources.
+      when:
+        - not ubtu24stig_disruption_high
+        - discovered_public_dirs_stickybit.stdout | length > 0
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-600190 | PATCH | Ubuntu 24.04 LTS must be configured to use TCP syncookies.
+  when: ubtu24stig_600190
+  tags:
+    - UBTU-24-600190
+    - CAT2
+    - CCI-001095
+    - SRG-OS-000142-GPOS-00071
+    - SV-270753r1066748_rule
+    - V-270753
+    - NIST800-53R4_SC-5
+    - network
+  block:
+    - name: MEDIUM | UBTU-24-600190 | PATCH | Ubuntu 24.04 LTS must be configured to use TCP syncookies. | find file with current settings
+      ansible.builtin.find:
+        paths: [ '/etc/sysctl.d', '/run/sysctl.d', '/usr/local/lib/sysctl.d', '/usr/lib/sysctl.d', '/lib/sysctl.d' ]
+        file_type: file
+        pattern: '*.conf'
+        contains: net.ipv4.tcp_syncookies
+      register: discovered_sysctl_conf_files
+
+    - name: MEDIUM | UBTU-24-600190 | PATCH | Ubuntu 24.04 LTS must be configured to use TCP syncookies. | remove current settings
+      when: "ubtu24stig_sysctl_network_conf not in item.path"
+      ansible.builtin.replace:
+        path: "{{ item.path }}"
+        regexp: net.ipv4.tcp_syncookies\s*=\s*[ 0, 2 ]
+        replace: ''
+      loop: "{{ discovered_sysctl_conf_files.files }}"
+
+    - name: MEDIUM | UBTU-24-600190 | PATCH | Ubuntu 24.04 LTS must be configured to use TCP syncookies. | ensure setting on correct file
+      ansible.posix.sysctl:
+        name: net.ipv4.tcp_syncookies
+        reload: true
+        sysctl_file: "{{ ubtu24stig_sysctl_network_conf }}"
+        value: '1'
+
+- name: MEDIUM | UBTU-24-600200 | PATCH | Ubuntu 24.04 LTS must configure the uncomplicated firewall to rate-limit impacted network interfaces.
+  when: ubtu24stig_600200
+  tags:
+    - UBTU-24-600200
+    - CAT2
+    - CCI-002385
+    - SRG-OS-000420-GPOS-00186
+    - SV-270754r1066751_rule
+    - V-270754
+    - NIST800-53R4_SC-5
+    - firewall
+  vars:
+    warn_control_id: "MEDIUM | UBTU-24-600200"
+  block:
+    - name: MEDIUM | UBTU-24-600200 | AUDIT | Ubuntu 24.04 LTS must configure the uncomplicated firewall to rate-limit impacted network interfaces. | discover status
+      ansible.builtin.command: ufw status numbered
+      changed_when: false
+      failed_when: discovered_ufw_limit_status.rc not in [ 0 ,1 ]
+      register: discovered_ufw_limit_status
+
+    - name: MEDIUM | UBTU-24-600200 | PATCH | Ubuntu 24.04 LTS must configure the uncomplicated firewall to rate-limit impacted network interfaces. | discover status
+      when:
+        - ubtu24stig_disruption_high
+        - "'ALLOW IN' in discovered_ufw_limit_status.stdout"
+        - "'on ' not in discovered_ufw_limit_status.stdout"
+      ansible.builtin.command: ufw limit "{{ ansible_facts.default_ipv4.interface }}"
+      changed_when: false
+
+    - name: MEDIUM | UBTU-24-600200 | WARN | Ubuntu 24.04 LTS must configure the uncomplicated firewall to rate-limit impacted network interfaces. | warning
+      when: not ubtu24stig_disruption_high
+      ansible.builtin.debug:
+        msg: "Warning!! Please investigate ufw rate limit for listening services or interfaces"
+
+    - name: MEDIUM | UBTU-24-600200 | WARN | Ubuntu 24.04 LTS must configure the uncomplicated firewall to rate-limit impacted network interfaces. | warn_count
+      when: not ubtu24stig_disruption_high
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
+- name: MEDIUM | UBTU-24-600230 | PATCH | Ubuntu 24.04 LTS must disable all wireless network adapters.
+  when: ubtu24stig_600230
+  tags:
+    - UBTU-24-600230
+    - CAT2
+    - CCI-002418
+    - SRG-OS-000481-GPOS-00481
+    - SV-270755r1066754_rule
+    - V-270755
+    - NIST800-53R4_SC-8
+    - hardware
+  vars:
+    warn_control_id: 'MEDIUM | UBTU-24-600230 '
+  block:
+    - name: MEDIUM | UBTU-24-600230 | PATCH | Ubuntu 24.04 LTS must disable all wireless network adapters. | Create modprobe.d file
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/{{ item }}.conf
+        regexp: '^(#)?install true(\\s|$)'
+        line: install {{ item }} true
+        create: true
+        mode: 'go-wx'
+      loop: "{{ prelim_wireless_modules.stdout_lines }}"
+
+    - name: MEDIUM | UBTU-24-600230 | PATCH | Ubuntu 24.04 LTS must disable all wireless network adapters. | blacklist
+      ansible.builtin.lineinfile:
+        path: /etc/modprobe.d/blacklist.conf
+        regexp: "^(#)?blacklist {{ item }}(\\s|$)"
+        line: "blacklist {{ item }}"
+        create: true
+        mode: 'go-wx'
+      loop: "{{ prelim_wireless_modules.stdout_lines }}"
