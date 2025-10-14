@@ -408,7 +408,7 @@
         - ubtu24stig_disruption_high
       ansible.builtin.replace:
         path: "{{ item }}"
-        regexp: ((?i)nopasswd|!authenticate)
+        regexp: (?i)(nopasswd|!authenticate)
         replace: ''
       loop: "{{ discovered_sudo_nopasswd.stdout_lines }}"
 
