@@ -74,7 +74,7 @@
       register: discovered_cron_script_sha256
 
     - name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | replace if needed
-      when: "'458aea46ab75906c3d9ad7f174a03b4ab62ee389fc4b8fb3c0330aae3c765441' not in discovered_cron_script_sha256.stdout"
+      when: "'458aea46ab75906c3d9ad7f174a03b4ab62ee389fc4b8fb3c0330aae3c765441' not in discovered_cron_script_sha256.stdout" # pragma: allowlist secret
       ansible.builtin.shell: |
         apt download aide-common; dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | sudo tar -x --wildcards ./usr/share/aide/config/cron.daily/dailyaidecheck -C /; cp -f /usr/share/aide/config/cron.daily/dailyaidecheck /etc/cron.daily/dailyaidecheck*
       changed_when: true
