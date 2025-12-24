@@ -15,3 +15,7 @@
 - name: Run Cat 1 STIG 60xxxx
   ansible.builtin.import_tasks:
     file: UBTU24-60xxxx.yml
+
+- name: Run Cat 1 STIG 70xxxx
+  ansible.builtin.import_tasks:
+    file: UBTU24-70xxxx.yml

@@ -1,0 +1,14 @@
+---
+
+- name: HIGH | UBTU-24-700400 | AUDIT | Ubuntu 24.04 LTS must be a vendor-supported release.
+  when: ubtu24stig_700400
+  tags:
+    - UBTU-24-700400
+    - CAT1
+    - CCI-002605
+    - SRG-OS-000480-GPOS-00227
+    - SV-278917r1135000_rule
+    - V-278917
+    - NIST800-53R4_CM-6
+  ansible.builtin.debug:
+    msg: "System is running a vendor supported release as per assert checks at the beginning of the playbook - {{ ansible_facts.distribution }} {{ ansible_facts.distribution_major_version }}"

@@ -158,6 +158,7 @@ ubtu24stig_300031: true
 ubtu24stig_400370: true
 ubtu24stig_600030: true
 ubtu24stig_600130: true
+ubtu24stig_700400: true
 
 #### CAT 2
 ## 10XXXX
@@ -281,7 +282,6 @@ ubtu24stig_700150: true
 ubtu24stig_700300: true
 ubtu24stig_700310: true
 ubtu24stig_700320: true
-ubtu24stig_700400: true
 
 ## 900XXX
 ubtu24stig_900040: true
@@ -338,10 +338,10 @@ ubtu24stig_901300: true
 ubtu24stig_901310: true
 ubtu24stig_901350: true
 ubtu24stig_901380: true
-ubtu24stig_901890: true
 
 ## 909XXX
 ubtu24stig_909000: true
+ubtu24stig_909890: true
 
 #### CAT 3
 ubtu24stig_100010: true
@@ -539,5 +539,4 @@ ubtu24stig_audit_tools:
   - /sbin/ausearch
   - /sbin/autrace
   - /sbin/auditd
-  - /sbin/audispd-zos-remote
   - /sbin/augenrules

@@ -13,3 +13,26 @@
     - auditd
   ansible.builtin.set_fact:
     update_audit_template: true
+
+- name: MEDIUM | UBTU-24-909890 | PATCH | Ubuntu 24.04 LTS must use cryptographic mechanisms to protect the integrity of audit tools.
+  when: ubtu24stig_909890
+  tags:
+    - UBTU-24-909890
+    - CAT2
+    - CCI-001496
+    - SRG-OS-000278-GPOS-00108
+    - SV-270831r1135002_rule
+    - V-270831
+    - NIST800-53R4_AU-9
+    - aide
+  ansible.builtin.lineinfile:
+    path: /etc/aide/aide.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.regexp }} {{ item.line }}"
+  loop:
+    - { regexp: '/sbin/auditctl', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/auditd', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/ausearch', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/aureport', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/autrace', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
+    - { regexp: '/sbin/augenrules', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }

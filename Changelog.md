@@ -1,5 +1,25 @@
 # Ubuntu24STIG
 
+
+## Based on STIG v1r3
+
+CAT 1
+- UBTU-24-300038 - ruleid updated
+- UBTU-24-700400 - moved from CAT2 rules id updates
+
+CAT 2
+- UBTU-24-100110 - ruleid updated
+- UBTU-24-100840 - ruleid updated
+- UBTU-24-200090 - ruleid updated
+- UBTU-24-300039 - ruleid updated
+- UBTU-24-700010 - ruleid updated and exclusions
+- UBTU-24-901230 - ruleid - audit pkg list updated to remove audisp
+- UBTU-24-901240 - ruleid - audit pkg list updated to remove audisp
+- UBTU-24-901250 - ruleid - audit pkg list updated to remove audisp
+- UBTU-24-909890 - rule moved from 901890 - ruleid updated
+
+CAT 3
+
 ## Based on STIG v1r2
 
 CAT 1
