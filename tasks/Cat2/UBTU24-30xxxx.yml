@@ -315,8 +315,8 @@
     - CAT2
     - CCI-001499
     - SRG-OS-000259-GPOS-00100
-    - SV-260496r991560_rule
-    - V-260496
+    - SV-270703r1066598_rule
+    - V-270703
     - NIST800-53R4_CM-5
     - permissions
   vars:

@@ -138,8 +138,8 @@
     - CAT2
     - CCI-001314
     - SRG-OS-000206-GPOS-00084
-    - SV-270759r1068367_rule
-    - V-270759
+    - SV-270760r1066769_rule
+    - V-270760
     - NIST800-53R4_SI-11
     - journald
     - permissions

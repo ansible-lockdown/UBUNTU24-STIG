@@ -317,7 +317,7 @@
     - CAT2
     - CCI-000366
     - SRG-OS-000480-GPOS-00225
-    - SV-260478r991587_rule
+    - SV-270661r1067175_rule
     - V-260478
     - NIST800-53R4_CM-6
     - packages
@@ -529,8 +529,8 @@
     - CAT2
     - CCI-001464
     - SRG-OS-000254-GPOS-00095
-    - SV-260471r991555_rule
-    - V-260471
+    - SV-270676r1068360_rule
+    - V-270676
     - NIST800-53R4_AU-14
     - bootloader
   block:

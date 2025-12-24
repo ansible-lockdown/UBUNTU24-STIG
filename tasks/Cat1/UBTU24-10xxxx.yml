@@ -19,7 +19,7 @@
 - name: HIGH | UBTU-24-100040 | PATCH | Ubuntu 24.04 LTS must not have the  rsh-server package installed.
   when: ubtu24stig_100040
   tags:
-    - UBTU-24-100030
+    - UBTU-24-100040
     - CAT1
     - CCI-000381
     - SRG-OS-000095-GPOS-00049
@@ -80,7 +80,7 @@
     - CAT1
     - CCI-000213
     - SRG-OS-000080-GPOS-00048
-    - SV-270675r1066514_rule
+    - SV-270675r1117265_rule
     - V-270675
     - NIST800-53R4_AC-3
     - bootloader

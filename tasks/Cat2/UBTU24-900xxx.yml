@@ -267,8 +267,8 @@
     - CAT2
     - CCI-000172
     - SRG-OS-000064-GPOS-00033
-    - SV-260616r958446_rule
-    - V-260616
+    - SV-270791r1066862_rule
+    - V-270791
     - NIST800-53R4_AU-12
     - auditd
   ansible.builtin.set_fact:
