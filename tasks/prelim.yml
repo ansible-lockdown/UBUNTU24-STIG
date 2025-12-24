@@ -82,6 +82,15 @@
     paths: /etc/apt/*
   register: prelim_apt_conf_files
 
+- name: "PRELIM | PATCH | Find all sudoers files."
+  when: ubtu24stig_300019 or ubtu24stig_300020
+  tags: always
+  ansible.builtin.shell: "find /etc/sudoers /etc/sudoers.d/ -type f ! -name '*~' ! -name '*.*'"
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  register: prelim_sudoers_files
+
 - name: "PRELIM | Gather accounts with empty password fields"
   when: ubtu24stig_300027
   tags: passwords

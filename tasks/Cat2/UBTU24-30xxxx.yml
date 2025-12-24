@@ -7,7 +7,7 @@
     - CAT2
     - CCI-001499
     - SRG-OS-000259-GPOS-00100
-    - SV-270696r1066577_rule
+    - SV-270696r1107306_rule
     - V-270696
     - NIST800-53R4_CM-5
     - permissions
@@ -15,7 +15,7 @@
     warn_control_id: 'MEDIUM | UBTU-24-300006'
   block:
     - name: MEDIUM | UBTU-24-300006 | AUDIT | Ubuntu 24.04 LTS library files must have mode 0755 or less permissive. | Discover
-      ansible.builtin.shell: find /lib /lib64 /usr/lib -perm /022 -type f -exec stat -c "%n" '{}' \;
+      ansible.builtin.shell: find /lib /lib64 /usr/lib /usr/lib64 -perm /022 -type f -exec stat -c "%n" '{}' \;
       changed_when: false
       failed_when: discovered_system_lib_files_perms.rc not in [ 0, 1 ]
       register: discovered_system_lib_files_perms
@@ -51,7 +51,7 @@
     - CAT2
     - CCI-001499
     - SRG-OS-000259-GPOS-00100
-    - SV-270697r1066580_rule
+    - SV-270697r1107308_rule
     - V-270697
     - NIST800-53R4_CM-5
     - permissions
@@ -59,7 +59,7 @@
     warn_control_id: 'MEDIUM | UBTU-24-300007'
   block:
     - name: MEDIUM | UBTU-24-300007 | AUDIT | Ubuntu 24.04 LTS library files must be owned by root. | Discover
-      ansible.builtin.shell: find /lib /usr/lib /lib64 ! -user root -type f -exec stat -c "%n" '{}' \;
+      ansible.builtin.shell: find /lib /usr/lib /lib64 /usr/lib64 ! -user root -type f -exec stat -c "%n" '{}' \;
       changed_when: false
       failed_when: discovered_system_lib_files_owner.rc not in [ 0, 1 ]
       register: discovered_system_lib_files_owner
@@ -95,7 +95,7 @@
     - CAT2
     - CCI-001499
     - SRG-OS-000259-GPOS-00100
-    - SV-270698r1066583_rule
+    - SV-270698r1101751_rule
     - V-270698
     - NIST800-53R4_CM-5
     - permissions
@@ -103,7 +103,7 @@
     warn_control_id: 'MEDIUM | UBTU-24-300008'
   block:
     - name: MEDIUM | UBTU-24-300008 | AUDIT | Ubuntu 24.04 LTS library directories must be owned by root. | Discover
-      ansible.builtin.shell: find /lib /usr/lib /lib64 ! -user root -type d -exec stat -c "%n" '{}' \;
+      ansible.builtin.shell: find /lib /usr/lib /lib64 /usr/lib64 ! -user root -type d -exec stat -c "%n" '{}' \;
       changed_when: false
       failed_when: discovered_system_lib_dirs_owner.rc not in [ 0, 1 ]
       register: discovered_system_lib_dirs_owner
@@ -139,7 +139,7 @@
     - CAT2
     - CCI-001499
     - SRG-OS-000259-GPOS-00100
-    - SV-270699r1066586_rule
+    - SV-270699r1107310_rule
     - V-270699
     - NIST800-53R4_CM-5
     - permissions
@@ -147,7 +147,7 @@
     warn_control_id: 'MEDIUM | UBTU-24-300009'
   block:
     - name: MEDIUM | UBTU-24-300009 | AUDIT | Ubuntu 24.04 LTS library files must be group-owned by root or system account. | Discover
-      ansible.builtin.shell: find /lib /usr/lib /lib64 -type f -uid +"{{ min_int_uid }}"  -exec stat -c "%n" '{}' \;
+      ansible.builtin.shell: find /lib /usr/lib /lib64 /usr/lib64 -type f -uid +"{{ min_int_uid }}"  -exec stat -c "%n" '{}' \;
       changed_when: false
       failed_when: discovered_system_lib_files_group.rc not in [ 0, 1 ]
       register: discovered_system_lib_files_group
@@ -384,6 +384,53 @@
     regexp: (?i)^(#|)enforcing\s*=
     line: 'enforcing = 1'
 
+- name: MEDIUM | UBTU-24-300019 | PATCH | Ubuntu 24.04 LTS must restrict privilege elevation to authorized personnel.
+  when: ubtu24stig_300019
+  tags:
+    - UBTU-24-300019
+    - CAT2
+    - CCI-002038
+    - SRG-OS-000373-GPOS-00156
+    - SV-274869r1107312_rule
+    - V-274869
+    - NIST800-53R4_IA-11
+    - password
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    regexp: '(?i)^ALL\s+ALL=\(ALL(:ALL)?\)\s+ALL'
+    state: absent
+  loop: "{{ prelim_sudoers_files.stdout_lines }}"
+
+- name: MEDIUM | UBTU-24-300020 | PATCH | Ubuntu 24.04 LTS must require users to provide a password for privilege escalation.
+  when: ubtu24stig_300020
+  tags:
+    - UBTU-24-300020
+    - CAT2
+    - CCI-000366
+    - SRG-OS-000373-GPOS-00156
+    - SRG-OS-000373-GPOS-00157
+    - SRG-OS-000373-GPOS-00158
+    - SV-274868r1107313_rule
+    - V-274868
+    - NIST800-53R4_CM-6
+    - password
+  block:
+    - name: MEDIUM | UBTU-24-300020 | AUDIT | Ubuntu 24.04 LTS must require users to provide a password for privilege escalation. | find
+      ansible.builtin.shell: grep -Ei '(nopasswd)' /etc/sudoers /etc/sudoers.d/* | cut -d':' -f1
+      become: true
+      changed_when: false
+      failed_when: false
+      register: discovered_sudoers_nopasswd
+
+    - name: MEDIUM | UBTU-24-300020 | PATCH | Ubuntu 24.04 LTS must require users to provide a password for privilege escalation. | patch
+      when: discovered_sudoers_nopasswd.stdout | length > 0
+      ansible.builtin.replace:
+        path: "{{ item }}"
+        regexp: '^((?!#|{% for name in ubtu24stig_sudoers_exclude_nopasswd_list %}{{ name }}{% if not loop.last -%}|{%- endif -%}{% endfor %}).*)NOPASSWD(.*)'
+        replace: '\1PASSWD\2'
+        validate: '/usr/sbin/visudo -cf %s'
+      loop: "{{ discovered_sudoers_nopasswd.stdout_lines }}"
+
 - name: MEDIUM | UBTU-24-300021 | PATCH | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles.
   when: ubtu24stig_300021
   tags:
@@ -391,26 +438,26 @@
     - CAT2
     - CCI-000366
     - SRG-OS-000480-GPOS-00227
-    - SV-270707r1066610_rule
+    - SV-270707r1101786_rule
     - V-270707
     - NIST800-53R4_CM-6
     - sudo
   block:
     - name: MEDIUM | UBTU-24-300021 | AUDIT | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles. | capture config
-      ansible.builtin.shell: grep -Ei '(nopasswd|!authenticate)' /etc/sudoers /etc/sudoers.d/* | cut -d':' -f1
+      ansible.builtin.shell: grep -Ei '(!authenticate)' /etc/sudoers /etc/sudoers.d/* | cut -d':' -f1
       changed_when: false
-      failed_when: discovered_sudo_nopasswd.rc not in [ 0, 1 ]
-      register: discovered_sudo_nopasswd
+      failed_when: discovered_sudo_authenticate.rc not in [ 0, 1 ]
+      register: discovered_sudo_authenticate
 
-    - name: MEDIUM | UBTU-24-300021 | PATCH | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles. | Remove NOPASSWD
+    - name: MEDIUM | UBTU-24-300021 | PATCH | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles.
       when:
-        - discovered_sudo_nopasswd.stdout_lines is defined
+        - discovered_sudo_authenticate.stdout_lines is defined
         - ubtu24stig_disruption_high
       ansible.builtin.replace:
         path: "{{ item }}"
-        regexp: ((?i)nopasswd|!authenticate)
+        regexp: ((?i)\!authenticate)
         replace: ''
-      loop: "{{ discovered_sudo_nopasswd.stdout_lines }}"
+      loop: "{{ discovered_sudo_authenticate.stdout_lines }}"
 
 - name: MEDIUM | UBTU-24-300023 | PATCH | Ubuntu 24.04 LTS SSH daemon must prevent remote hosts from connecting to the proxy display.
   when: ubtu24stig_300023

@@ -2,7 +2,7 @@
 
 ## Configure a UBUNTU24 based system to be complaint with DISA STIG
 
-This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 1 released on Februaury 21, 2025](https://dl.dod.cyber.mil/wp-content/uploads/stigs/U_UBUNTU_24_V1R1_STIG.zip).
+This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 2 released on July 02, 2025](https://dl.dod.cyber.mil/wp-content/uploads/stigs/U_UBUNTU_24_V1R2_STIG.zip).
 
 ---
 

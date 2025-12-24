@@ -1,7 +1,7 @@
 ---
 
 ## metadata for Audit benchmark
-benchmark_version: 'v1.1.0'
+benchmark_version: 'v1.2.0'
 
 ## Benchmark name used by auditing control role
 # The audit variable found at the base
@@ -188,10 +188,14 @@ ubtu24stig_102010: true
 ## 20XXXX
 ubtu24stig_200020: true
 ubtu24stig_200040: true
+ubtu24stig_200041: true
+ubtu24stig_200042: true
+ubtu24stig_200043: true
 ubtu24stig_200060: true
 ubtu24stig_200090: true
 ubtu24stig_200250: true
 ubtu24stig_200260: true
+ubtu24stig_200270: true
 ubtu24stig_200280: true
 ubtu24stig_200290: true
 ubtu24stig_200300: true
@@ -214,6 +218,8 @@ ubtu24stig_300012: true
 ubtu24stig_300013: true
 ubtu24stig_300014: true
 ubtu24stig_300016: true
+ubtu24stig_300019: true
+ubtu24stig_300020: true
 ubtu24stig_300021: true
 ubtu24stig_300023: true
 ubtu24stig_300029: true
@@ -398,6 +404,11 @@ ubtu24stig_maxlogins: 10
 ### Graphical/Gnome interface required
 ubtu24stig_gui: "{{ ubtu24_gnome_present.stat.exists | default(false) }}"
 
+### 200020 - screensaver
+# ubtu24stig_screen_lock_delay is the amount of time in seconds before screen locks
+# To be STIG compliant this value must be 900 seconds (10 minutes) or less
+ubtu24stig_screen_lock_delay: 600
+
 ## 200260
 # Number of days account is active before disabled
 # 35 is max set by STIG
@@ -457,6 +468,11 @@ ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
 # faildelay
 ubtu24stig_faildelay: 4000000  # 4000000 is the minimum value = 4 seconds
 
+# 300020
+# This will leave NOPASSWD intact for these users
+ubtu24stig_sudoers_exclude_nopasswd_list:
+  - ec2-user
+  - vagrant
 ##############
 ### 40XXXX ###
 ##############

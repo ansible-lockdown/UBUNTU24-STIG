@@ -28,21 +28,17 @@
     - CAT1
     - CCI-000366
     - SRG-OS-000480-GPOS-00227
-    - SV-270711r1066622_rule
+    - SV-270711r1101772_rule
     - V-270711
     - NIST800-53R4_CM-6
     - gnome
-  block:
-    - name: HIGH | UBTU-24-300025 | AUDIT | Ubuntu 24.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence if a graphical user interface is installed.
-      ansible.builtin.command: gsettings get org.gnome.settings-daemon.plugins.media-keys logout
-      changed_when: true
-      register: discovered_gui_ctrl_alt_del
-
-    - name: HIGH | UBTU-24-300025 | PATCH | Ubuntu 24.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence if a graphical user interface is installed.
-      when: "'@as []' in discovered_gui_ctrl_alt_del.stdout"
-      ansible.builtin.command: gsettings set org.gnome.settings-daemon.plugins.media-keys logout []
-      changed_when: true
-      notify: Update_dconf
+  community.general.ini_file:
+    path: /etc/dconf/db/local.d/00-screensaver
+    section: "org/gnome/settings-daemon/plugins/media-keys"
+    option: logout=
+    value: "['']"
+    mode: 'u-x,go-wx'
+  notify: Update_dconf
 
 - name: HIGH | UBTU-24-300026 | PATCH | Ubuntu 24.04 LTS must disable the x86 Ctrl-Alt-Delete key sequence.
   when: ubtu24stig_300026
