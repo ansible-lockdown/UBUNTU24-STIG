@@ -85,15 +85,16 @@ max_int_uid: 65533
 
 ###########################################
 ### Goss is required on the remote host ###
-### vars/audit.yml for other settings  ###
+### vars/auditd.yml for other settings  ###
 
-# Allow audit to setup the requirements including installing git (if option chosen and downloading and adding Goss binary to system)
+# Allow audit to setup the requirements including installing git (if option chosen and downloading and adding goss binary to system)
 setup_audit: false
 
 # enable audits to run - this runs the audit and get the latest content
 run_audit: false
-# Run heavy tests - some tests can have more impact on a system enabling these can have greater impact on a system
-audit_run_heavy_tests: true
+
+# Ability to limit the number of concurrent processes used by goss (default 50)
+audit_max_concurrent: 50
 
 ## Only run Audit do not remediate
 audit_only: false
@@ -116,8 +117,8 @@ audit_content: git
 
 # If using either archive, copy, get_url:
 ## Note will work with .tar files - zip will require extra configuration
-### If using get_url this is expecting github url in tar.gz format e.g.(Note the benchmark version)
-### https://github.com/ansible-lockdown/UBUNTU24-STIG-Audit/archive/refs/heads/benchmark-v1.0.0.tar.gz
+### If using get_url this is expecting github url in tar.gz format e.g.
+### https://github.com/ansible-lockdown/UBUNTU24-CIS-Audit/archive/refs/heads/benchmark-v1.0.0.tar.gz
 audit_conf_source: "some path or url to copy from"
 
 # Destination for the audit content to be placed on managed node
@@ -405,9 +406,9 @@ ubtu24stig_maxlogins: 10
 ubtu24stig_gui: "{{ ubtu24_gnome_present.stat.exists | default(false) }}"
 
 ### 200020 - screensaver
-# ubtu24stig_screen_lock_delay is the amount of time in seconds before screen locks
+# ubtu24stig_screen_idle_delay is the amount of time in seconds before screen locks
 # To be STIG compliant this value must be 900 seconds (10 minutes) or less
-ubtu24stig_screen_lock_delay: 600
+ubtu24stig_screen_idle_delay: 600
 
 ## 200260
 # Number of days account is active before disabled
