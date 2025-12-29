@@ -79,7 +79,7 @@
 - name: "PRELIM | Gather apt conf file list"
   tags: always
   ansible.builtin.find:
-    paths: /etc/apt/*
+    paths: /etc/apt/
   register: prelim_apt_conf_files
 
 - name: "PRELIM | PATCH | Find all sudoers files."
