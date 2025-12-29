@@ -67,10 +67,6 @@
       failed_when: discovered_sudo_group_users.rc not in [ 0, 1 ]
       register: discovered_sudo_group_users
 
-    - name: HIGH | UBTU-24-600130 | AUDIT | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Remove members
-      ansible.builtin.set_fact:
-        discovered_sudo_group_users_list: "{{ discovered_sudo_group_users.stdout | split(',') }} "
-
     - name: HIGH | UBTU-24-600130 | PATCH | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Ensure member exist
       ansible.builtin.user:
         name: "{{ item }}"
@@ -78,14 +74,12 @@
         groups: sudo
       loop: "{{ ubtu24stig_sudo_group_users }}"
 
-    - name: HIGH | UBTU-24-600130 | AUDIT | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Compare existing to required
-      ansible.builtin.set_fact:
-        sudo_group_members_not_required: "{{ discovered_sudo_group_users_list | difference(ubtu24stig_sudo_group_users) }}"
-
     - name: HIGH | UBTU-24-600130 | PATCH | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Remove user not in required list
-      when: ubtu24stig_disruption_high
-      ansible.builtin.command: gpasswd -d "{{ item }}" sudo
-      loop: "{{ sudo_group_members_not_required }}"
+      when:
+        - ubtu24stig_disruption_high
+        - item not in ubtu24stig_sudo_group_users
+      ansible.builtin.command: "gpasswd -d {{ item }} sudo"
+      loop: "{{ discovered_sudo_group_users.stdout.split(',') }}"
       changed_when: true
 
     - name: HIGH | UBTU-24-600130 | WARN | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Warning

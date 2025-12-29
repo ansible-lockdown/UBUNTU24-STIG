@@ -22,8 +22,8 @@
   notify: Update_dconf
   loop:
     - { section: org/gnome/desktop/screensaver, option: lock-enabled, value: true }
-    - { section: org/gnome/desktop/screensaver, option: lock-delay, value: 'uint32 900' }
-    - { section: org/gnome/desktop/session, option: idle-delay, value: "uint32 {{ ubtu24stig_screen_lock_delay }}" }
+    - { section: org/gnome/desktop/screensaver, option: lock-delay, value: 'uint32 0' }
+    - { section: org/gnome/desktop/session, option: idle-delay, value: "uint32 {{ ubtu24stig_screen_idle_delay }}" }
 
 - name: MEDIUM | UBTU-24-200040 | PATCH | Ubuntu 24.04 LTS must prevent a user from overriding the disabling of the graphical user interface automount function.
   when:
