@@ -2,8 +2,8 @@
 
 {% if ubtu24stig_200270 %}
 # UBUNTU24-STIG rule 200270
-auditctl -w /etc/cron.d/ -p wa -k cronjobs
-auditctl -w /var/spool/cron/ -p wa -k cronjobs
+-w /etc/cron.d/ -p wa -k cronjobs
+-w /var/spool/cron/ -p wa -k cronjobs
 {% endif %}
 {% if ubtu24stig_200280 %}
 # UBUNTU24-STIG rule 200280
