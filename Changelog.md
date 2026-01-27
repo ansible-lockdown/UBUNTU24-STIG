@@ -3,6 +3,9 @@
 
 ## Based on STIG v1r3
 
+Linting
+- removed deprecated parseable option from ansible-lint config
+
 CAT 1
 - UBTU-24-300038 - ruleid updated
 - UBTU-24-700400 - moved from CAT2 rules id updates
@@ -19,6 +22,7 @@ CAT 2
 - UBTU-24-909890 - rule moved from 901890 - ruleid updated
 
 CAT 3
+- UBTU-24-900950 - fixed conditional logic
 
 ## Based on STIG v1r2
 
