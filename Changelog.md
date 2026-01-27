@@ -1,10 +1,13 @@
 # Ubuntu24STIG
 
-
 ## Based on STIG v1r3
 
-Linting
-- removed deprecated parseable option from ansible-lint config
+## 1.3.0
+
+2026 Jan Updates
+
+- Added extra options and explanation for audit component
+- Linting: removed deprecated parseable option from ansible-lint config
 
 CAT 1
 - UBTU-24-300038 - ruleid updated
@@ -25,6 +28,8 @@ CAT 3
 - UBTU-24-900950 - fixed conditional logic
 
 ## Based on STIG v1r2
+
+## 1.2.0
 
 CAT 1
 - UBTU-24-300025 - Updated
