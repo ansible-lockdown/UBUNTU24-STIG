@@ -509,11 +509,13 @@ ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
 # faildelay
 ubtu24stig_faildelay: 4000000  # 4000000 is the minimum value = 4 seconds
 
-# 300020
+# 300020 and 300021
+## Users to exclude from NOPASSWD removal
 # This will leave NOPASSWD intact for these users
 ubtu24stig_sudoers_exclude_nopasswd_list:
   - ec2-user
   - vagrant
+  - ubuntu
 ##############
 ### 40XXXX ###
 ##############
