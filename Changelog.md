@@ -8,6 +8,7 @@
 
 - Added extra options and explanation for audit component
 - Linting: removed deprecated parseable option from ansible-lint config
+- Improved logic for 300020. Added sudoers_exclude to logic.
 
 CAT 1
 - UBTU-24-300038 - ruleid updated
