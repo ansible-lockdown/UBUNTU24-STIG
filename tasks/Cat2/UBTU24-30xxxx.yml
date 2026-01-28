@@ -444,10 +444,10 @@
     - sudo
   block:
     - name: MEDIUM | UBTU-24-300021 | AUDIT | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles. | capture config
-      ansible.builtin.shell: grep -rEi '^[^#]*!authenticate' /etc/sudoers /etc/sudoers.d/ 2>/dev/null | cut -d':' -f1 | sort -u
+      ansible.builtin.shell: grep -rEi '^[^#]*!authenticate' /etc/sudoers /etc/sudoers.d/* 2>/dev/null | cut -d':' -f1 | sort -u
       become: true
       changed_when: false
-      failed_when: discovered_sudo_authenticate.rc not in [ 0, 1 ]
+      failed_when: discovered_sudo_authenticate.rc not in [ 0, 1, 2 ]
       register: discovered_sudo_authenticate
 
     - name: MEDIUM | UBTU-24-300021 | PATCH | Ubuntu 24.04 LTS must require users to reauthenticate for privilege escalation or when changing roles.
