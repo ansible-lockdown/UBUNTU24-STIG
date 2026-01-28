@@ -70,12 +70,6 @@
   changed_when: false
   register: ubtu24stig_interactive_users
 
-- name: "PRELIM | Interactive User account home"
-  tags: always
-  ansible.builtin.shell: 'cat /etc/passwd | grep -Ev "nologin|/sbin" | cut -d: -f6'
-  changed_when: false
-  register: ubtu24stig_interactive_users_home
-
 - name: "PRELIM | Gather apt conf file list"
   tags: always
   ansible.builtin.find:
@@ -176,12 +170,6 @@
     patterns: 'sshd_config,*.conf'
     recurse: false
   register: prelim_sshd_config_files
-
-- name: PRELIM | Interactive Users
-  tags: always
-  ansible.builtin.shell: "grep -Ev 'nologin|/sbin' /etc/passwd | awk -F: '$3 >= {{ min_int_uid }} {print $1}'"
-  changed_when: false
-  register: ubtu24stig_interactive_users_home
 
 - name: "PRELIM | Discover Gnome Desktop Environment"
   tags: always

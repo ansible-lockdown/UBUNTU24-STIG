@@ -405,8 +405,7 @@
     update_audit_template: true
 
 - name: MEDIUM | UBTU-24-900300 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the chage command.
-  when:
-    - ubtu24stig_900300
+  when: ubtu24stig_900300
   tags:
     - UBTU-24-900300
     - CAT2
