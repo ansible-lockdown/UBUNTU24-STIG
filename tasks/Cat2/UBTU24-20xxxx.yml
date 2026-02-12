@@ -232,7 +232,7 @@
   ansible.builtin.lineinfile:
     path: /etc/default/useradd
     regexp: (?i)^(#|)INACTIVE\s*=\s*\d*
-    line: "INACTIVE {{ ubtu24stig_user_inactive_days }}"
+    line: "INACTIVE={{ ubtu24stig_user_inactive_days }}"
 
 - name: MEDIUM | UBTU-24-200270 | PATCH | Ubuntu 24.04 LTS must audit any script or executable called by cron as root or by any privileged user.
   when: ubtu24stig_200270
