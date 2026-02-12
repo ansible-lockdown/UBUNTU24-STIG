@@ -50,6 +50,7 @@
   ansible.builtin.package:
     name: ssh
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: HIGH | UBTU-24-100810 | PATCH | Ubuntu 24.04 LTS must use SSH to protect the confidentiality and integrity of transmitted information.
   when: ubtu24stig_100810

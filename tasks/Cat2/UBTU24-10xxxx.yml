@@ -14,6 +14,7 @@
   ansible.builtin.package:
     name: aide
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system.
   when:
@@ -116,6 +117,7 @@
       ansible.builtin.package:
         name: rsyslog
         state: present
+        lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
     - name: MEDIUM | UBTU-24-100200 | PATCH | Ubuntu 24.04 LTS must be configured to preserve log records from failure events.
       ansible.builtin.systemd_service:
@@ -139,6 +141,7 @@
   ansible.builtin.package:
     name: ufw
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100310 | PATCH | Ubuntu 24.04 LTS must enable and run the Uncomplicated Firewall (ufw).
   when:
@@ -211,6 +214,7 @@
   ansible.builtin.package:
     name: auditd
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100410 | PATCH | Ubuntu 24.04 LTS must produce audit records and reports containing information to establish when, where, what type, the source, and the outcome for all DOD-defined auditable events and actions in near real time.
   when: ubtu24stig_100410
@@ -286,6 +290,7 @@
   ansible.builtin.package:
     name: apparmor
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100510 | PATCH | Ubuntu 24.04 LTS must be configured to use AppArmor.
   when:
@@ -324,6 +329,7 @@
   ansible.builtin.package:
     name: libpam-pwquality
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100650 | PATCH | Ubuntu 24.04 LTS must have the "SSSD" package installed.
   when:
@@ -348,6 +354,7 @@
   ansible.builtin.package:
     name: libpam-sss
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
   loop: "{{ ubtu24stig_sssd_packages }}"
 
 - name: MEDIUM | UBTU-24-100660 | PATCH | Ubuntu 24.04 LTS must use the "SSSD" package for multifactor authentication services.
@@ -490,6 +497,7 @@
   ansible.builtin.package:
     name: opensc-pkcs11
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100910 | PATCH | Ubuntu 24.04 LTS must accept Personal Identity Verification (PIV) credentials managed through the Privileged Access Management (PAM)  framework.
   when: ubtu24stig_100910
@@ -505,6 +513,7 @@
   ansible.builtin.package:
     name: libpam-pkcs11
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-101000 | PATCH | Ubuntu 24.04 LTS must allow users to directly initiate a session lock for all connection types.
   when: ubtu24stig_101000
@@ -521,6 +530,7 @@
   ansible.builtin.package:
     name: vlock
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup.
   when: ubtu24stig_102010
