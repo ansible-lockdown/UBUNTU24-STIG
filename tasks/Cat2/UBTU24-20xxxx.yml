@@ -174,7 +174,7 @@
   ansible.builtin.lineinfile:
     path: /etc/default/useradd
     regexp: (?i)^(#|)INACTIVE\s*=\s*\d*
-    line: "INACTIVE {{ ubtu24stig_user_inactive_days }}"
+    line: "INACTIVE={{ ubtu24stig_user_inactive_days }}"
 
 - name: MEDIUM | UBTU-24-200280 | Ubuntu 24.04 LTS must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/passwd.
   when: ubtu24stig_200280

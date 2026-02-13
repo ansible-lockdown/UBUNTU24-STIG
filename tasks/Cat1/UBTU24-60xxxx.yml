@@ -69,7 +69,7 @@
 
     - name: HIGH | UBTU-24-600130 | AUDIT | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Remove members
       ansible.builtin.set_fact:
-        discovered_sudo_group_users_list: "{{ discovered_sudo_group_users.stdout | split(',') }} "
+        discovered_sudo_group_users_list: "{{ discovered_sudo_group_users.stdout | split(',') }}"
 
     - name: HIGH | UBTU-24-600130 | PATCH | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Ensure member exist
       ansible.builtin.user:
