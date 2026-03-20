@@ -28,6 +28,7 @@
     playbook-test:
       # The type of runner that the job will run on
       runs-on: self-hosted
+      environment: ci-approval
       env:
         ENABLE_DEBUG: ${{ vars.ENABLE_DEBUG }}
         # Imported as a variable by terraform
@@ -45,7 +46,7 @@
         - name: Git clone the lockdown repository to test
           uses: actions/checkout@v4
           with:
-            ref: ${{ github.event.pull_request.head.sha }}
+            ref: ${{ github.event.pull_request.base.sha }}
 
         - name: If a variable for IAC_BRANCH is set use that branch
           working-directory: .github/workflows
