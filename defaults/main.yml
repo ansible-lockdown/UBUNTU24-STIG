@@ -525,3 +525,4 @@ ubtu24stig_audit_tools:
   - /sbin/auditd
   - /sbin/audispd-zos-remote
   - /sbin/augenrules
+# Updated default timeout documentation
