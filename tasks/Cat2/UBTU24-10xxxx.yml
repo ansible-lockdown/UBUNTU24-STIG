@@ -14,6 +14,7 @@
   ansible.builtin.package:
     name: aide
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system.
   when:
@@ -25,7 +26,7 @@
     - CAT2
     - CCI-002696
     - SRG-OS-000445-GPOS-00199
-    - SV-270650r1066439_rule
+    - SV-270650r1134802_rule
     - V-270650
     - NIST800-53R4_SI-6
     - aide
@@ -68,13 +69,13 @@
     - aide
   block:
     - name: MEDIUM | UBTU-24-100120 | AUDIT | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | capture sha1sum
-      ansible.builtin.command: sha256sum /etc/aide/aide.conf 2>/dev/null
+      ansible.builtin.command: sha256sum /etc/aide/aide.conf
       changed_when: false
       failed_when: discovered_cron_script_sha256.rc not in [ 0, 1 ]
       register: discovered_cron_script_sha256
 
     - name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | replace if needed
-      when: "'458aea46ab75906c3d9ad7f174a03b4ab62ee389fc4b8fb3c0330aae3c765441' not in discovered_cron_script_sha256.stdout" # pragma: allowlist secret
+      when: "'458aea46ab75906c3d9ad7f174a03b4ab62ee389fc4b8fb3c0330aae3c765441' not in discovered_cron_script_sha256.stdout"  # pragma: allowlist secret
       ansible.builtin.shell: |
         apt download aide-common; dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | sudo tar -x --wildcards ./usr/share/aide/config/cron.daily/dailyaidecheck -C /; cp -f /usr/share/aide/config/cron.daily/dailyaidecheck /etc/cron.daily/dailyaidecheck*
       changed_when: true
@@ -116,6 +117,7 @@
       ansible.builtin.package:
         name: rsyslog
         state: present
+        lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
     - name: MEDIUM | UBTU-24-100200 | PATCH | Ubuntu 24.04 LTS must be configured to preserve log records from failure events.
       ansible.builtin.systemd_service:
@@ -139,6 +141,7 @@
   ansible.builtin.package:
     name: ufw
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100310 | PATCH | Ubuntu 24.04 LTS must enable and run the Uncomplicated Firewall (ufw).
   when:
@@ -211,6 +214,7 @@
   ansible.builtin.package:
     name: auditd
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100410 | PATCH | Ubuntu 24.04 LTS must produce audit records and reports containing information to establish when, where, what type, the source, and the outcome for all DOD-defined auditable events and actions in near real time.
   when: ubtu24stig_100410
@@ -286,6 +290,7 @@
   ansible.builtin.package:
     name: apparmor
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100510 | PATCH | Ubuntu 24.04 LTS must be configured to use AppArmor.
   when:
@@ -317,17 +322,18 @@
     - CAT2
     - CCI-000366
     - SRG-OS-000480-GPOS-00225
-    - SV-260478r991587_rule
+    - SV-270661r1067175_rule
     - V-260478
     - NIST800-53R4_CM-6
     - packages
   ansible.builtin.package:
     name: libpam-pwquality
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100650 | PATCH | Ubuntu 24.04 LTS must have the "SSSD" package installed.
   when:
-    - ubtu24stig_100600
+    - ubtu24stig_100650
     - ubtu24stig_use_sssd
     - ubtu24stig_disruption_high
   tags:
@@ -348,6 +354,7 @@
   ansible.builtin.package:
     name: libpam-sss
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
   loop: "{{ ubtu24stig_sssd_packages }}"
 
 - name: MEDIUM | UBTU-24-100660 | PATCH | Ubuntu 24.04 LTS must use the "SSSD" package for multifactor authentication services.
@@ -431,7 +438,7 @@
     - CAT2
     - CCI-000068
     - SRG-OS-000033-GPOS-00014
-    - SV-270669r1067112_rule
+    - SV-270669r1134804_rule
     - V-270669
     - NIST800-53R4_AC-17
     - ssh
@@ -466,7 +473,7 @@
     - CAT2
     - CCI-001453
     - SRG-OS-000250-GPOS-00093
-    - SV-270671r1067118_rule
+    - SV-270671r1155244_rule
     - V-270671
     - NIST800-53R4_AC-17
     - ssh
@@ -490,6 +497,7 @@
   ansible.builtin.package:
     name: opensc-pkcs11
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-100910 | PATCH | Ubuntu 24.04 LTS must accept Personal Identity Verification (PIV) credentials managed through the Privileged Access Management (PAM)  framework.
   when: ubtu24stig_100910
@@ -505,6 +513,7 @@
   ansible.builtin.package:
     name: libpam-pkcs11
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-101000 | PATCH | Ubuntu 24.04 LTS must allow users to directly initiate a session lock for all connection types.
   when: ubtu24stig_101000
@@ -521,6 +530,7 @@
   ansible.builtin.package:
     name: vlock
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
 - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup.
   when: ubtu24stig_102010
@@ -529,8 +539,8 @@
     - CAT2
     - CCI-001464
     - SRG-OS-000254-GPOS-00095
-    - SV-260471r991555_rule
-    - V-260471
+    - SV-270676r1155245_rule
+    - V-270676
     - NIST800-53R4_AU-14
     - bootloader
   block:

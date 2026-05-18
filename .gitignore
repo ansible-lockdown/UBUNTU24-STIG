@@ -41,8 +41,23 @@ benchparse/
 *xccdf.xml
 *.retry
 
+# Secrets
+*.pem
+*.key
+*.p12
+*.pfx
+.vault_pass
+*.vault
+
+# Molecule artifacts
+.molecule/
+
 # GitHub Action/Workflow files
 .github/
 
 # pre-commit ansible-lint temp
 .ansible
+
+# QA tooling output (Repo_QA_Checker + cross_repo_validator)
+qa_report_*.md
+cross_repo_report_*.md
