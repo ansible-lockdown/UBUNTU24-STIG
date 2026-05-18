@@ -1,7 +1,131 @@
 ---
 
-# File to skip controls if container
-# Based on standard image no changes
-# it expected all pkgs required for the container are already installed
+# vars/is_container.yml
+# Disables rules that cannot meaningfully run inside a container.
+# Loaded by tasks/main.yml when ansible_connection is a docker variant
+# (system_is_container=true). Per lesson #27.
+#
+# Scope: kernel-level / hardware-level / boot-time / netfilter / mount-table
+# rules. SSH cipher / PAM / SSSD / sudo config rules are container-safe
+# even when their titles mention FIPS/audit and are NOT disabled here.
 
-## controls
+# ==============================================================================
+# auditd / audit subsystem (67 rules)
+# ==============================================================================
+ubtu24stig_100400: false
+ubtu24stig_100410: false
+ubtu24stig_200270: false
+ubtu24stig_200280: false
+ubtu24stig_200290: false
+ubtu24stig_200300: false
+ubtu24stig_200310: false
+ubtu24stig_200320: false
+ubtu24stig_200580: false
+ubtu24stig_300029: false
+ubtu24stig_500010: false
+ubtu24stig_900040: false
+ubtu24stig_900050: false
+ubtu24stig_900060: false
+ubtu24stig_900070: false
+ubtu24stig_900080: false
+ubtu24stig_900090: false
+ubtu24stig_900100: false
+ubtu24stig_900110: false
+ubtu24stig_900120: false
+ubtu24stig_900130: false
+ubtu24stig_900140: false
+ubtu24stig_900150: false
+ubtu24stig_900160: false
+ubtu24stig_900170: false
+ubtu24stig_900180: false
+ubtu24stig_900190: false
+ubtu24stig_900200: false
+ubtu24stig_900210: false
+ubtu24stig_900220: false
+ubtu24stig_900230: false
+ubtu24stig_900240: false
+ubtu24stig_900250: false
+ubtu24stig_900260: false
+ubtu24stig_900270: false
+ubtu24stig_900280: false
+ubtu24stig_900290: false
+ubtu24stig_900300: false
+ubtu24stig_900310: false
+ubtu24stig_900320: false
+ubtu24stig_900330: false
+ubtu24stig_900340: false
+ubtu24stig_900350: false
+ubtu24stig_900510: false
+ubtu24stig_900520: false
+ubtu24stig_900540: false
+ubtu24stig_900590: false
+ubtu24stig_900600: false
+ubtu24stig_900610: false
+ubtu24stig_900730: false
+ubtu24stig_900740: false
+ubtu24stig_900750: false
+ubtu24stig_901220: false
+ubtu24stig_901230: false
+ubtu24stig_901240: false
+ubtu24stig_901250: false
+ubtu24stig_901300: false
+ubtu24stig_901310: false
+ubtu24stig_901350: false
+ubtu24stig_901380: false
+ubtu24stig_909000: false
+ubtu24stig_909890: false
+ubtu24stig_100450: false
+ubtu24stig_900920: false
+ubtu24stig_900950: false
+ubtu24stig_900960: false
+ubtu24stig_900980: false
+
+# ==============================================================================
+# GRUB / kernel / sysctl / modprobe (8 rules)
+# ==============================================================================
+ubtu24stig_102000: false
+ubtu24stig_102010: false
+ubtu24stig_300039: false
+ubtu24stig_600070: false
+ubtu24stig_600140: false
+ubtu24stig_600190: false
+ubtu24stig_600230: false
+ubtu24stig_700310: false
+
+# ==============================================================================
+# FIPS kernel-mode (configuration-only FIPS rules like SSH ciphers are container-safe) (1 rules)
+# ==============================================================================
+ubtu24stig_600030: false
+
+# ==============================================================================
+# AppArmor (3 rules)
+# ==============================================================================
+ubtu24stig_100500: false
+ubtu24stig_100510: false
+ubtu24stig_100660: false
+
+# ==============================================================================
+# firewall (UFW / nftables / iptables) (4 rules)
+# ==============================================================================
+ubtu24stig_100300: false
+ubtu24stig_100310: false
+ubtu24stig_300041: false
+ubtu24stig_600200: false
+
+# ==============================================================================
+# time sync (chrony / ntp) (3 rules)
+# ==============================================================================
+ubtu24stig_100010: false
+ubtu24stig_100020: false
+ubtu24stig_100700: false
+
+# ==============================================================================
+# environment-impossible (4 rules) — depend on hardware, kernel features, or
+# external infrastructure (CPU NX bit, disk encryption hardware, DOD PKI
+# certificate plumbing, SSSD identity provider) that no Docker container
+# environment can provide
+# ==============================================================================
+ubtu24stig_400340: false
+ubtu24stig_600060: false
+ubtu24stig_600090: false
+ubtu24stig_700300: false

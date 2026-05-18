@@ -15,6 +15,7 @@
   ansible.builtin.package:
     name: systemd-timesyncd
     state: absent
+    purge: "{{ ubtu24stig_purge_apt }}"
 
 - name: LOW | UBTU-24-100020 | PATCH | Ubuntu 24.04 LTS must not have the "ntp" package installed.
   when: ubtu24stig_100020
@@ -31,6 +32,7 @@
   ansible.builtin.package:
     name: ntp
     state: absent
+    purge: "{{ ubtu24stig_purge_apt }}"
 
 - name: LOW | UBTU-24-100450 | PATCH | Ubuntu 24.04 LTS audit event multiplexor must be configured to offload audit logs onto a different system or storage media from the system being audited.
   when: ubtu24stig_100450
@@ -49,6 +51,7 @@
       ansible.builtin.package:
         name: audispd-plugins
         state: present
+        lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
     - name: LOW | UBTU-24-100450 | PATCH | Ubuntu 24.04 LTS audit event multiplexor must be configured to offload audit logs onto a different system or storage media from the system being audited.
       ansible.builtin.lineinfile:
@@ -83,3 +86,4 @@
   ansible.builtin.package:
     name: chrony
     state: present
+    lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
