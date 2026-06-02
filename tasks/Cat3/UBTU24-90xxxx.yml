@@ -62,12 +62,12 @@
       register: discovered_audit_cron_copy
 
     - name: LOW | UBTU-24-900950 | AUDIT | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems. | Warning
-      when: discovered_audit_cron_copy.files is not defined
+      when: discovered_audit_cron_copy.files | length == 0
       ansible.builtin.debug:
         msg: "Warning!! No job for auditd to have logs copied off the system have been found"
 
     - name: LOW | UBTU-24-900950 | AUDIT | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems.| Warn count
-      when: discovered_audit_cron_copy.files is not defined
+      when: discovered_audit_cron_copy.files | length == 0
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 

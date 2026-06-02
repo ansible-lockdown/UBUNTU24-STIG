@@ -1,10 +1,7 @@
 ---
 # vars file for UBUNTU24-STIG
 
-min_ansible_version: 2.12.1
-
-# Set dynamically if discovered to be non UEFI boot
-ubtu24stig_legacy_boot: false
+min_ansible_version: 2.16.1
 
 # tweak role to run in a non-privileged container (default value)- dynamically discovered in tasks/main.yml
 system_is_container: false
@@ -15,9 +12,6 @@ ubtu24stig_subscribed: false
 # Used to control warning summary
 warn_control_list: ""
 warn_count: 0
-
-# Allow automated discovery of uids
-discover_int_uid: true
 
 # Default for facts
 reboot_required: false
@@ -41,3 +35,9 @@ ubtu24stig_dod_kex:
   - diffie-hellman-group-exchange-sha256
   - diffie-hellman-group16-sha512
   - diffie-hellman-group14-sha256
+
+company_title: 'MindPoint Group - A Tyto Athene Company'
+file_managed_by_ansible: |-
+  # File managed by ansible as part of {{ benchmark }} benchmark
+  # As part of Ansible-lockdown
+  # Provided by {{ company_title }}

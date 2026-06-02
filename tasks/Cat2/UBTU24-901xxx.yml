@@ -11,7 +11,7 @@
     - CCI-001494
     - SRG-OS-000256-GPOS-00097
     - SRG-OS-000257-GPOS-00098
-    - SV-270821r1068391_rule
+    - SV-270821r1134818_rule
     - V-270821
     - NIST800-53R4_AU-9
     - permissions
@@ -35,7 +35,7 @@
     - CCI-001494
     - SRG-OS-000256-GPOS-00097
     - SRG-OS-000257-GPOS-00098
-    - SV-270822r1068392_rule
+    - SV-270822r1134821_rule
     - V-270822
     - NIST800-53R4_AU-9
     - auditd
@@ -59,7 +59,7 @@
     - CCI-001494
     - SRG-OS-000256-GPOS-00097
     - SRG-OS-000257-GPOS-00098
-    - SV-270823r1068393_rule
+    - SV-270823r1134824_rule
     - V-270823
     - NIST800-53R4_AU-9
     - auditd
@@ -298,27 +298,3 @@
         path: "{{ discovered_auditd_logfile.stdout | dirname }}"
         state: directory
         mode: 'g-w,o-rwx'
-
-- name: MEDIUM | UBTU-24-901890 | PATCH | Ubuntu 24.04 LTS must use cryptographic mechanisms to protect the integrity of audit tools.
-  when: ubtu24stig_901890
-  tags:
-    - UBTU-24-901890
-    - CAT2
-    - CCI-001496
-    - SRG-OS-000278-GPOS-00108
-    - SV-270831r1066982_rule
-    - V-270831
-    - NIST800-53R4_AU-9
-    - aide
-  ansible.builtin.lineinfile:
-    path: /etc/aide/aide.conf
-    regexp: "{{ item.regexp }}"
-    line: "{{ item.regexp }} {{ item.line }}"
-  loop:
-    - { regexp: '/sbin/auditctl', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
-    - { regexp: '/sbin/auditd', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
-    - { regexp: '/sbin/ausearch', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
-    - { regexp: '/sbin/aureport', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
-    - { regexp: '/sbin/autrace', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
-    - { regexp: '/sbin/audispd', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }
-    - { regexp: '/sbin/augenrules', line: 'p+i+n+u+g+s+b+acl+xattrs+sha512' }

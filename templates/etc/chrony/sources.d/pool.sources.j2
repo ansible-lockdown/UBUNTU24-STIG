@@ -1,6 +1,4 @@
-## Ansible controlled file
-# Sponsored by Mindpoint Group - A Tyto Athene Company / Ansible Lockdown
-# Part of DISA {{ benchmark }} - {{ benchmark_version }}
+{{ file_managed_by_ansible }}
 
 {% for pool in ubtu24stig_time_pool %}
 pool {{ pool.name }} {{ pool.options }}

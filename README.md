@@ -2,20 +2,20 @@
 
 ## Configure a UBUNTU24 based system to be complaint with DISA STIG
 
-This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 1 released on Februaury 21, 2025](https://dl.dod.cyber.mil/wp-content/uploads/stigs/U_UBUNTU_24_V1R1_STIG.zip).
+This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 3 released on Oct 01, 2025](https://dl.dod.cyber.mil/wp-content/uploads/stigs/U_UBUNTU_24_V1R3_STIG.zip).
 
 ---
 
 ## Public Repository 📣
 
 ![Org Stars](https://img.shields.io/github/stars/ansible-lockdown?label=Org%20Stars&style=social)
-![Stars](https://img.shields.io/github/stars/ansible-lockdown/UBTU24-STIG?label=Repo%20Stars&style=social)
-![Forks](https://img.shields.io/github/forks/ansible-lockdown/UBTU24-STIG?style=social)
+![Stars](https://img.shields.io/github/stars/ansible-lockdown/UBUNTU24-STIG?label=Repo%20Stars&style=social)
+![Forks](https://img.shields.io/github/forks/ansible-lockdown/UBUNTU24-STIG?style=social)
 ![Followers](https://img.shields.io/github/followers/ansible-lockdown?style=social)
-[![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/AnsibleLockdown.svg?style=social&label=Follow%20%40AnsibleLockdown)](https://twitter.com/AnsibleLockdown)
-![Discord Badge](https://img.shields.io/discord/925818806838919249?logo=discord)
+[![X URL](https://img.shields.io/twitter/url/https/x.com/AnsibleLockdown.svg?style=social&label=Follow%20%40AnsibleLockdown)](https://x.com/AnsibleLockdown)
+![Discord Badge](https://img.shields.io/discord/925818806838919229?logo=discord)
 
-![License](https://img.shields.io/github/license/ansible-lockdown/UBTU24-STIG?label=License)
+![License](https://img.shields.io/github/license/ansible-lockdown/UBUNTU24-STIG?label=License)
 
 ## Lint & Pre-Commit Tools 🔧
 
@@ -25,40 +25,40 @@ This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 1 released on Februau
 ## Community Release Information 📂
 
 ![Release Branch](https://img.shields.io/badge/Release%20Branch-Main-brightgreen)
-![Release Tag](https://img.shields.io/github/v/tag/ansible-lockdown/UBTU24-STIG?label=Release%20Tag&&color=success)
-![Main Release Date](https://img.shields.io/github/release-date/ansible-lockdown/UBTU24-STIG?label=Release%20Date)
-![Benchmark Version Main](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/UBTU24-STIG/benchmark-version-main.json)
-![Benchmark Version Devel](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/UBTU24-STIG/benchmark-version-devel.json)
+![Release Tag](https://img.shields.io/github/v/tag/ansible-lockdown/UBUNTU24-STIG?label=Release%20Tag&&color=success)
+![Main Release Date](https://img.shields.io/github/release-date/ansible-lockdown/UBUNTU24-STIG?label=Release%20Date)
+![Benchmark Version Main](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/UBUNTU24-STIG/benchmark-version-main.json)
+![Benchmark Version Devel](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/UBUNTU24-STIG/benchmark-version-devel.json)
 
-[![Main Pipeline Status](https://github.com/ansible-lockdown/UBTU24-STIG/actions/workflows/main_pipeline_validation.yml/badge.svg?)](https://github.com/ansible-lockdown/UBTU24-STIG/actions/workflows/main_pipeline_validation.yml)
+[![Main Pipeline Status](https://github.com/ansible-lockdown/UBUNTU24-STIG/actions/workflows/main_pipeline_validation.yml/badge.svg?)](https://github.com/ansible-lockdown/UBUNTU24-STIG/actions/workflows/main_pipeline_validation.yml)
 
-[![Devel Pipeline Status](https://github.com/ansible-lockdown/UBTU24-STIG/actions/workflows/devel_pipeline_validation.yml/badge.svg?)](https://github.com/ansible-lockdown/UBTU24-STIG/actions/workflows/devel_pipeline_validation.yml)
+[![Devel Pipeline Status](https://github.com/ansible-lockdown/UBUNTU24-STIG/actions/workflows/devel_pipeline_validation.yml/badge.svg?)](https://github.com/ansible-lockdown/UBUNTU24-STIG/actions/workflows/devel_pipeline_validation.yml)
 
 
-![Devel Commits](https://img.shields.io/github/commit-activity/m/ansible-lockdown/UBTU24-STIG/devel?color=dark%20green&label=Devel%20Branch%20Commits)
-![Open Issues](https://img.shields.io/github/issues-raw/ansible-lockdown/UBTU24-STIG?label=Open%20Issues)
-![Closed Issues](https://img.shields.io/github/issues-closed-raw/ansible-lockdown/UBTU24-STIG?label=Closed%20Issues&&color=success)
-![Pull Requests](https://img.shields.io/github/issues-pr/ansible-lockdown/UBTU24-STIG?label=Pull%20Requests)
+![Devel Commits](https://img.shields.io/github/commit-activity/m/ansible-lockdown/UBUNTU24-STIG/devel?color=dark%20green&label=Devel%20Branch%20Commits)
+![Open Issues](https://img.shields.io/github/issues-raw/ansible-lockdown/UBUNTU24-STIG?label=Open%20Issues)
+![Closed Issues](https://img.shields.io/github/issues-closed-raw/ansible-lockdown/UBUNTU24-STIG?label=Closed%20Issues&&color=success)
+![Pull Requests](https://img.shields.io/github/issues-pr/ansible-lockdown/UBUNTU24-STIG?label=Pull%20Requests)
 
 ---
 
 ## Subscriber Release Information 🔐
 
-![Private Release Branch](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBTU24-STIG/release-branch.json)
-![Private Benchmark Version](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBTU24-STIG/benchmark-version.json)
+![Private Release Branch](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBUNTU24-STIG/release-branch.json)
+![Private Benchmark Version](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBUNTU24-STIG/benchmark-version.json)
 
-[![Private Remediate Pipeline](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBTU24-STIG/remediate.json)](https://github.com/ansible-lockdown/Private-UBTU24-STIG/actions/workflows/main_pipeline_validation.yml)
+[![Private Remediate Pipeline](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBUNTU24-STIG/remediate.json)](https://github.com/ansible-lockdown/Private-UBUNTU24-STIG/actions/workflows/main_pipeline_validation.yml)
 
-![Private Pull Requests](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBTU24-STIG/prs.json)
-![Private Closed Issues](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBTU24-STIG/issues-closed.json)
+![Private Pull Requests](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBUNTU24-STIG/prs.json)
+![Private Closed Issues](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBUNTU24-STIG/issues-closed.json)
 
 ---
 
 ## Looking for support? 🤝
 
-[Lockdown Enterprise](https://www.lockdownenterprise.com#GH_AL_UBTU24-STIG)
+[Lockdown Enterprise](https://www.lockdownenterprise.com#GH_AL_UBUNTU24-STIG)
 
-[Ansible support](https://www.mindpointgroup.com/cybersecurity-products/ansible-counselor#GH_AL_UBTU24-STIG)
+[Ansible support](https://www.mindpointgroup.com/cybersecurity-products/ansible-counselor#GH_AL_UBUNTU24-STIG)
 
 ### Community 💬
 
@@ -93,7 +93,7 @@ Further details can be seen in the [Changelog](./ChangeLog.md)
 
 ## Matching a security Level for STIG
 
-It is possible to to only run category 1, 2 or 3 controls for STIG.
+It is possible to only run category 1, 2 or 3 controls for STIG.
 This is managed using tags:
 
 - CAT1
@@ -122,14 +122,13 @@ ubtu24stig_cat3: true
 
 **Technical Dependencies:**
 
-Ubuntu24
+Ubuntu 24.04 LTS
 
 - Access to download or add the goss binary and content to the system if using auditing
 (other options are available on how to get the content to the system.)
-- Python3.8
-- Ansible 2.12+
-- python-def
-- libselinux-python
+- Python 3.10+ (Ubuntu 24.04 ships 3.12)
+- Ansible 2.16.1+
+- python3-apt (for the `apt` module — pre-installed on stock Ubuntu cloud images)
 
 ---
 
@@ -142,7 +141,7 @@ This is a much quicker, very lightweight, checking (where possible) config compl
 A new form of auditing has been developed, by using a small (12MB) go binary called [goss](https://github.com/goss-org/goss) along with the relevant configurations to check. Without the need for infrastructure or other tooling.
 This audit will not only check the config has the correct setting but aims to capture if it is running with that configuration also trying to remove [false positives](https://www.mindpointgroup.com/blog/is-compliance-scanning-still-relevant/) in the process.
 
-Refer to [UBTU24-STIG-Audit](https://github.com/ansible-lockdown/UBTU24-STIG-Audit).
+Refer to [UBUNTU24-STIG-Audit](https://github.com/ansible-lockdown/UBUNTU24-STIG-Audit).
 
 ## Example Audit Summary
 

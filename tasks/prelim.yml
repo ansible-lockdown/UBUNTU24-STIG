@@ -26,6 +26,7 @@
 
 - name: "PRELIM | PATCH | Run apt update"
   tags: always
+  changed_when: false
   ansible.builtin.package:
     cache_valid_time: 7200
 
@@ -68,19 +69,22 @@
   tags: always
   ansible.builtin.shell: "grep -Ev 'nologin|/sbin' /etc/passwd | awk -F: '$3 >= {{ min_int_uid }} {print $1}'"
   changed_when: false
-  register: ubtu24stig_interactive_users
-
-- name: "PRELIM | Interactive User account home"
-  tags: always
-  ansible.builtin.shell: 'cat /etc/passwd | grep -Ev "nologin|/sbin" | cut -d: -f6'
-  changed_when: false
-  register: ubtu24stig_interactive_users_home
+  register: prelim_interactive_users
 
 - name: "PRELIM | Gather apt conf file list"
   tags: always
   ansible.builtin.find:
-    paths: /etc/apt/*
+    paths: /etc/apt/
   register: prelim_apt_conf_files
+
+- name: "PRELIM | PATCH | Find all sudoers files."
+  when: ubtu24stig_300019 or ubtu24stig_300020
+  tags: always
+  ansible.builtin.shell: "find /etc/sudoers /etc/sudoers.d/ -type f ! -name '*~' ! -name '*.*'"
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  register: prelim_sudoers_files
 
 - name: "PRELIM | Gather accounts with empty password fields"
   when: ubtu24stig_300027
@@ -98,7 +102,7 @@
   ansible.builtin.shell: "cat /etc/passwd | awk -F: '($3 == 0 && $1 != \"root\") {i++;print $1 } END {exit i}'"
   changed_when: false
   check_mode: false
-  register: ubtu24stig_uid_zero_accounts_except_root
+  register: prelim_uid_zero_accounts_except_root
 
 - name: "PRELIM | Create list of mount points"
   tags: always
@@ -168,17 +172,11 @@
     recurse: false
   register: prelim_sshd_config_files
 
-- name: PRELIM | Interactive Users
-  tags: always
-  ansible.builtin.shell: "grep -Ev 'nologin|/sbin' /etc/passwd | awk -F: '$3 >= {{ min_int_uid }} {print $1}'"
-  changed_when: false
-  register: ubtu24stig_interactive_users_home
-
 - name: "PRELIM | Discover Gnome Desktop Environment"
   tags: always
   ansible.builtin.stat:
     path: /usr/share/gnome/gnome-version.xml
-  register: ubtu24stig_gnome_present
+  register: prelim_gnome_present
 
 - name: "PRELIM | AUDIT | Wireless adapter pre-requisites"
   when:
@@ -188,9 +186,9 @@
   block:
     - name: "PRELIM | AUDIT | Discover is wireless adapter on system"
       ansible.builtin.shell: find /sys/class/net/*/ -type d -name wireless
-      register: prelim_wireless_adapters
       changed_when: false
       failed_when: prelim_wireless_adapters.rc not in [ 0, 1 ]
+      register: prelim_wireless_adapters
 
     - name: "PRELIM | AUDIT | If wireless adapter present capture module"
       when:

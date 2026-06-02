@@ -140,8 +140,8 @@
     - CCI-000000
     - CAT2
     - SRG-OS-000073-GPOS-00041
-    - SV-260569r986291_rule
-    - V-260569
+    - SV-270725r1101789_rule
+    - V-270725
     - NIST800-53R4_NA
     - password
   block:

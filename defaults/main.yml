@@ -1,7 +1,7 @@
 ---
 
 ## metadata for Audit benchmark
-benchmark_version: 'v1.1.0'
+benchmark_version: 'v1.3.0'
 
 ## Benchmark name used by auditing control role
 # The audit variable found at the base
@@ -60,6 +60,10 @@ system_is_ec2: false
 # Whether to purge apt pages when removed
 ubtu24stig_purge_apt: false
 
+## Apt/dpkg lock timeout (seconds)
+# Wait time for apt/dpkg frontend lock to clear before failing package tasks.
+ubtu24stig_apt_lock_timeout: 180
+
 # Create managed not custom local_facts files
 create_benchmark_facts: true
 ansible_facts_path: /etc/ansible/facts.d
@@ -79,68 +83,106 @@ min_int_uid: 1000
 # been set to `true`.
 max_int_uid: 65533
 
-###
-### Settings for associated Audit role using Goss
-###
+########## BEGIN ##########
+### Audit role Settings ###
+###########################
+## Goss the audit binary
+## is required to be available
+## on the remote host
+## Other settings found vars/audit.yml
 
-###########################################
-### Goss is required on the remote host ###
-### vars/audit.yml for other settings  ###
-
-# Allow audit to setup the requirements including installing git (if option chosen and downloading and adding Goss binary to system)
+# Allow audit to setup the requirements including installing git (if option chosen and downloading and adding goss binary to system)
 setup_audit: false
 
 # enable audits to run - this runs the audit and get the latest content
 run_audit: false
-# Run heavy tests - some tests can have more impact on a system enabling these can have greater impact on a system
-audit_run_heavy_tests: true
+
+# Ability to limit the number of concurrent processes used by goss (default 50)
+audit_max_concurrent: 50
 
 ## Only run Audit do not remediate
 audit_only: false
 
 #############################
+## If using audit content ###
+## e.g. lockdown dashboard ##
+#############################
+## Ability to collect and take audit files moving to a centralised location
 
-# How to retrieve audit binary
-# Options are copy or download - detailed settings at the bottom of this file
-# you will need to access to either github or the file already downloaded
+## This enables the collection of the files from the host
+fetch_audit_output: false
+
+## Method of getting,uploading the summary files
+## Ensure access and permissions are available for these to occur.
+## options are
+## fetch - fetches from server and moves to location on the ansible controller (could be a mount point available to controller)
+## copy - copies file to a location available to the managed node
+audit_output_collection_method: fetch
+
+## Location to put the audit files
+audit_output_destination: /opt/audit_summaries/
+
+############################
+### Audit binary options ###
+############################
+## How to retrieve audit binary
+## Options are copy or download - detailed settings at the bottom of this file
+## you will need to access to either github or the file already downloaded
 get_audit_binary_method: download
+
+## If downloading the audit binary(goss)
+## Useful when self hosting the content
+## This enables the ability to not check ssl certificates using the get_url module
+audit_bin_validate_certs: true
+
+## Added the following options will default to not pass options
+## Please utilize a vault or alternative way to ensure encryption of details
+#
+# audit_bin_url_username:
+# audit_bin_url_password:
 
 ## if get_audit_binary_method - copy the following needs to be updated for your environment
 ## it is expected that it will be copied from somewhere accessible to the control node
 ## e.g copy from ansible control node to remote host
 audit_bin_copy_location: /some/accessible/path
 
-# how to get audit files onto host options
-# options are git/copy/archive/get_url other e.g. if you wish to run from already downloaded conf
+#############################
+### Audit Content options ###
+#############################
+## how to get audit files onto host options
+## options are git/copy/archive/get_url other e.g. if you wish to run from already downloaded conf
 audit_content: git
 
-# If using either archive, copy, get_url:
+## If using authenticated git
+## Populate the required fields below
+## Location of the key file used to authenticate
+## Please ensure that the key does not have a password set
+## Best practice it to use some form of vault for this information
+#
+# audit_content_key_file: 'somepath to key file'
+
+## If using self hosted repository
+## the url will need to be updated with
+## Can pass user/pass in url - please use vault options
+#
+# self_hosted_audit_repo: https://USER:PASS@gitrepo.com/audit_reponame
+
+## If using either archive, copy, get_url:
 ## Note will work with .tar files - zip will require extra configuration
-### If using get_url this is expecting github url in tar.gz format e.g.(Note the benchmark version)
-### https://github.com/ansible-lockdown/UBUNTU24-STIG-Audit/archive/refs/heads/benchmark-v1.0.0.tar.gz
+## If using get_url this is expecting github url in tar.gz format e.g.
+## https://github.com/ansible-lockdown/{OSTYPE}-{BENCMHARK_TYPE}-Audit/archive/refs/heads/benchmark-{{ benchmark_version }}.tar.gz
 audit_conf_source: "some path or url to copy from"
 
-# Destination for the audit content to be placed on managed node
-# note may not need full path e.g. /opt with the directory being the {{ benchmark }}-Audit directory
+## Destination for the audit content to be placed on managed node
+## note may not need full path e.g. /opt with the directory being the {{ benchmark }}-Audit directory
 audit_conf_dest: "/opt"
 
-# Where the audit logs are stored
+## Where the audit logs are stored
 audit_log_dir: '/opt'
 
-# Method of getting,uploading the summary files
-## Enable the collection of audit files
-fetch_audit_output: false
-## Ensure access and permissions are available for these to occur.
-## options are
-# fetch - fetches from server and moves to location on the ansible controller (could be a mount point available to controller)
-# copy - copies file to a location available to the managed node
-audit_output_collection_method: fetch
-
-# Location to put the audit files
-audit_output_destination: /opt/audit_summaries/
-
-### Goss Settings ##
-####### END ########
+########### END ###########
+### Audit role Settings ###
+###########################
 
 #### CAT 1
 
@@ -158,6 +200,7 @@ ubtu24stig_300031: true
 ubtu24stig_400370: true
 ubtu24stig_600030: true
 ubtu24stig_600130: true
+ubtu24stig_700400: true
 
 #### CAT 2
 ## 10XXXX
@@ -188,10 +231,14 @@ ubtu24stig_102010: true
 ## 20XXXX
 ubtu24stig_200020: true
 ubtu24stig_200040: true
+ubtu24stig_200041: true
+ubtu24stig_200042: true
+ubtu24stig_200043: true
 ubtu24stig_200060: true
 ubtu24stig_200090: true
 ubtu24stig_200250: true
 ubtu24stig_200260: true
+ubtu24stig_200270: true
 ubtu24stig_200280: true
 ubtu24stig_200290: true
 ubtu24stig_200300: true
@@ -214,6 +261,8 @@ ubtu24stig_300012: true
 ubtu24stig_300013: true
 ubtu24stig_300014: true
 ubtu24stig_300016: true
+ubtu24stig_300019: true
+ubtu24stig_300020: true
 ubtu24stig_300021: true
 ubtu24stig_300023: true
 ubtu24stig_300029: true
@@ -275,7 +324,6 @@ ubtu24stig_700150: true
 ubtu24stig_700300: true
 ubtu24stig_700310: true
 ubtu24stig_700320: true
-ubtu24stig_700400: true
 
 ## 900XXX
 ubtu24stig_900040: true
@@ -310,7 +358,6 @@ ubtu24stig_900320: true
 ubtu24stig_900330: true
 ubtu24stig_900340: true
 ubtu24stig_900350: true
-ubtu24stig_900500: true
 ubtu24stig_900510: true
 ubtu24stig_900520: true
 ubtu24stig_900540: true
@@ -332,10 +379,10 @@ ubtu24stig_901300: true
 ubtu24stig_901310: true
 ubtu24stig_901350: true
 ubtu24stig_901380: true
-ubtu24stig_901890: true
 
 ## 909XXX
 ubtu24stig_909000: true
+ubtu24stig_909890: true
 
 #### CAT 3
 ubtu24stig_100010: true
@@ -396,7 +443,12 @@ ubtu24stig_maxlogins: 10
 
 ### 2000xx - Gnome Desktop
 ### Graphical/Gnome interface required
-ubtu24stig_gui: "{{ ubtu24_gnome_present.stat.exists | default(false) }}"
+ubtu24stig_gui: "{{ prelim_gnome_present.stat.exists | default(false) }}"
+
+### 200020 - screensaver
+# ubtu24stig_screen_idle_delay is the amount of time in seconds before screen locks
+# To be STIG compliant this value must be 900 seconds (10 minutes) or less
+ubtu24stig_screen_idle_delay: 600
 
 ## 200260
 # Number of days account is active before disabled
@@ -457,6 +509,13 @@ ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
 # faildelay
 ubtu24stig_faildelay: 4000000  # 4000000 is the minimum value = 4 seconds
 
+# 300020 and 300021
+## Users to exclude from NOPASSWD removal
+# This will leave NOPASSWD intact for these users
+ubtu24stig_sudoers_exclude_nopasswd_list:
+  - ec2-user
+  - vagrant
+  - ubuntu
 ##############
 ### 40XXXX ###
 ##############
@@ -489,7 +548,15 @@ ubtu24stig_time_synchronization_servers:
   - 'tick.usno.navy.mil'
   - 'tock.usno.navy.mil'
   - 'ntp2.usno.navy.mil'
-ubtu24stig_chrony_server_options: "iburst maxpoll 16"  # Max Settings is maxpoll 16
+ubtu24stig_chrony_server_options: "iburst maxpoll 16"  # Max setting is maxpoll 16
+
+ubtu24stig_time_pool:
+  - name: 'tick.usno.navy.mil'
+    options: "iburst maxpoll 16"
+  - name: 'tock.usno.navy.mil'
+    options: "iburst maxpoll 16"
+  - name: 'ntp2.usno.navy.mil'
+    options: "iburst maxpoll 16"
 
 # 600130
 ## Users to be added to the sudo group
@@ -523,5 +590,4 @@ ubtu24stig_audit_tools:
   - /sbin/ausearch
   - /sbin/autrace
   - /sbin/auditd
-  - /sbin/audispd-zos-remote
   - /sbin/augenrules

@@ -1,7 +1,14 @@
 ---
 
-- name: "PREREQ | If required install libselinux package to manage file changes."
-  when: '"libselinux-python3" not in ansible_facts.packages'
+# Prereq checks for the Ansible-Lockdown UB24-STIG role.
+# Previously installed `libselinux-python3` unconditionally — that's a
+# RHEL-template leak; Ubuntu uses AppArmor, not SELinux. The role's
+# actual on-target prereq is python3-apt for the apt module; that's
+# included in the stock Ubuntu cloud image, but we verify it here so
+# minimal containers also work.
+
+- name: "PREREQ | Ensure python3-apt is available for the apt module"
+  when: '"python3-apt" not in ansible_facts.packages'
   ansible.builtin.package:
-    name: libselinux-python3
+    name: python3-apt
     state: present
