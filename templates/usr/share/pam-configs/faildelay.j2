@@ -1,0 +1,6 @@
+Name: Enforce a delay between failed logon attempts
+Default: yes
+Priority: 384
+Auth-Type: Primary
+Auth:
+        required                        pam_faildelay.so delay={{ ubtu24stig_faildelay }}

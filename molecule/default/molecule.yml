@@ -31,7 +31,7 @@ provisioner:
       callbacks_enabled: profile_tasks, timer
       # Resolve the role itself by name (basename of MOLECULE_PROJECT_DIRECTORY).
       # Ansible default search path doesn't include the role's parent dir, so
-      # include_role: name: Private-UBUNTU24-STIG fails without this hint.
+      # include_role by the role's own directory name fails without this hint.
       roles_path: "${MOLECULE_PROJECT_DIRECTORY}/..:${MOLECULE_PROJECT_DIRECTORY}/molecule/default/roles"
   inventory:
     host_vars:
@@ -39,6 +39,9 @@ provisioner:
         ansible_become: false
         setup_audit: true
         run_audit: true
+        fetch_audit_output: true
+        # audit_output_destination is set via set_fact in converge.yml pre_tasks
+        # (it lives in vars/audit.yml now; host_vars here would be clobbered by include_vars).
 
 verifier:
   name: ansible

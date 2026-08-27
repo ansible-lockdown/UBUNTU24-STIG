@@ -51,7 +51,7 @@
     - account
     - pam
   block:
-    - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.
+    - name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | faillock.conf settings
       ansible.builtin.lineinfile:
         path: /etc/security/faillock.conf
         regexp: "{{ item.regexp }}"
@@ -63,11 +63,44 @@
         - { regexp: '^(#|)\s*fail_interval', line: 'fail_interval = {{ ubtu24stig_faillock_fail_interval }}' }
         - { regexp: '^(#|)\s*unlock_time', line: 'unlock_time = {{ ubtu24stig_faillock_unlock_time }}' }
 
-    - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made.
+    # Earlier releases of this role wrote the two pam_faillock lines straight into
+    # /etc/pam.d/common-auth inside a marked block. That file is generated, so the block
+    # is discarded whenever pam-auth-update runs and would otherwise be duplicated by the
+    # profile below. Remove it before enabling the profile.
+    #
+    # The marker below is reproduced byte for byte from the release that wrote it,
+    # including the misspelled company name. blockinfile matches markers exactly, so
+    # correcting that spelling here would stop this task finding the old block and leave a
+    # duplicate faillock stanza on every host that already has one. Do not "fix" it.
+    - name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | remove superseded managed block
       ansible.builtin.blockinfile:
         path: /etc/pam.d/common-auth
         marker: "# {mark} Faillock config Ubuntu2404 STIG - Ansible-lockdown Sponsored by Mindpoint Group - A Tyto Athene Company / Ansible Lockdown"
-        block: |
-          auth    [default=die]                   pam_faillock.so authfail
-          auth    sufficient                      pam_faillock.so authsucc
-        insertafter: auth.*pam_unix.so
+        state: absent
+
+    - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | check common-auth for pam_faillock.so
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep -P -- '\bpam_faillock\.so\b' /etc/pam.d/common-auth
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
+      changed_when: false
+      failed_when: discovered_pam_faillock_auth.rc not in [ 0, 1 ]
+      check_mode: false
+      register: discovered_pam_faillock_auth
+
+    - name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | ensure faillock profile
+      ansible.builtin.template:
+        src: "{{ ubtu24stig_pam_confd_dir }}{{ ubtu24stig_pam_faillock_file }}.j2"
+        dest: "/{{ ubtu24stig_pam_confd_dir }}{{ ubtu24stig_pam_faillock_file }}"
+        owner: root
+        group: root
+        mode: 'u-x,go-rwx'
+      notify: Pam_auth_update_pwfaillock
+
+    - name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | force pam-auth-update when the entry is missing
+      when: discovered_pam_faillock_auth.stdout | length == 0
+      ansible.builtin.debug:
+        msg: "pam_faillock.so is missing from /etc/pam.d/common-auth; forcing pam-auth-update."
+      changed_when: true
+      notify: Pam_auth_update_pwfaillock

@@ -44,8 +44,8 @@
     path: "{{ item }}"
     state: file
     owner: root
-  failed_when: discovered_audit_tools.state not in '[ file, absent ]'
-  register: discovered_audit_tools
+  failed_when: discovered_audit_tools_owner.state not in '[ file, absent ]'
+  register: discovered_audit_tools_owner
   loop: "{{ ubtu24stig_audit_tools }}"
 
 - name: MEDIUM | UBTU-24-901250 | PATCH | Ubuntu 24.04 LTS must configure audit tools to be group-owned by root.
@@ -68,8 +68,8 @@
     path: "{{ item }}"
     state: file
     group: root
-  failed_when: discovered_audit_tools.state not in '[ file, absent ]'
-  register: discovered_audit_tools
+  failed_when: discovered_audit_tools_group.state not in '[ file, absent ]'
+  register: discovered_audit_tools_group
   loop: "{{ ubtu24stig_audit_tools }}"
 
 - name: MEDIUM | UBTU-24-901260 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive.
@@ -83,11 +83,13 @@
     - V-270824
     - NIST800-53R4_AU-9
     - permissions
-  vars:
-    warn_control_id: 'MEDIUM | UBTU-24-901260'
   block:
     - name: MEDIUM | UBTU-24-901260 | AUDIT | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive. | Discover
-      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type d -exec stat -c "%n" '{}' \;
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type d -exec stat -c "%n" '{}' \;
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_system_bin_dirs_perms.rc not in [ 0, 1 ]
       register: discovered_system_bin_dirs_perms
@@ -113,6 +115,8 @@
       when:
         - discovered_system_bin_dirs_perms.stdout_lines is defined
         - not ubtu24stig_disruption_high
+      vars:
+        warn_control_id: 'MEDIUM | UBTU-24-901260'
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -127,11 +131,13 @@
     - V-270825
     - NIST800-53R4_AU-9
     - permissions
-  vars:
-    warn_control_id: 'MEDIUM | UBTU-24-901270'
   block:
     - name: MEDIUM | UBTU-24-901270 | AUDIT | Ubuntu 24.04 LTS must have directories that contain system commands owned by "root". | Discover
-      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -user root -type d -exec stat -c "%n" '{}' \;
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -user root -type d -exec stat -c "%n" '{}' \;
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_system_bin_dirs_owner.rc not in [ 0, 1 ]
       register: discovered_system_bin_dirs_owner
@@ -158,6 +164,8 @@
       when:
         - discovered_system_bin_dirs_owner.stdout_lines is defined
         - not ubtu24stig_disruption_high
+      vars:
+        warn_control_id: 'MEDIUM | UBTU-24-901270'
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -172,11 +180,13 @@
     - V-270826
     - NIST800-53R4_AU-9
     - permissions
-  vars:
-    warn_control_id: 'MEDIUM | UBTU-24-901280'
   block:
     - name: MEDIUM | UBTU-24-901280 | AUDIT | Ubuntu 24.04 LTS must have directories that contain system commands group-owned by "root". | Discover
-      ansible.builtin.shell: find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -group root -type d -exec stat -c "%n" '{}' \;
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin ! -group root -type d -exec stat -c "%n" '{}' \;
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_system_bin_dirs_group.rc not in [ 0, 1 ]
       register: discovered_system_bin_dirs_group
@@ -203,6 +213,8 @@
       when:
         - discovered_system_bin_dirs_group.stdout_lines is defined
         - not ubtu24stig_disruption_high
+      vars:
+        warn_control_id: 'MEDIUM | UBTU-24-901280'
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -221,8 +233,13 @@
     - auditd
   block:
     - name: MEDIUM | UBTU-24-901300 | PATCH | Ubuntu 24.04 LTS must be configured so that audit log files are not read or write-accessible by unauthorized users. | discover file
-      ansible.builtin.shell: grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
+      failed_when: discovered_auditd_logfile.rc not in [ 0, 1 ]
       register: discovered_auditd_logfile
 
     - name: MEDIUM | UBTU-24-901300 | PATCH | Ubuntu 24.04 LTS must be configured so that audit log files are not read or write-accessible by unauthorized users.
@@ -247,13 +264,18 @@
     - auditd
   block:
     - name: MEDIUM | UBTU-24-901310 | PATCH | Ubuntu 24.04 LTS must be configured to permit only authorized users ownership of the audit log files. | discover file
-      ansible.builtin.shell: grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
-      register: discovered_auditd_logfile
+      failed_when: discovered_auditd_logfile_owner.rc not in [ 0, 1 ]
+      register: discovered_auditd_logfile_owner
 
-    - name: MEDIUM | UBTU-24-901310 | PATCH |Ubuntu 24.04 LTS must be configured to permit only authorized users ownership of the audit log files.
+    - name: MEDIUM | UBTU-24-901310 | PATCH | Ubuntu 24.04 LTS must be configured to permit only authorized users ownership of the audit log files.
       ansible.builtin.file:
-        path: "{{ discovered_auditd_logfile.stdout }}"
+        path: "{{ discovered_auditd_logfile_owner.stdout }}"
         owner: root
 
 - name: MEDIUM | UBTU-24-901350 | PATCH | Ubuntu 24.04 LTS must permit only authorized groups ownership of the audit log files.
@@ -289,12 +311,17 @@
     - auditd
   block:
     - name: MEDIUM | UBTU-24-901380 | AUDIT | Ubuntu 24.04 LTS must be configured so that the audit log directory is not write-accessible by unauthorized users. | discover file
-      ansible.builtin.shell: grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
-      register: discovered_auditd_logfile
+      failed_when: discovered_auditd_logfile_dir.rc not in [ 0, 1 ]
+      register: discovered_auditd_logfile_dir
 
     - name: MEDIUM | UBTU-24-901380 | AUDIT | Ubuntu 24.04 LTS must be configured so that the audit log directory is not write-accessible by unauthorized users.
       ansible.builtin.file:
-        path: "{{ discovered_auditd_logfile.stdout | dirname }}"
+        path: "{{ discovered_auditd_logfile_dir.stdout | dirname }}"
         state: directory
         mode: 'g-w,o-rwx'

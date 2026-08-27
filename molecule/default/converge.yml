@@ -1,6 +1,6 @@
 ---
 
-# Molecule converge playbook for UB24-STIG V1R3.
+# Molecule converge playbook for UB24-STIG
 # Container-incompatible rules are handled by vars/is_container.yml (loaded
 # automatically by tasks/main.yml when the docker connection is detected).
 # Anything here is purely test-scaffolding the role needs to bootstrap inside
@@ -19,6 +19,7 @@
     ubtu24stig_skip_for_test: true
     setup_audit: true
     run_audit: true
+    fetch_audit_output: true
 
     # The role's bootloader assertion runs only on non-container hosts, but
     # set both anyway so any stray check passes.
@@ -29,6 +30,15 @@
     change_requires_reboot: false
 
   pre_tasks:
+    # audit_output_destination now lives in vars/audit.yml, loaded via include_vars
+    # (precedence 18) which outranks host/play vars. set_fact (precedence 19) is the
+    # only in-play way to override it so the molecule audit-fetch lands in the host
+    # temp dir. fetch_audit_output stays a play var (it lives in defaults, not
+    # vars/audit.yml, so it is not clobbered).
+    - name: "Molecule | Force audit_output_destination above include_vars precedence"
+      ansible.builtin.set_fact:
+        audit_output_destination: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/../../_temp_fetched_audits/"
+
     - name: Set a real root password (some STIG rules verify /etc/shadow state)
       ansible.builtin.shell:
         cmd: |

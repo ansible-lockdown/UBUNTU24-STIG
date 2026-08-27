@@ -4,9 +4,9 @@
   when: not skip_os_check
   tags: always
   ansible.builtin.assert:
-    that: ansible_facts.distribution == 'Ubuntu' and ansible_facts.distribution_major_version is version_compare('24','==')
-    fail_msg: "This role can only be run against Ubuntu 24. {{ ansible_facts.distribution }} {{ ansible_facts.distribution_major_version }} is not supported."
-    success_msg: "This role is running against a supported OS {{ ansible_facts.distribution }} {{ ansible_facts.distribution_major_version }}"
+    that: ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] is version_compare('24','==')
+    fail_msg: "This role can only be run against Ubuntu 24. {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }} is not supported."
+    success_msg: "This role is running against a supported OS {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }}"
 
 - name: "Check ansible version"
   tags: always
@@ -16,7 +16,7 @@
     success_msg: "This role is running a supported version of ansible {{ ansible_version.full }} >= {{ min_ansible_version }}"
 
 - name: "Setup rules if container"
-  when: ansible_connection in ["docker", "community.docker.docker"] or ansible_virtualization_type in ["docker", "lxc", "openvz", "podman", "container"]
+  when: ansible_connection in ["docker", "community.docker.docker"] or ansible_facts['virtualization_type'] in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
     - container_discovery
     - always
@@ -36,23 +36,27 @@
 
 - name: "Check password set for connecting user"
   when:
-    - ansible_env.SUDO_USER is defined
+    - ansible_facts['env']['SUDO_USER'] is defined
     - not system_is_ec2
     - not audit_only
   block:
     - name: "Capture current password state of connecting user"
-      ansible.builtin.shell: "grep {{ ansible_env.SUDO_USER }} /etc/shadow | awk -F: '{print $2}'"
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep {{ ansible_facts['env']['SUDO_USER'] }} /etc/shadow | awk -F: '{print $2}'
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: false
       check_mode: false
       register: prelim_ansible_user_password_set
 
-    - name: "Check password set for {{ ansible_env.SUDO_USER }} | password state"  # noqa name[template]
+    - name: "Check password set for {{ ansible_facts['env']['SUDO_USER'] | default('connecting user') }} | password state"  # noqa name[template]
       tags: user_passwd
       ansible.builtin.assert:
         that: prelim_ansible_user_password_set.stdout | length != 0 and prelim_ansible_user_password_set.stdout != "!!"
-        fail_msg: "You have {{ sudo_password_rule }} enabled but the user = {{ ansible_env.SUDO_USER }} has no password set - It can break access"
-        success_msg: "You have a password set for the user {{ ansible_env.SUDO_USER }}"
+        fail_msg: "You have {{ sudo_password_rule }} enabled but the user = {{ ansible_facts['env']['SUDO_USER'] }} has no password set - It can break access"
+        success_msg: "You have a password set for the user {{ ansible_facts['env']['SUDO_USER'] }}"
       vars:
         sudo_password_rule: UBTU-24-010380  # pragma: allowlist secret
 
@@ -72,6 +76,11 @@
   tags: always
   ansible.builtin.package_facts:
     manager: auto
+
+- name: "Include prerequisite checks"
+  tags: always
+  ansible.builtin.import_tasks:
+    file: check_prereqs.yml
 
 - name: "Include prelim tasks"
   tags:
@@ -140,8 +149,8 @@
 - name: Add ansible file showing Benchmark and levels applied if audit details not present
   when:
     - create_benchmark_facts
-    - (post_audit_summary is defined) or
-      (ansible_local['compliance_facts']['lockdown_audit_details']['audit_summary'] is undefined and post_audit_summary is undefined)
+    - (post_audit_results is defined) or
+      (ansible_local['audit_results']['lockdown_audit_details']['audit_summary'] is undefined and post_audit_results is undefined)
   tags:
     - always
     - benchmark
@@ -162,16 +171,28 @@
         group: root
         mode: 'go-wx'
 
+    - name: "Create audit facts file with audit summary if audit details exist"
+      when: run_audit or audit_only
+      ansible.builtin.template:
+        src: etc/ansible/audit_results.j2
+        dest: "{{ ansible_facts_path }}/audit_results.fact"
+        owner: root
+        group: root
+        mode: 'go-wx'
+
 - name: Fetch audit files
   when:
     - fetch_audit_output
     - run_audit
+    - pre_audit_results is defined or post_audit_results is defined
   tags: always
   ansible.builtin.import_tasks:
     file: fetch_audit_output.yml
 
 - name: "Show Audit Summary"
-  when: run_audit
+  when:
+    - run_audit
+    - pre_audit_results is defined or post_audit_results is defined
   tags: run_audit
   ansible.builtin.debug:
     msg: "{{ audit_results.split('\n') }}"

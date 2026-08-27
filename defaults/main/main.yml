@@ -1,7 +1,7 @@
 ---
 
 ## metadata for Audit benchmark
-benchmark_version: 'v1.3.0'
+benchmark_version: 'v1.5.0'
 
 ## Benchmark name used by auditing control role
 # The audit variable found at the base
@@ -82,112 +82,9 @@ min_int_uid: 1000
 # Note that the value will be dynamically overwritten if variable `ubtu24stig_discover_int_uid` has
 # been set to `true`.
 max_int_uid: 65533
-
-########## BEGIN ##########
-### Audit role Settings ###
-###########################
-## Goss the audit binary
-## is required to be available
-## on the remote host
-## Other settings found vars/audit.yml
-
-# Allow audit to setup the requirements including installing git (if option chosen and downloading and adding goss binary to system)
-setup_audit: false
-
-# enable audits to run - this runs the audit and get the latest content
-run_audit: false
-
-# Ability to limit the number of concurrent processes used by goss (default 50)
-audit_max_concurrent: 50
-
-## Only run Audit do not remediate
-audit_only: false
-
-#############################
-## If using audit content ###
-## e.g. lockdown dashboard ##
-#############################
-## Ability to collect and take audit files moving to a centralised location
-
-## This enables the collection of the files from the host
-fetch_audit_output: false
-
-## Method of getting,uploading the summary files
-## Ensure access and permissions are available for these to occur.
-## options are
-## fetch - fetches from server and moves to location on the ansible controller (could be a mount point available to controller)
-## copy - copies file to a location available to the managed node
-audit_output_collection_method: fetch
-
-## Location to put the audit files
-audit_output_destination: /opt/audit_summaries/
-
-############################
-### Audit binary options ###
-############################
-## How to retrieve audit binary
-## Options are copy or download - detailed settings at the bottom of this file
-## you will need to access to either github or the file already downloaded
-get_audit_binary_method: download
-
-## If downloading the audit binary(goss)
-## Useful when self hosting the content
-## This enables the ability to not check ssl certificates using the get_url module
-audit_bin_validate_certs: true
-
-## Added the following options will default to not pass options
-## Please utilize a vault or alternative way to ensure encryption of details
-#
-# audit_bin_url_username:
-# audit_bin_url_password:
-
-## if get_audit_binary_method - copy the following needs to be updated for your environment
-## it is expected that it will be copied from somewhere accessible to the control node
-## e.g copy from ansible control node to remote host
-audit_bin_copy_location: /some/accessible/path
-
-#############################
-### Audit Content options ###
-#############################
-## how to get audit files onto host options
-## options are git/copy/archive/get_url other e.g. if you wish to run from already downloaded conf
-audit_content: git
-
-## If using authenticated git
-## Populate the required fields below
-## Location of the key file used to authenticate
-## Please ensure that the key does not have a password set
-## Best practice it to use some form of vault for this information
-#
-# audit_content_key_file: 'somepath to key file'
-
-## If using self hosted repository
-## the url will need to be updated with
-## Can pass user/pass in url - please use vault options
-#
-# self_hosted_audit_repo: https://USER:PASS@gitrepo.com/audit_reponame
-
-## If using either archive, copy, get_url:
-## Note will work with .tar files - zip will require extra configuration
-## If using get_url this is expecting github url in tar.gz format e.g.
-## https://github.com/ansible-lockdown/{OSTYPE}-{BENCMHARK_TYPE}-Audit/archive/refs/heads/benchmark-{{ benchmark_version }}.tar.gz
-audit_conf_source: "some path or url to copy from"
-
-## Destination for the audit content to be placed on managed node
-## note may not need full path e.g. /opt with the directory being the {{ benchmark }}-Audit directory
-audit_conf_dest: "/opt"
-
-## Where the audit logs are stored
-audit_log_dir: '/opt'
-
-########### END ###########
-### Audit role Settings ###
-###########################
-
-#### CAT 1
-
 ubtu24stig_100030: true
 ubtu24stig_100040: true
+ubtu24stig_100050: true
 ubtu24stig_100800: true
 ubtu24stig_100810: true
 ubtu24stig_102000: true
@@ -393,7 +290,6 @@ ubtu24stig_200000: true
 ubtu24stig_200610: true
 ubtu24stig_300001: true
 ubtu24stig_300017: true
-ubtu24stig_300024: true
 ubtu24stig_400340: true
 ubtu24stig_600140: true
 ubtu24stig_600160: true
@@ -505,6 +401,29 @@ ubtu24stig_ssh_confirm_file: etc/profile.d/ssh_confirm.sh
 ubtu24stig_ssh_required: true
 ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
 
+## PAM profile management
+# Ubuntu generates /etc/pam.d/common-* from the profiles in this directory using
+# pam-auth-update. Editing the generated files directly does not survive the next
+# regeneration, which any libpam-runtime or PAM module upgrade triggers, so the
+# PAM controls in this role write the profile source instead.
+# Paths are relative to / - the leading slash is added by the tasks.
+ubtu24stig_pam_confd_dir: 'usr/share/pam-configs/'
+
+# Profile filenames within ubtu24stig_pam_confd_dir.
+# 300028 and 400220 - the distribution-provided unix profile is replaced so that
+# nullok is absent at source and the hashing algorithm is enforced.
+ubtu24stig_pam_pwunix_file: 'unix'
+# 200610
+ubtu24stig_pam_faillock_file: 'faillock'
+# 300017
+ubtu24stig_pam_faildelay_file: 'faildelay'
+# 300016
+ubtu24stig_pam_pwquality_file: 'pwquality'
+
+# 300016
+# pam_pwquality retry count - STIG requires 1-3; 0 or greater than 3 is a finding
+ubtu24stig_pwquality_retry: 3
+
 # 300017 Session
 # faildelay
 ubtu24stig_faildelay: 4000000  # 4000000 is the minimum value = 4 seconds
@@ -526,6 +445,12 @@ ubtu24stig_uses_smartcard: false
 
 # ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - system default is often yescrypt
 ubtu24stig_passwd_hash_algo: sha512  # pragma: allowlist secret
+
+# 400220 - SHA512 rounds applied to the pam_unix password line.
+# The V1R5 check-content is a finding when rounds is set below 100000, and the fixtext
+# prescribes rounds=100000, so 100000 is the STIG floor rather than a tunable default.
+# Raising it increases password hashing cost on every set and check; lowering it is a finding.
+ubtu24stig_passwd_rounds: 100000
 ubtu24stig_pass_difok: '8'  # 8 is minimum for STIG
 ubtu24stig_pass_min_days: '1'
 ubtu24stig_pass_max_days: '60'
@@ -549,14 +474,6 @@ ubtu24stig_time_synchronization_servers:
   - 'tock.usno.navy.mil'
   - 'ntp2.usno.navy.mil'
 ubtu24stig_chrony_server_options: "iburst maxpoll 16"  # Max setting is maxpoll 16
-
-ubtu24stig_time_pool:
-  - name: 'tick.usno.navy.mil'
-    options: "iburst maxpoll 16"
-  - name: 'tock.usno.navy.mil'
-    options: "iburst maxpoll 16"
-  - name: 'ntp2.usno.navy.mil'
-    options: "iburst maxpoll 16"
 
 # 600130
 ## Users to be added to the sudo group

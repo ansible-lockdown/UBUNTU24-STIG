@@ -8,7 +8,7 @@
 # minimal containers also work.
 
 - name: "PREREQ | Ensure python3-apt is available for the apt module"
-  when: '"python3-apt" not in ansible_facts.packages'
+  when: "'python3-apt' not in ansible_facts['packages']"
   ansible.builtin.package:
     name: python3-apt
     state: present

@@ -4,7 +4,7 @@
   when:
     - ubtu24stig_400340
     - ubtu24stig_use_sssd
-    - "'sssd' in ansible_facts.packages"
+    - "'sssd' in ansible_facts['packages']"
   tags:
     - UBTU-24-400340
     - CAT3
@@ -32,9 +32,11 @@
         regexp: ^\s*offline_credentials_expiration(.*)
         line: '#offline_credentials_expiration \1'
       loop: "{{ discovered_security_cached_auth_timeout.files }}"
+      notify: Restart_sssd
 
     - name: LOW | UBTU-24-400340 | PATCH | Ubuntu 24.04 LTS must be configured such that Pluggable Authentication Module (PAM) prohibits the use of cached authentications after one day. | Ensure settings exist
       ansible.builtin.lineinfile:
         path: /etc/sssd/sssd.conf
         regexp: ^(#|)\s*offline_credentials_expiration\s*=\s*(?!1)
         line: offline_credentials_expiration = 1
+      notify: Restart_sssd

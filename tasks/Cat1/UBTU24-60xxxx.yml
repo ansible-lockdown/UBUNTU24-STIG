@@ -12,8 +12,6 @@
     - V-270744
     - NIST800-53R4_SC-13
     - fips
-  vars:
-    warn_control_id: 'HIGH | UBTU-24-600030'
   block:
     - name: HIGH | UBTU-24-600030 | PATCH | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information | Enable FIPS
       when:
@@ -44,6 +42,8 @@
       when:
         - not ubtu24stig_subscribed
         - not ubtu24stig_disruption_high
+      vars:
+        warn_control_id: 'HIGH | UBTU-24-600030'
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -58,11 +58,13 @@
     - V-270748
     - NIST800-53R4_SC-3
     - sudo
-  vars:
-    warn_control_id: 'HIGH | UBTU-24-600130'
   block:
     - name: HIGH | UBTU-24-600130 | AUDIT | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | get group member
-      ansible.builtin.shell: "grep sudo /etc/group | awk -F: '{print $NF}'"
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep sudo /etc/group | awk -F: '{print $NF}'
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_sudo_group_users.rc not in [ 0, 1 ]
       register: discovered_sudo_group_users
@@ -85,13 +87,15 @@
     - name: HIGH | UBTU-24-600130 | WARN | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | Warning
       when:
         - not ubtu24stig_disruption_high
-        - sudo_group_members_not_required.stdout is defined
+        - discovered_sudo_group_users.stdout.split(',') | difference(ubtu24stig_sudo_group_users) | length > 0
       ansible.builtin.debug:
-        msg: "Warning!! The following users {{ sudo_group_members_not_required }} have been found in the sudo group but not part of the 'ubtu24stig_sudo_group_users' variable"
+        msg: "Warning!! The following users {{ discovered_sudo_group_users.stdout.split(',') | difference(ubtu24stig_sudo_group_users) }} have been found in the sudo group but not part of the 'ubtu24stig_sudo_group_users' variable"
 
     - name: HIGH | UBTU-24-600130 | WARN | Ubuntu 24.04 LTS must ensure only users who need access to security functions are part of sudo group. | warn_count
       when:
         - not ubtu24stig_disruption_high
-        - sudo_group_members_not_required.stdout is defined
+        - discovered_sudo_group_users.stdout.split(',') | difference(ubtu24stig_sudo_group_users) | length > 0
+      vars:
+        warn_control_id: 'HIGH | UBTU-24-600130'
       ansible.builtin.import_tasks:
         file: warning_facts.yml

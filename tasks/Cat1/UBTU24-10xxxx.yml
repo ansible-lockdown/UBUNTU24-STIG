@@ -32,6 +32,24 @@
     state: absent
     purge: "{{ ubtu24stig_purge_apt }}"
 
+- name: HIGH | UBTU-24-100050 | PATCH | Ubuntu 24.04 LTS must not have the nfs-kernel-server package installed.
+  when: ubtu24stig_100050
+  tags:
+    - UBTU-24-100050
+    - CAT1
+    - CCI-000381
+    - SRG-OS-000095-GPOS-00049
+    - SV-279938r1156367_rule
+    - V-279938
+    - NIST800-53R4_CM-7
+    - packages
+  ansible.builtin.package:
+    name:
+      - nfs-common
+      - nfs-kernel-server
+    state: absent
+    purge: "{{ ubtu24stig_purge_apt }}"
+
 - name: HIGH | UBTU-24-100800 | PATCH | Ubuntu 24.04 LTS must have SSH installed.
   when: ubtu24stig_100800
   tags:
