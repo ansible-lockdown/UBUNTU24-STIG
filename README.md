@@ -1,12 +1,12 @@
 # UBUNTU 24 DISA STIG
 
-## Configure a UBUNTU24 based system to be complaint with DISA STIG
+## Configure a UBUNTU24 based system to be compliant with DISA STIG
 
-This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 3 released on Oct 01, 2025](https://dl.dod.cyber.mil/wp-content/uploads/stigs/U_UBUNTU_24_V1R3_STIG.zip).
+This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 5 released on 01 April 2026](https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_CAN_Ubuntu_24-04_LTS_V1R5_STIG.zip).
 
 ---
 
-## Public Repository 📣
+## Public Repository
 
 ![Org Stars](https://img.shields.io/github/stars/ansible-lockdown?label=Org%20Stars&style=social)
 ![Stars](https://img.shields.io/github/stars/ansible-lockdown/UBUNTU24-STIG?label=Repo%20Stars&style=social)
@@ -17,12 +17,12 @@ This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 3 released on Oct 01,
 
 ![License](https://img.shields.io/github/license/ansible-lockdown/UBUNTU24-STIG?label=License)
 
-## Lint & Pre-Commit Tools 🔧
+## Lint & Pre-Commit Tools
 
 ![YamlLint](https://img.shields.io/badge/yamllint-Present-brightgreen?style=flat&logo=yaml&logoColor=white)
 ![Ansible-Lint](https://img.shields.io/badge/ansible--lint-Present-brightgreen?style=flat&logo=ansible&logoColor=white)
 
-## Community Release Information 📂
+## Community Release Information
 
 ![Release Branch](https://img.shields.io/badge/Release%20Branch-Main-brightgreen)
 ![Release Tag](https://img.shields.io/github/v/tag/ansible-lockdown/UBUNTU24-STIG?label=Release%20Tag&&color=success)
@@ -42,7 +42,7 @@ This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 3 released on Oct 01,
 
 ---
 
-## Subscriber Release Information 🔐
+## Subscriber Release Information
 
 ![Private Release Branch](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBUNTU24-STIG/release-branch.json)
 ![Private Benchmark Version](https://img.shields.io/endpoint?url=https://ansible-lockdown.github.io/github_linux_IaC/badges/Private-UBUNTU24-STIG/benchmark-version.json)
@@ -54,25 +54,31 @@ This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 3 released on Oct 01,
 
 ---
 
-## Looking for support? 🤝
+## Looking for support?
 
 [Lockdown Enterprise](https://www.lockdownenterprise.com#GH_AL_UBUNTU24-STIG)
 
 [Ansible support](https://www.mindpointgroup.com/cybersecurity-products/ansible-counselor#GH_AL_UBUNTU24-STIG)
 
-### Community 💬
+### Community
 
 On our [Discord Server](https://www.lockdownenterprise.com/discord) to ask questions, discuss features, or just chat with other Ansible-Lockdown users
 
+### Contributing
+
+Bug reports and feature requests are welcome from everyone, please raise an issue.
+
+Pull requests are accepted from approved contributors only. To be onboarded, join the [Discord Server](https://www.lockdownenterprise.com/discord) and request contributor access. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process.
+
 ---
 
-## 🚨 Caution(s) 🚨
+## Caution(s)
 
 This role **will make changes to the system** which may have unintended consequences. This is not an auditing tool but rather a remediation tool to be used after an audit has been conducted.
 
 - Testing is the most important thing you can do.
 
-- Check Mode is not guaranteed! 🚫 The role will complete in check mode without errors, but it is not supported and should be used with caution.
+- Check Mode is not guaranteed! The role will complete in check mode without errors, but it is not supported and should be used with caution.
 
 - This role was developed against a clean install of the Operating System. If you are implementing to an existing system please review this role for any site specific changes that are needed.
 
@@ -82,12 +88,12 @@ This role **will make changes to the system** which may have unintended conseque
 
 ---
 
-## Coming From A Previous Release ⏪
+## Coming From A Previous Release
 
-STIG release always contains changes, it is highly recommended to review the new references and available variables. This have changed significantly since ansible-lockdown initial release.
+STIG release always contains changes, it is highly recommended to review the new references and available variables. This has changed significantly since the initial ansible-lockdown release.
 This is now compatible with python3 if it is found to be the default interpreter. This does come with pre-requisites which it configures the system accordingly.
 
-Further details can be seen in the [Changelog](./ChangeLog.md)
+Further details can be seen in the [Changelog](./CHANGELOG.md)
 
 ---
 
@@ -107,7 +113,7 @@ ubtu24stig_cat2: true
 ubtu24stig_cat3: true
 
 ---
-## Requirements ✅
+## Requirements
 
 **General:**
 
@@ -128,11 +134,11 @@ Ubuntu 24.04 LTS
 (other options are available on how to get the content to the system.)
 - Python 3.10+ (Ubuntu 24.04 ships 3.12)
 - Ansible 2.16.1+
-- python3-apt (for the `apt` module — pre-installed on stock Ubuntu cloud images)
+- python3-apt (for the `apt` module - pre-installed on stock Ubuntu cloud images)
 
 ---
 
-## Auditing 🔍
+## Auditing
 
 This can be turned on or off within the defaults/main.yml file with the variable run_audit. The value is false by default, please refer to the wiki for more details. The defaults file also populates the goss checks to check only the controls that have been enabled in the ansible role.
 
@@ -163,7 +169,7 @@ PLAY RECAP *********************************************************************
 default                    : ok=270  changed=23   unreachable=0    failed=0    skipped=140  rescued=0    ignored=0
 ```
 
-## Documentation 📖
+## Documentation
 
 - [Read The Docs](https://ansible-lockdown.readthedocs.io/en/latest/)
 - [Getting Started](https://www.lockdownenterprise.com/docs/getting-started-with-lockdown#GH_AL_UBTU24_STIG)
@@ -176,9 +182,9 @@ default                    : ok=270  changed=23   unreachable=0    failed=0    s
 
 This role is designed that the end user should not have to edit the tasks themselves. All customizing should be done via the defaults/main.yml file or with extra vars within the project, job, workflow, etc.
 
-## Tags 🏷️
+## Tags
 
-There are many tags available for added control preSTIGion. Each control has its own set of tags noting what level, what OS element it relates to, whether it's a patch or audit, and the rule number. Additionally, NIST references follow a specific conversion format for consistency and clarity.
+There are many tags available for added control precision. Each control has its own set of tags noting what level, what OS element it relates to, whether it's a patch or audit, and the rule number. Additionally, NIST references follow a specific conversion format for consistency and clarity.
 
 ### Conversion Format for NIST References:
 
@@ -197,30 +203,25 @@ There are many tags available for added control preSTIGion. Each control has its
     - Section and subsection numbers use periods (.) for numeric separators.
     - Parenthetical elements are separated by underscores (_), e.g., IA-5(1)(d) becomes IA-5_1_d.
     - Subsection letters (e.g., "b") are appended with an underscore.
-Below is an example of the tag section from a control within this role. Using this example if you set your run to skip all controls with the tag services, this task will be skipped. The opposite can also happen where you run only controls tagged with services.
+Below is an example of the tag section from a control within this role. Using this example, if you set your run to skip all controls with the tag CAT1, this task will be skipped. The opposite can also happen where you run only controls tagged with CAT1.
 
 ```sh
       tags:
-      - level1-server
-      - level1-workstation
-      - scored
-      - avahi
-      - services
-      - patch
-      - rule_2.2.4
+      - UBTU-24-100030
+      - CAT1
+      - CCI-000197
+      - SRG-OS-000074-GPOS-00042
+      - NIST800-53R4_IA-5
 ```
 
 
-## Community Contribution 🧑‍🤝‍🧑
+## Community Contribution
 
-We encourage you (the community) to contribute to this role. Please read the rules below.
+Pull requests are accepted from approved contributors only, and issues are welcome from everyone.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the onboarding process, the rules, and the commit signing
+requirements (GPG signature and Signed-off-by on every commit).
 
-- Your work is done in your own individual branch. Make sure to Signed-off-by and GPG sign all commits you intend to merge.
-- All community Pull Requests are pulled into the devel branch
-- Pull Requests into devel will confirm your commits have a GPG signature, Signed-off-by, and a functional test before being approved
-- Once your changes are merged and a more detailed review is complete, an authorized member will merge your changes into the main branch for a new release
-
-## Pipeline Testing 🔄
+## Pipeline Testing
 
 uses:
 
@@ -230,8 +231,9 @@ uses:
 - This is an automated test that occurs on pull requests into devel
 - self-hosted runners using OpenTofu
 
+For running the molecule `default` scenario locally (converge, idempotency, and goss audit), see [molecule/README_Molecule_QuickStart.md](molecule/README_Molecule_QuickStart.md).
 
-## Credits and Thanks 🙏
+## Credits and Thanks
 
 Massive thanks to the fantastic community and all its members.
 

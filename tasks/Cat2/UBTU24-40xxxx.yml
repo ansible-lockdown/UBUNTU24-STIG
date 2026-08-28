@@ -14,11 +14,13 @@
     - NIST800-53R4_IA-2
     - NIST800-53R4_IA-8
     - account
-  vars:
-    warn_control_id: 'MEDIUM | UBTU-24-400000'
   block:
     - name: MEDIUM | UBTU-24-400000 | AUDIT | Ubuntu 24.04 LTS must uniquely identify interactive users. | Check for duplicate UIDs
-      ansible.builtin.shell: "pwck -r | awk -F: '{if ($3 in uid) print $1 ; else uid[$3]}' /etc/passwd"
+      ansible.builtin.shell: |
+        set -o pipefail
+        pwck -r | awk -F: '{if ($3 in uid) print $1 ; else uid[$3]}' /etc/passwd
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: false
       register: discovered_duplicate_uid
@@ -30,6 +32,8 @@
 
     - name: MEDIUM | UBTU-24-400000 | WARN | Ubuntu 24.04 LTS must uniquely identify interactive users. | warning count
       when: discovered_duplicate_uid.stdout | length >= 1
+      vars:
+        warn_control_id: 'MEDIUM | UBTU-24-400000'
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -48,12 +52,16 @@
     - SRG-OS-000107-GPOS-00054
     - SRG-OS-000108-GPOS-00055
     - SV-270721r1066652_rule
-    - V-2670721
+    - V-270721
     - NIST800-53R4_IA-2
     - multifactor
   block:
     - name: MEDIUM | UBTU-24-400020 | AUDIT | Ubuntu 24.04 LTS must implement smart card logins for multifactor authentication for local and network access to privileged and nonprivileged accounts. | Check common-auth
-      ansible.builtin.shell: grep -iE "^auth.*pam_pkcs11.so" /etc/pam.d/common-auth
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep -iE "^auth.*pam_pkcs11.so" /etc/pam.d/common-auth
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_pamd_pkcs_enabled.rc not in [ 0, 1 ]
       register: discovered_pamd_pkcs_enabled
@@ -104,7 +112,11 @@
     - multifactor
   block:
     - name: MEDIUM | UBTU-24-400060 | AUDIT | Ubuntu 24.04 LTS must electronically verify personal identity verification (PIV) credentials. | find current settings
-      ansible.builtin.shell: grep -E "^cert_policy=" /etc/pam_pkcs11/pam_pkcs11.conf | cut -d ';' -f1 | grep -v ocsp_on
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep -E "^cert_policy=" /etc/pam_pkcs11/pam_pkcs11.conf | cut -d ';' -f1 | grep -v ocsp_on
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_pkcs_cert_ocsp_policy.rc not in [ 0, 1 ]
       register: discovered_pkcs_cert_ocsp_policy
@@ -123,7 +135,7 @@
   tags:
     - UBTU-24-400110
     - CAT2
-    - CCI-000000
+    - CCI-004045
     - SRG-OS-000109-GPOS-00056
     - SV-270724r1066661_rule
     - V-270724
@@ -137,45 +149,55 @@
   when: ubtu24stig_400220
   tags:
     - UBTU-24-400220
-    - CCI-000000
+    - CCI-004062
     - CAT2
     - SRG-OS-000073-GPOS-00041
     - SV-270725r1101789_rule
     - V-270725
     - NIST800-53R4_NA
     - password
+    - pam
   block:
     - name: MEDIUM | UBTU-24-400220 | AUDIT | Ubuntu 24.04 LTS must store only encrypted representations of passwords. | get current setting
-      ansible.builtin.shell: grep -v ^# /etc/pam.d/common-password | grep -E "(yescrypt|md5|bigcrypt|sha256|sha512|blowfish)"
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep -v ^# /etc/pam.d/common-password | grep -E "(yescrypt|md5|bigcrypt|sha256|sha512|blowfish)"
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_common_pwd_sha512.rc not in [ 0, 1 ]
+      check_mode: false
       register: discovered_common_pwd_sha512
 
-    - name: MEDIUM | UBTU-24-400220 | AUDIT | Ubuntu 24.04 LTS must store only encrypted representations of passwords. | replace current setting if incorrect
-      when:
-        - discovered_common_pwd_sha512.stdout | length > 0
-        - "ubtu24stig_passwd_hash_algo not in discovered_common_pwd_sha512.stdout"
-      ansible.builtin.replace:
-        path: /etc/pam.d/common-password
-        regexp: (yescrypt|md5|bigcrypt|sha256|sha512|blowfish)
-        replace: "{{ ubtu24stig_passwd_hash_algo }}"
+    # The hashing algorithm is an argument on the pam_unix.so line of the generated
+    # common-password file, so it is set in the unix profile that generates it rather than
+    # in the generated file. This profile also carries the nullok removal for
+    # UBTU-24-300028 - both controls resolve to the same source file.
+    - name: MEDIUM | UBTU-24-400220 | PATCH | Ubuntu 24.04 LTS must store only encrypted representations of passwords. | ensure unix profile
+      ansible.builtin.template:
+        src: "{{ ubtu24stig_pam_confd_dir }}pam_unix.j2"
+        dest: "/{{ ubtu24stig_pam_confd_dir }}{{ ubtu24stig_pam_pwunix_file }}"
+        owner: root
+        group: root
+        mode: 'u-x,go-rwx'
+      notify: Pam_auth_update_pwunix
 
-    - name: MEDIUM | UBTU-24-400220 | PATCH | Ubuntu 24.04 LTS must store only encrypted representations of passwords.
-      when: discovered_common_pwd_sha512.stdout | length > 0
-      community.general.pamd:
-        name: common-password
-        type: password
-        control: '[success=1 default=ignore]'
-        module_path: pam_unix.so
-        module_arguments: "{{ ubtu24stig_passwd_hash_algo }}"
-        state: args_present
+    - name: MEDIUM | UBTU-24-400220 | PATCH | Ubuntu 24.04 LTS must store only encrypted representations of passwords. | force pam-auth-update when the algorithm is wrong
+      when:
+        - discovered_common_pwd_sha512.stdout | length == 0 or
+          ubtu24stig_passwd_hash_algo not in discovered_common_pwd_sha512.stdout
+      ansible.builtin.debug:
+        msg: "{{ ubtu24stig_passwd_hash_algo }} is not set on the pam_unix.so line in /etc/pam.d/common-password; forcing pam-auth-update."
+      changed_when: true
+      notify: Pam_auth_update_pwunix
 
 - name: MEDIUM | UBTU-24-400260 | PATCH | Ubuntu 24.04 LTS must enforce password complexity by requiring at least one uppercase character be used.
   when: ubtu24stig_400260
   tags:
     - UBTU-24-400260
     - CAT2
-    - CCI-000000
+    - CCI-004065
+    - CCI-004066
     - SRG-OS-000069-GPOS-00037
     - SRG-OS-000730-GPOS-00190
     - SV-270726r1066667_rule
@@ -192,7 +214,8 @@
   tags:
     - UBTU-24-400270
     - CAT2
-    - CCI-000000
+    - CCI-004065
+    - CCI-004066
     - SRG-OS-000070-GPOS-00038
     - SRG-OS-000730-GPOS-00190
     - SV-270727r1066670_rule
@@ -209,7 +232,8 @@
   tags:
     - UBTU-24-400280
     - CAT2
-    - CCI-000000
+    - CCI-004065
+    - CCI-004066
     - SRG-OS-000071-GPOS-00039
     - SRG-OS-000730-GPOS-00190
     - SV-270728r1066673_rule
@@ -226,6 +250,8 @@
   tags:
     - UBTU-24-400290
     - CAT2
+    - CCI-004065
+    - CCI-004066
     - NA
     - SRG-OS-000072-GPOS-00040
     - SRG-OS-000730-GPOS-00190
@@ -243,7 +269,8 @@
   tags:
     - UBTU-24-400300
     - CAT2
-    - CCI-000000
+    - CCI-004065
+    - CCI-004066
     - SRG-OS-000075-GPOS-00043
     - SRG-OS-000730-GPOS-00190
     - SV-270730r1066679_rule
@@ -260,7 +287,8 @@
   tags:
     - UBTU-24-400310
     - CAT2
-    - CCI-000000
+    - CCI-004065
+    - CCI-004066
     - SRG-OS-000076-GPOS-00044
     - SRG-OS-000730-GPOS-00190
     - SV-270731r1066682_rule
@@ -276,7 +304,9 @@
   when: ubtu24stig_400320
   tags:
     - UBTU-24-400320
-    - CCI-000000
+    - CAT2
+    - CCI-004065
+    - CCI-004066
     - SRG-OS-000078-GPOS-00046
     - SRG-OS-000730-GPOS-00190
     - SV-270732r1066685_rule
@@ -293,7 +323,8 @@
   tags:
     - UBTU-24-400330
     - CAT2
-    - CCI-000000
+    - CCI-004065
+    - CCI-004066
     - SRG-OS-000266-GPOS-00101
     - SRG-OS-000730-GPOS-00190
     - SV-270733r1066688_rule
@@ -315,6 +346,7 @@
     - UBTU-24-400375
     - CAT2
     - CCI-000185
+    - CCI-004909
     - SRG-OS-000066-GPOS-00034
     - SRG-OS-000775-GPOS-00230
     - SV-270737r1067178_rule
@@ -323,7 +355,11 @@
     - multifactor
   block:
     - name: MEDIUM | UBTU-24-400375 | AUDIT | Ubuntu 24.04 LTS, for PKI-based authentication, Privileged Access Management (PAM) must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor. | find current settings
-      ansible.builtin.shell: grep use_pkcs11_module /etc/pam_pkcs11/pam_pkcs11.conf | awk '/pkcs11_module opensc {/,/}/' /etc/pam_pkcs11/pam_pkcs11.conf | grep cert_policy | grep ca
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep use_pkcs11_module /etc/pam_pkcs11/pam_pkcs11.conf | awk '/pkcs11_module opensc {/,/}/' /etc/pam_pkcs11/pam_pkcs11.conf | grep cert_policy | grep ca
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_pkcs_cert_ca_policy.rc not in [ 0, 1 ]
       register: discovered_pkcs_cert_ca_policy
@@ -339,6 +375,53 @@
 
 ##################
 
+- name: MEDIUM | UBTU-24-400360 | PATCH | Ubuntu 24.04 LTS, for PKI-based authentication, SSSD must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.
+  when: ubtu24stig_400360
+  tags:
+    - UBTU-24-400360
+    - CAT2
+    - CCI-000185
+    - CCI-004909
+    - SRG-OS-000066-GPOS-00034
+    - SV-270735r1066694_rule
+    - V-270735
+    - NIST800-53R4_IA-5
+    - sssd
+    - pki
+  block:
+    - name: MEDIUM | UBTU-24-400360 | AUDIT | Ubuntu 24.04 LTS, for PKI-based authentication, SSSD must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor. | check sssd.conf exists
+      ansible.builtin.stat:
+        path: /etc/sssd/sssd.conf
+      register: discovered_sssd_conf
+
+    - name: MEDIUM | UBTU-24-400360 | PATCH | Ubuntu 24.04 LTS, for PKI-based authentication, SSSD must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor. | set required sssd entries
+      when: discovered_sssd_conf.stat.exists
+      community.general.ini_file:
+        path: /etc/sssd/sssd.conf
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        mode: 'u-x,go-rwx'
+        owner: root
+        group: root
+      loop:
+        - { section: 'sssd', option: 'services', value: 'nss,pam,ssh' }
+        - { section: 'sssd', option: 'config_file_version', value: '2' }
+        - { section: 'pam', option: 'pam_cert_auth', value: 'True' }
+      notify: Restart_sssd
+
+    - name: MEDIUM | UBTU-24-400360 | WARN | Ubuntu 24.04 LTS, for PKI-based authentication, SSSD must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor. | warn when sssd missing
+      when: not discovered_sssd_conf.stat.exists
+      ansible.builtin.debug:
+        msg: "Warning!! /etc/sssd/sssd.conf does not exist; PKI-via-SSSD configuration is site-specific - configure manually if PKI authentication is required."
+
+    - name: MEDIUM | UBTU-24-400360 | WARN | Ubuntu 24.04 LTS, for PKI-based authentication, SSSD must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor. | warning count
+      when: not discovered_sssd_conf.stat.exists
+      vars:
+        warn_control_id: 'MEDIUM | UBTU-24-400360'
+      ansible.builtin.import_tasks:
+        file: warning_facts.yml
+
 - name: MEDIUM | UBTU-24-400380 | PATCH | Ubuntu 24.04 LTS for PKI-based authentication, must implement a local cache of revocation data in case of the inability to access revocation information via the network.
   when:
     - ubtu24stig_400380
@@ -346,7 +429,7 @@
   tags:
     - UBTU-24-400380
     - CAT2
-    - CCI-000000
+    - CCI-004068
     - SRG-OS-000384-GPOS-00167
     - SV-270738r1066703_rule
     - V-270738
@@ -354,7 +437,11 @@
     - multifactor
   block:
     - name: MEDIUM | UBTU-24-400380 | AUDIT | Ubuntu 24.04 LTS for PKI-based authentication, must implement a local cache of revocation data in case of the inability to access revocation information via the network. | find current settings
-      ansible.builtin.shell: grep -E "^cert_policy=" /etc/pam_pkcs11/pam_pkcs11.conf | cut -d ';' -f1 | grep -Ev "crl_auto|crl_offline"
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep -E "^cert_policy=" /etc/pam_pkcs11/pam_pkcs11.conf | cut -d ';' -f1 | grep -Ev "crl_auto|crl_offline"
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_pkcs_cert_crl_policy.rc not in [ 0, 1 ]
       register: discovered_pkcs_cert_crl_policy

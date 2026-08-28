@@ -5,10 +5,11 @@
   tags:
     - UBTU-24-700400
     - CAT1
+    - CCI-000366
     - CCI-002605
     - SRG-OS-000480-GPOS-00227
     - SV-278917r1155246_rule
     - V-278917
     - NIST800-53R4_CM-6
   ansible.builtin.debug:
-    msg: "System is running a vendor supported release as per assert checks at the beginning of the playbook - {{ ansible_facts.distribution }} {{ ansible_facts.distribution_major_version }}"
+    msg: "System is running a vendor supported release as per assert checks at the beginning of the playbook - {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_major_version'] }}"

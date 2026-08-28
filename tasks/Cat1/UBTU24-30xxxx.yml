@@ -28,7 +28,7 @@
     - CAT1
     - CCI-000366
     - SRG-OS-000480-GPOS-00227
-    - SV-270711r1101772_rule
+    - SV-270711r1184069_rule
     - V-270711
     - NIST800-53R4_CM-6
     - gnome
@@ -64,14 +64,16 @@
     - CCI-000366
     - SRG-OS-000480-GPOS-00227
     - SV-270713r1066628_rule
-    - V-260573
+    - V-270713
     - NIST800-53R4_CM-6
     - password
-  vars:
-    warn_control_id: "HIGH | UBTU-24-300027"
   block:
     - name: HIGH | UBTU-24-300027 | PATCH | Ubuntu 24.04 LTS must not have accounts configured with blank or null passwords.
-      ansible.builtin.shell: "cat /etc/shadow | awk -F: '($2 == \"\" ) {j++;print $1; } END {exit j}'"
+      ansible.builtin.shell: |
+        set -o pipefail
+        cat /etc/shadow | awk -F: '($2 == "" ) {j++;print $1; } END {exit j}'
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_empty_password_accounts.rc not in [ 0, 1 ]
       register: discovered_empty_password_accounts
@@ -92,10 +94,12 @@
       ansible.builtin.debug:
         msg: "Warning!! The following accounts have blank passwords {{ discovered_empty_password_accounts.stdout_lines }} "
 
-    - name: HIGH| UBTU-24-300027 | WARN | Ubuntu 24.04 LTS must not have accounts configured with blank or null passwords.
+    - name: HIGH | UBTU-24-300027 | WARN | Ubuntu 24.04 LTS must not have accounts configured with blank or null passwords.
       when:
         - not ubtu24stig_disruption_high
         - discovered_empty_password_accounts.stdout | length > 0
+      vars:
+        warn_control_id: "HIGH | UBTU-24-300027"
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -110,10 +114,35 @@
     - V-270714
     - NIST800-53R4_CM-6
     - password
-  ansible.builtin.replace:
-    path: /etc/pam.d/common-password
-    regexp: (.*) nullok(.*)
-    replace: \1\2
+    - pam
+  block:
+    # nullok originates in the distribution's unix PAM profile, not in the generated
+    # common-* files. Stripping it only from /etc/pam.d leaves the source intact, so the
+    # next pam-auth-update run - which any libpam-runtime or PAM module upgrade triggers -
+    # silently reinstates a CAT 1 finding. The profile is replaced by UBTU-24-400220; this
+    # sweep also clears nullok from any profile or generated file a previous state left
+    # behind. The V1R5 check greps both common-password and common-auth, so both are covered.
+    - name: HIGH | UBTU-24-300028 | AUDIT | Ubuntu 24.04 LTS must not allow accounts configured in Pluggable Authentication Modules (PAM) with blank or null passwords. | capture nullok state
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep -l -E 'pam_unix\.so.*nullok' /etc/pam.d/common-password /etc/pam.d/common-auth /{{ ubtu24stig_pam_confd_dir }}* 2>/dev/null
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
+      changed_when: false
+      failed_when: discovered_pam_nullok.rc not in [ 0, 1 ]
+      check_mode: false
+      register: discovered_pam_nullok
+
+    - name: HIGH | UBTU-24-300028 | PATCH | Ubuntu 24.04 LTS must not allow accounts configured in Pluggable Authentication Modules (PAM) with blank or null passwords. | remove nullok at source
+      when: discovered_pam_nullok.stdout | length > 0
+      ansible.builtin.replace:
+        path: "{{ item }}"
+        regexp: (.*) nullok(.*)
+        replace: \1\2
+      loop: "{{ discovered_pam_nullok.stdout_lines }}"
+      loop_control:
+        label: "{{ item }}"
+      notify: Pam_auth_update_pwunix
 
 - name: HIGH | UBTU-24-300031 | PATCH | Ubuntu 24.04 LTS must not allow unattended or automatic login via SSH.
   when: ubtu24stig_300031

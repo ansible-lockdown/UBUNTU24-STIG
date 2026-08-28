@@ -11,11 +11,13 @@
     - V-270756
     - NIST800-53R4_SI-11
     - permissions
-  vars:
-    warn_control_id: 'MEDIUM | UBTU-24-700010'
   block:
     - name: MEDIUM | UBTU-24-700010 | AUDIT | Ubuntu 24.04 LTS must generate error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries. | find files
-      ansible.builtin.shell: find /var/log -perm /137 ! -name '*[bw]tmp' ! -name '*lastlog' ! -name 'history*' ! -name '*eipp.log.xz' {% if ubtu24stig_700010 %}! -name '*syslog' {% endif %}-type f -exec stat -c "%n" {} \;
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /var/log -perm /137 ! -name '*[bw]tmp' ! -name '*lastlog' ! -name 'history*' ! -name '*eipp.log.xz' {% if ubtu24stig_700010 %}! -name '*syslog' {% endif %}-type f -exec stat -c "%n" {} \;
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_var_log_logfiles.rc not in [ 0, 1 ]
       register: discovered_var_log_logfiles
@@ -40,6 +42,8 @@
       when:
         - discovered_var_log_logfiles.stdout_lines is defined
         - not ubtu24stig_disruption_high
+      vars:
+        warn_control_id: 'MEDIUM | UBTU-24-700010'
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -50,16 +54,18 @@
     - CAT2
     - CCI-001312
     - SRG-OS-000205-GPOS-00083
-    - SV-270757r1066760_rule
+    - SV-270757r1184072_rule
     - V-270757
     - NIST800-53R4_SI-11
     - permissions
     - journald
-  vars:
-    warn_control_id: 'MEDIUM | UBTU-24-700020'
   block:
     - name: MEDIUM | UBTU-24-700020 | AUDIT | Ubuntu 24.04 LTS must generate system journal entries without revealing information that could be exploited by adversaries. | find files
-      ansible.builtin.shell: find /run/log/journal /var/log/journal -type d -perm -640 -exec stat -c "%n %a" {} \;
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /run/log/journal /var/log/journal -type d -perm -640 -exec stat -c "%n %a" {} \;
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_journal_logfiles_files.rc not in [ 0, 1 ]
       register: discovered_journal_logfiles_files
@@ -72,10 +78,10 @@
         regexp: "{{ item.regexp }}"
         line: "{{ item.line }}"
       loop:
-        - {regexp: '^z \/run\/log\/journal (\d{4,}) (\b.*\b) (\b.*\b) - -', line: 'z /run/log/journal 2640 \2 \3 - -' }
-        - {regexp: '^Z \/run\/log\/journal\/%m (~\d{4,}) (\b.*\b) (\b.*\b) - -', line: 'Z /run/log/journal/%m ~2640 \2 \3 - -' }
-        - {regexp: '^z \/var\/log\/journal (\d{4,}) (\b.*\b) (\b.*\b) - -', line: 'z /var/log/journal 2640 \2 \3 - -' }
-        - {regexp: '^z \/var\/log\/journal\/%m (\d{4,}) (\b.*\b) (\b.*\b) - -', line: 'z /var/log/journal/%m 2640 \2 \3 - -' }
+        - {regexp: '^z \/run\/log\/journal (\d{4,}) (\b.*\b) (\b.*\b) - -', line: 'z /run/log/journal 0640 \2 \3 - -' }
+        - {regexp: '^Z \/run\/log\/journal\/%m (~\d{4,}) (\b.*\b) (\b.*\b) - -', line: 'Z /run/log/journal/%m ~0640 \2 \3 - -' }
+        - {regexp: '^z \/var\/log\/journal (\d{4,}) (\b.*\b) (\b.*\b) - -', line: 'z /var/log/journal 0640 \2 \3 - -' }
+        - {regexp: '^z \/var\/log\/journal\/%m (\d{4,}) (\b.*\b) (\b.*\b) - -', line: 'z /var/log/journal/%m 0640 \2 \3 - -' }
         - {regexp: '^z \/var\/log\/journal\/%m/system.journal (\d{4,}) (\b.*\b) (\b.*\b) - -', line: 'z /var/log/journal/%m/system.journal 0640 \2 \3 - -' }
       notify: Change_requires_reboot
 
@@ -90,6 +96,8 @@
       when:
         - discovered_journal_logfiles_files.stdout_lines is defined
         - not ubtu24stig_disruption_high
+      vars:
+        warn_control_id: 'MEDIUM | UBTU-24-700020'
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -155,15 +163,20 @@
     - UBTU-24-700060
     - CAT2
     - CCI-001312
+    - CCI-001314
     - SRG-OS-000206-GPOS-00084
-    - SV-270761r1067180_rule
+    - SV-270761r1184074_rule
     - V-270761
     - NIST800-53R4_SI-11
     - journald
     - permissions
   block:
     - name: MEDIUM | UBTU-24-700060 | AUDIT | Ubuntu 24.04 LTS must configure the directories used by the system journal to be group-owned by "systemd-journal". | find files
-      ansible.builtin.shell: find /run/log/journal /var/log/journal -type d ! -group systemd-journal -exec stat -c "%n" {} \;
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /run/log/journal /var/log/journal -type d ! -group systemd-journal -exec stat -c "%n" {} \;
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_journal_logdir_group.rc not in [ 0, 1 ]
       register: discovered_journal_logdir_group
@@ -188,15 +201,20 @@
     - UBTU-24-700070
     - CAT2
     - CCI-001312
+    - CCI-001314
     - SRG-OS-000206-GPOS-00084
-    - SV-270762r1066775_rule
+    - SV-270762r1184076_rule
     - V-270762
     - NIST800-53R4_SI-11
     - journald
     - permissions
   block:
     - name: MEDIUM | UBTU-24-700070 | AUDIT | Ubuntu 24.04 LTS must configure the files used by the system journal to be group-owned by "systemd-journal" | find files
-      ansible.builtin.shell: find /run/log/journal /var/log/journal -type f ! -group systemd-journal -exec stat -c "%n" {} \;
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /run/log/journal /var/log/journal -type f ! -group systemd-journal -exec stat -c "%n" {} \;
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_journal_logfile_group.rc not in [ 0, 1 ]
       register: discovered_journal_logfile_group
@@ -222,15 +240,20 @@
     - UBTU-24-700080
     - CAT2
     - CCI-001312
+    - CCI-001314
     - SRG-OS-000206-GPOS-00084
-    - SV-270763r1066778_rule
+    - SV-270763r1184078_rule
     - V-270763
     - NIST800-53R4_SI-11
     - journald
     - permissions
   block:
     - name: MEDIUM | UBTU-24-700080 | AUDIT | Ubuntu 24.04 LTS must configure the directories used by the system journal to be owned by root. | find files
-      ansible.builtin.shell: find /run/log/journal /var/log/journal -type d ! -user root -exec stat -c "%n" {} \;
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /run/log/journal /var/log/journal -type d ! -user root -exec stat -c "%n" {} \;
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_journal_logdir_owner.rc not in [ 0, 1 ]
       register: discovered_journal_logdir_owner
@@ -255,15 +278,20 @@
     - UBTU-24-700090
     - CAT2
     - CCI-001312
+    - CCI-001314
     - SRG-OS-000206-GPOS-00084
-    - SV-270764r1066781_rule
+    - SV-270764r1184080_rule
     - V-270764
     - NIST800-53R4_SI-11
     - journald
     - permissions
   block:
     - name: MEDIUM | UBTU-24-700090 | AUDIT | Ubuntu 24.04 LTS must configure the files used by the system journal to be owned by "root". | find files
-      ansible.builtin.shell: find /run/log/journal /var/log/journal -type f ! -user root -exec stat -c "%n" {} \;
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /run/log/journal /var/log/journal -type f ! -user root -exec stat -c "%n" {} \;
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_journal_logfiles_owner.rc not in [ 0, 1 ]
       register: discovered_journal_logfiles_owner
@@ -377,8 +405,8 @@
     path: /var/log/syslog
     state: file
     owner: syslog
-  failed_when: discovered_var_log_syslog.state not in '[ file, absent ]'
-  register: discovered_var_log_syslog
+  failed_when: discovered_var_log_syslog_owner.state not in '[ file, absent ]'
+  register: discovered_var_log_syslog_owner
 
 - name: MEDIUM | UBTU-24-700150 | PATCH | Ubuntu 24.04 LTS must configure /var/log/syslog file with mode "0640" or less permissive.
   when:
@@ -397,8 +425,8 @@
     path: /var/log/syslog
     state: file
     mode: 'g-wx,o-rwx'
-  failed_when: discovered_var_log_syslog.state not in '[ file, absent ]'
-  register: discovered_var_log_syslog
+  failed_when: discovered_var_log_syslog_perms.state not in '[ file, absent ]'
+  register: discovered_var_log_syslog_perms
 
 - name: MEDIUM | UBTU-24-700300 | AUDIT | Ubuntu 24.04 LTS must implement nonexecutable data to protect its memory from unauthorized code execution.
   when: ubtu24stig_700300
@@ -410,18 +438,24 @@
     - SV-270771r1066802_rule
     - V-270771
     - NIST800-53R4_SI-16
-  vars:
-    warn_control_id: 'MEDIUM | UBTU-24-700300'
   block:
     - name: MEDIUM | UBTU-24-700300 | AUDIT | Ubuntu 24.04 LTS must implement nonexecutable data to protect its memory from unauthorized code execution.
-      ansible.builtin.shell: dmesg | grep -i "execute disable"
+      ansible.builtin.shell: |
+        set -o pipefail
+        dmesg | grep -i "execute disable"
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_dmesg_nx_value.rc not in [ 0, 1 ]
       register: discovered_dmesg_nx_value
 
     - name: MEDIUM | UBTU-24-700300 | AUDIT | Ubuntu 24.04 LTS must implement nonexecutable data to protect its memory from unauthorized code execution. | Dmesg Does Not Contain NX (Execute Disable) protection active.
       when: discovered_dmesg_nx_value.stdout is not defined
-      ansible.builtin.shell: grep flags /proc/cpuinfo | grep -w nx | sort -u
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep flags /proc/cpuinfo | grep -w nx | sort -u
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: false
       register: discovered_nx_cpuinfo_settings
@@ -439,6 +473,8 @@
         - discovered_dmesg_nx_value.stdout is defined
         - discovered_nx_cpuinfo_settings.stdout is defined
         - "'protection: active' not in discovered_dmesg_nx_value.stdout or 'nx' not in discovered_nx_cpuinfo_settings.stdout"
+      vars:
+        warn_control_id: 'MEDIUM | UBTU-24-700300'
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -458,7 +494,7 @@
         paths: [ '/etc/sysctl.d', '/run/sysctl.d', '/usr/local/lib/sysctl.d', '/usr/lib/sysctl.d', '/lib/sysctl.d' ]
         pattern: '*.conf'
         contains: kernel.randomize_va_space
-      register: discovered_sysctl_conf_files
+      register: discovered_kernel_sysctl_conf_files
 
     - name: MEDIUM | UBTU-24-700310 | PATCH | Ubuntu 24.04 LTS must implement address space layout randomization to protect its memory from unauthorized code execution | remove existing bad settings
       ansible.builtin.replace:
@@ -466,7 +502,7 @@
         regexp: ^\s*kernel.randomize_va_space\s*=\s*[ 0, 1 ]
         replace: ''
       with_items:
-        - "{{ discovered_sysctl_conf_files.files | map(attribute='path') }}"
+        - "{{ discovered_kernel_sysctl_conf_files.files | map(attribute='path') }}"
         - /etc/sysctl.conf
 
     - name: MEDIUM | UBTU-24-700310 | PATCH | Ubuntu 24.04 LTS must implement address space layout randomization to protect its memory from unauthorized code execution | add file specific settings

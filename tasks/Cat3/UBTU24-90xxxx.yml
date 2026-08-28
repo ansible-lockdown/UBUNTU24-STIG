@@ -13,19 +13,22 @@
     - V-270816
     - NIST800-53R4_AU-4
     - auditd
-  vars:
-    warn_control_id: "LOW | UBTU-24-900920"
   block:
     - name: "LOW | UBTU-24-900920 | AUDIT | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
-      ansible.builtin.shell: grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
-      register: discovered_auditd_logfile
+      failed_when: discovered_auditd_logfile_space.rc not in [ 0, 1 ]
+      register: discovered_auditd_logfile_space
 
     - name: "LOW | UBTU-24-900920 | AUDIT | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
       ansible.builtin.set_fact:
         audit_filesystem_space_left: "{{ (audit_mount.size_available / 1024 / 1024) | int }}"
       vars:
-        audit_mount: "{{ ansible_facts.mounts | selectattr('mount', 'equalto', ubtu24stig_audit_log_filesystem) | list | first }}"
+        audit_mount: "{{ ansible_facts['mounts'] | selectattr('mount', 'equalto', ubtu24stig_audit_log_filesystem) | list | first }}"
 
     - name: "LOW | UBTU-24-900920 | WARN | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
       ansible.builtin.debug:
@@ -33,10 +36,12 @@
           - "WARNING!! Below is the path and size of the partition for the audit logs."
           - "Please make sure there is enough disk space for 1 week of logs"
           - "Mount: {{ ubtu24stig_audit_log_filesystem }}"
-          - "Logfile: {{ discovered_auditd_logfile.stdout }}"
+          - "Logfile: {{ discovered_auditd_logfile_space.stdout }}"
           - "Disk Space remaining: {{ audit_filesystem_space_left }}MB"
 
     - name: "LOW | UBTU-24-900920 | WARN | Ubuntu 24.04 LTS must allocate audit record storage capacity to store at least one weeks' worth of audit records, when audit records are not immediately sent to a central audit record storage facility."
+      vars:
+        warn_control_id: "LOW | UBTU-24-900920"
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -51,8 +56,6 @@
     - V-270817
     - NIST800-53R4_AU-4
     - auditd
-  vars:
-    warn_control_id: 'LOW | UBTU-24-900950'
   block:
     - name: LOW | UBTU-24-900950 | AUDIT | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems. | get files containing audit
       ansible.builtin.find:
@@ -68,6 +71,8 @@
 
     - name: LOW | UBTU-24-900950 | AUDIT | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems.| Warn count
       when: discovered_audit_cron_copy.files | length == 0
+      vars:
+        warn_control_id: 'LOW | UBTU-24-900950'
       ansible.builtin.import_tasks:
         file: warning_facts.yml
 
@@ -114,7 +119,7 @@
     - UBTU-24-901220
     - CAT3
     - CCI-001890
-    - RG-OS-000359-GPOS-00146
+    - SRG-OS-000359-GPOS-00146
     - SV-270820r1066949_rule
     - V-270820
     - NIST800-53R4_AU-8
@@ -122,7 +127,11 @@
     - time
   block:
     - name: LOW | UBTU-24-901220 | AUDIT | Ubuntu 24.04 LTS must record time stamps for audit records that can be mapped to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT). | current settings
-      ansible.builtin.shell: timedatectl status | grep "Time zone"
+      ansible.builtin.shell: |
+        set -o pipefail
+        timedatectl status | grep "Time zone"
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_timezone.rc not in [ 0 , 1 ]
       register: discovered_timezone
