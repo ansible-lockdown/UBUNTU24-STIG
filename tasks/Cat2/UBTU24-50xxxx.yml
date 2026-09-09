@@ -25,7 +25,7 @@
     - CCI-000877
     - SRG-OS-000125-GPOS-00065
     - SV-270741r1066712_rule
-    - V-27074
+    - V-270741
     - NIST800-53R4_MA-4
     - ssh
   ansible.builtin.lineinfile:

@@ -1,0 +1,141 @@
+---
+# Molecule verify - spot-checks a representative, container-applicable subset of the
+# Ubuntu 24.04 STIG hardening the role applies. The authoritative validation is the
+# Goss audit run during converge (run_audit: true); this playbook is a fast sanity
+# gate so `molecule verify` is not a silent no-op.
+#
+# An earlier revision of this file carried a note that the PAM assertions below must not
+# be used on this release line, because the line edited /etc/pam.d directly and shipped no
+# pam-configs profiles. That is no longer true: this line now writes the profile source and
+# lets pam-auth-update generate the common-* files, so the assertions are correct here and
+# are the regression guard for that change. Every rule cited below exists in V1R5 and V1R6
+# alike, and no SV-ID or release string is asserted, so the file is not revision-bound.
+
+- name: Verify - Ubuntu 24.04 STIG hardening spot-checks
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Verify | Read /etc/ssh/sshd_config
+      ansible.builtin.slurp:
+        src: /etc/ssh/sshd_config
+      register: verify_sshd_config
+
+    - name: Verify | sshd_config carries STIG SSH hardening (UBTU-24-300022 X11Forwarding no)
+      ansible.builtin.assert:
+        that:
+          - "'X11Forwarding no' in (verify_sshd_config.content | b64decode)"
+        fail_msg: "/etc/ssh/sshd_config is not hardened (expected 'X11Forwarding no' per UBTU-24-300022)"
+        success_msg: "sshd_config SSH hardening present"
+
+    - name: Verify | Stat the login banner
+      ansible.builtin.stat:
+        path: /etc/issue
+      register: verify_issue
+
+    - name: Verify | Login banner (/etc/issue) is populated
+      ansible.builtin.assert:
+        that:
+          - verify_issue.stat.exists
+          - verify_issue.stat.size > 0
+        fail_msg: "/etc/issue login banner is empty"
+        success_msg: "Login banner populated"
+
+    # The PAM controls write /usr/share/pam-configs profiles and let pam-auth-update
+    # generate /etc/pam.d/common-*. Relative order in the generated file is a function of
+    # each profile's Priority, which is easy to get wrong in a way that still satisfies a
+    # content-only check - so these assertions test position, not just presence.
+    - name: Verify | Read the generated PAM common-auth
+      ansible.builtin.slurp:
+        src: /etc/pam.d/common-auth
+      register: verify_common_auth
+
+    - name: Verify | Read the generated PAM common-password
+      ansible.builtin.slurp:
+        src: /etc/pam.d/common-password
+      register: verify_common_password
+
+    - name: Verify | Index the pam_unix, faildelay and faillock lines in common-auth
+      ansible.builtin.set_fact:
+        verify_auth_lines: "{{ (verify_common_auth.content | b64decode).splitlines() | select('match', '^auth') | list }}"
+
+    # Presence is asserted before position. Without this, an index expression over an empty
+    # match list can collapse to 0 and make the ordering comparisons vacuously true.
+    - name: Verify | All four PAM lines are present in common-auth
+      ansible.builtin.assert:
+        that:
+          - verify_auth_lines | select('search', 'pam_faildelay.so') | list | length == 1
+          - verify_auth_lines | select('search', 'pam_unix.so') | list | length == 1
+          - verify_auth_lines | select('search', 'pam_faillock.so authfail') | list | length == 1
+          - verify_auth_lines | select('search', 'pam_faillock.so authsucc') | list | length == 1
+        fail_msg: "Expected exactly one each of pam_faildelay, pam_unix, faillock authfail and authsucc in common-auth: {{ verify_auth_lines }}"
+        success_msg: "All four PAM auth lines present exactly once"
+
+    - name: Verify | PAM stack ordering and content (UBTU-24-200610, 300017, 300028)
+      vars:
+        idx_faildelay: "{{ verify_auth_lines.index(verify_auth_lines | select('search', 'pam_faildelay.so') | first) }}"
+        idx_unix: "{{ verify_auth_lines.index(verify_auth_lines | select('search', 'pam_unix.so') | first) }}"
+        idx_authfail: "{{ verify_auth_lines.index(verify_auth_lines | select('search', 'pam_faillock.so authfail') | first) }}"
+        idx_authsucc: "{{ verify_auth_lines.index(verify_auth_lines | select('search', 'pam_faillock.so authsucc') | first) }}"
+      ansible.builtin.assert:
+        that:
+          # UBTU-24-300017 - the delay must be evaluated before pam_unix
+          - idx_faildelay | int < idx_unix | int
+          # UBTU-24-200610 - authfail and authsucc must follow pam_unix
+          - idx_authfail | int > idx_unix | int
+          - idx_authsucc | int > idx_authfail | int
+          # UBTU-24-300028 (CAT 1) - nullok must be absent from the generated stack
+          - "'nullok' not in (verify_common_auth.content | b64decode)"
+          - "'nullok' not in (verify_common_password.content | b64decode)"
+        fail_msg: "PAM stack is misordered or still carries nullok: {{ verify_auth_lines }}"
+        success_msg: "PAM stack ordering correct and nullok absent"
+
+    - name: Verify | PAM password stack carries the STIG hashing and quality settings (UBTU-24-300016, 400220)
+      ansible.builtin.assert:
+        that:
+          - (verify_common_password.content | b64decode) is search('^password.*pam_pwquality.so.*retry=[1-3]', multiline=True)
+          - (verify_common_password.content | b64decode) is search('^password.*pam_unix.so.*sha512', multiline=True)
+          # UBTU-24-400220 - the check-content is a finding when rounds is below 100000, so
+          # anything with fewer than six digits fails here too.
+          - (verify_common_password.content | b64decode) is search('^password.*pam_unix.so.*rounds=[1-9][0-9]{5,}', multiline=True)
+        fail_msg: "/etc/pam.d/common-password is missing the pwquality retry, the sha512 hashing argument, or rounds>=100000"
+        success_msg: "common-password carries pwquality retry, sha512 and rounds>=100000"
+
+    # nullok originates in the profile source, so the CAT 1 fix is only real if it survives
+    # a regeneration. This is the regression guard for the durability property itself.
+    - name: Verify | Regenerate the PAM stack from profile source
+      ansible.builtin.command: pam-auth-update --package --force
+      changed_when: false
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: Verify | Re-read common-auth after regeneration
+      ansible.builtin.slurp:
+        src: /etc/pam.d/common-auth
+      register: verify_common_auth_after
+
+    - name: Verify | Re-read common-password after regeneration
+      ansible.builtin.slurp:
+        src: /etc/pam.d/common-password
+      register: verify_common_password_after
+
+    - name: Verify | UBTU-24-300028 survives a pam-auth-update regeneration
+      ansible.builtin.assert:
+        that:
+          - "'nullok' not in (verify_common_auth_after.content | b64decode)"
+          - "'pam_faillock.so authfail' in (verify_common_auth_after.content | b64decode)"
+          - "'pam_faildelay.so' in (verify_common_auth_after.content | b64decode)"
+        fail_msg: "PAM hardening did not survive pam-auth-update - the profile source is not the authority"
+        success_msg: "PAM hardening survives regeneration"
+
+    # The password side needs its own post-regeneration check. Asserting only common-auth
+    # would leave the hashing algorithm, the rounds count and the pwquality retry unguarded
+    # against exactly the failure mode this whole change exists to prevent.
+    - name: Verify | UBTU-24-300016, 300028 and 400220 survive on the password stack
+      ansible.builtin.assert:
+        that:
+          - "'nullok' not in (verify_common_password_after.content | b64decode)"
+          - (verify_common_password_after.content | b64decode) is search('^password.*pam_unix.so.*sha512', multiline=True)
+          - (verify_common_password_after.content | b64decode) is search('^password.*pam_unix.so.*rounds=[1-9][0-9]{5,}', multiline=True)
+          - (verify_common_password_after.content | b64decode) is search('^password.*pam_pwquality.so.*retry=[1-3]', multiline=True)
+        fail_msg: "common-password lost nullok removal, sha512, rounds>=100000 or the pwquality retry after regeneration"
+        success_msg: "common-password hardening survives regeneration"

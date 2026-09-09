@@ -26,13 +26,17 @@
     - CAT2
     - CCI-002696
     - SRG-OS-000445-GPOS-00199
-    - SV-270650r1134802_rule
+    - SV-270650r1155241_rule
     - V-270650
     - NIST800-53R4_SI-6
     - aide
   block:
     - name: MEDIUM | UBTU-24-100110 | AUDIT | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system. | Get DB file
-      ansible.builtin.shell: grep -E ^database_in /etc/aide/aide.conf | cut -d ':' -f2
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep -E ^database_in /etc/aide/aide.conf | cut -d ':' -f2
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: discovered_aide_db_file.rc not in [ 0, 1 ]
       register: discovered_aide_db_file
@@ -77,10 +81,12 @@
     - name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | replace if needed
       when: "'458aea46ab75906c3d9ad7f174a03b4ab62ee389fc4b8fb3c0330aae3c765441' not in discovered_cron_script_sha256.stdout"  # pragma: allowlist secret
       ansible.builtin.shell: |
+        set -o pipefail
         apt download aide-common; dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | dpkg-deb --fsys-tarfile /tmp/aide-common_*.deb | sudo tar -x --wildcards ./usr/share/aide/config/cron.daily/dailyaidecheck -C /; cp -f /usr/share/aide/config/cron.daily/dailyaidecheck /etc/cron.daily/dailyaidecheck*
-      changed_when: true
       args:
         chdir: /tmp
+        executable: "{{ ubtu24stig_shell_executable }}"
+      changed_when: true
 
 - name: MEDIUM | UBTU-24-100130 | PATCH | Ubuntu 24.04 LTS must notify designated personnel if baseline configurations are changed in an unauthorized manner. The file integrity tool must notify the system administrator when changes to the baseline configuration or anomalies in the operation of any security functions are discovered.
   when: ubtu24stig_100130
@@ -166,6 +172,8 @@
   tags:
     - UBTU-24-100400
     - CAT2
+    - CCI-000130
+    - CCI-000131
     - CCI-000132
     - CCI-000133
     - CCI-000134
@@ -183,6 +191,7 @@
     - CCI-001881
     - CCI-001882
     - CCI-001914
+    - CCI-003938
     - SRG-OS-000037-GPOS-00015
     - SRG-OS-000038-GPOS-00016
     - SRG-OS-000039-GPOS-00017
@@ -221,6 +230,8 @@
   tags:
     - UBTU-24-100410
     - CAT2
+    - CCI-000130
+    - CCI-000131
     - CCI-000132
     - CCI-000133
     - CCI-000134
@@ -238,6 +249,7 @@
     - CCI-001881
     - CCI-001882
     - CCI-001914
+    - CCI-003938
     - SRG-OS-000037-GPOS-00015
     - SRG-OS-000038-GPOS-00016
     - SRG-OS-000039-GPOS-00017
@@ -302,6 +314,7 @@
     - CCI-001764
     - CCI-001774
     - CCI-002165
+    - CCI-002235
     - SRG-OS-000312-GPOS-00124
     - SRG-OS-000368-GPOS-00154
     - SRG-OS-000370-GPOS-00155
@@ -323,7 +336,7 @@
     - CCI-000366
     - SRG-OS-000480-GPOS-00225
     - SV-270661r1067175_rule
-    - V-260478
+    - V-270661
     - NIST800-53R4_CM-6
     - packages
   ansible.builtin.package:
@@ -341,6 +354,8 @@
     - CAT2
     - CCI-000765
     - CCI-000766
+    - CCI-004046
+    - CCI-004047
     - SRG-OS-000705-GPOS-00150
     - SRG-OS-000105-GPOS-00052
     - SRG-OS-000106-GPOS-00053
@@ -367,6 +382,8 @@
     - CAT2
     - CCI-000765
     - CCI-000766
+    - CCI-004046
+    - CCI-004047
     - SRG-OS-000705-GPOS-00150
     - SRG-OS-000105-GPOS-00052
     - SRG-OS-000106-GPOS-00053
@@ -545,7 +562,11 @@
     - bootloader
   block:
     - name: MEDIUM | UBTU-24-102010 | PATCH | Ubuntu 24.04 LTS must initiate session audits at system startup. | Get GRUB_CMDLINE_LINUX
-      ansible.builtin.shell: grep "GRUB_CMDLINE_LINUX=" /etc/default/grub | cut -f2 -d'"'
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep "GRUB_CMDLINE_LINUX=" /etc/default/grub | cut -f2 -d'"'
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: false
       check_mode: false

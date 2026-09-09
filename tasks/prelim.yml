@@ -30,14 +30,6 @@
   ansible.builtin.package:
     cache_valid_time: 7200
 
-- name: "PRELIM | Include audit specific variables"
-  when:
-    - run_audit or audit_only
-    - setup_audit
-  tags: always
-  ansible.builtin.include_vars:
-    file: audit.yml
-
 - name: "PRELIM | Include pre-remediation audit tasks"
   when:
     - run_audit or audit_only
@@ -47,7 +39,7 @@
     file: pre_remediation_audit.yml
 
 - name: "Discover if system is Pro subscription (needed for FIPS)"
-  when: "'ubuntu-advantage-tools' in ansible_facts.packages"
+  when: "'ubuntu-advantage-tools' in ansible_facts['packages']"
   tags: always
   block:
     - name: "PRELIM | AUDIT | Discover if system is subscribed for PRO plan (needed for FIPS) | Check status if pkg installed"
@@ -67,8 +59,13 @@
 
 - name: "PRELIM | Interactive Users"
   tags: always
-  ansible.builtin.shell: "grep -Ev 'nologin|/sbin' /etc/passwd | awk -F: '$3 >= {{ min_int_uid }} {print $1}'"
+  ansible.builtin.shell: |
+    set -o pipefail
+    grep -Ev 'nologin|/sbin' /etc/passwd | awk -F: '$3 >= {{ min_int_uid }} {print $1}'
+  args:
+    executable: "{{ ubtu24stig_shell_executable }}"
   changed_when: false
+  failed_when: prelim_interactive_users.rc not in [ 0, 1 ]
   register: prelim_interactive_users
 
 - name: "PRELIM | Gather apt conf file list"
@@ -80,7 +77,11 @@
 - name: "PRELIM | PATCH | Find all sudoers files."
   when: ubtu24stig_300019 or ubtu24stig_300020
   tags: always
-  ansible.builtin.shell: "find /etc/sudoers /etc/sudoers.d/ -type f ! -name '*~' ! -name '*.*'"
+  ansible.builtin.shell: |
+    set -o pipefail
+    find /etc/sudoers /etc/sudoers.d/ -type f ! -name '*~' ! -name '*.*'
+  args:
+    executable: "{{ ubtu24stig_shell_executable }}"
   changed_when: false
   failed_when: false
   check_mode: false
@@ -89,7 +90,11 @@
 - name: "PRELIM | Gather accounts with empty password fields"
   when: ubtu24stig_300027
   tags: passwords
-  ansible.builtin.shell: "cat /etc/shadow | awk -F: '($2 == \"\" ) {j++;print $1; } END {exit j}'"
+  ansible.builtin.shell: |
+    set -o pipefail
+    cat /etc/shadow | awk -F: '($2 == "" ) {j++;print $1; } END {exit j}'
+  args:
+    executable: "{{ ubtu24stig_shell_executable }}"
   changed_when: false
   failed_when: prelim_empty_password_accounts.rc not in [ 0, 1 ]
   register: prelim_empty_password_accounts
@@ -99,7 +104,11 @@
     - level1-server
     - level1-workstation
     - users
-  ansible.builtin.shell: "cat /etc/passwd | awk -F: '($3 == 0 && $1 != \"root\") {i++;print $1 } END {exit i}'"
+  ansible.builtin.shell: |
+    set -o pipefail
+    cat /etc/passwd | awk -F: '($3 == 0 && $1 != "root") {i++;print $1 } END {exit i}'
+  args:
+    executable: "{{ ubtu24stig_shell_executable }}"
   changed_when: false
   check_mode: false
   register: prelim_uid_zero_accounts_except_root
@@ -110,7 +119,7 @@
     mount_names: "{{ ansible_mounts | map(attribute='mount') | list }}"
 
 - name: "PRELIM | Configure System Accounting (auditd)"
-  when: '"auditd" not in ansible_facts.packages'
+  when: "'auditd' not in ansible_facts['packages']"
   tags:
     - cat2
     - SRG-OS-000062-GPOS-00031
@@ -153,7 +162,7 @@
 - name: "PRELIM | Ensure ssh config file exists"
   when:
     - ubtu24stig_sshd_config_file != '/etc/ssh/sshd_config'
-    - "'openssh-server' in ansible_facts.packages"
+    - "'openssh-server' in ansible_facts['packages']"
   tags: ssh
   ansible.builtin.file:
     path: "{{ ubtu24stig_sshd_config_file }}"
@@ -185,18 +194,24 @@
   tags: always
   block:
     - name: "PRELIM | AUDIT | Discover is wireless adapter on system"
-      ansible.builtin.shell: find /sys/class/net/*/ -type d -name wireless
+      ansible.builtin.shell: |
+        set -o pipefail
+        find /sys/class/net/*/ -type d -name wireless
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: prelim_wireless_adapters.rc not in [ 0, 1 ]
       register: prelim_wireless_adapters
 
     - name: "PRELIM | AUDIT | If wireless adapter present capture module"
-      when:
-        - prelim_wireless_adapters.rc == 0
+      when: prelim_wireless_adapters.rc == 0
       ansible.builtin.shell: |
+        set -o pipefail
         for driverdir in $(find /sys/class/net/*/ -type d -name wireless | xargs -0 dirname);
           do basename "$(readlink -f "$driverdir"/device/driver/module)";
         done | sort -u
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
       failed_when: prelim_wireless_modules.rc not in [ 0, 1 ]
       register: prelim_wireless_modules

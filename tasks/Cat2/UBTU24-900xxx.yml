@@ -4,6 +4,7 @@
   when: ubtu24stig_900040
   tags:
     - UBTU-24-900040
+    - CAT2
     - CCI-000171
     - SRG-OS-000063-GPOS-00032
     - SV-270775r1068369_rule
@@ -41,13 +42,13 @@
         paths: /etc/audit
         file_type: file
         recurse: true
-      register: discovered_audit_files
+      register: discovered_audit_files_owner
 
     - name: MEDIUM | UBTU-24-900050 | PATCH | Ubuntu 24.04 LTS must permit only authorized accounts to own the audit configuration files.
       ansible.builtin.file:
         path: "{{ item.path }}"
         owner: root
-      loop: "{{ discovered_audit_files.files }}"
+      loop: "{{ discovered_audit_files_owner.files }}"
 
 - name: MEDIUM | UBTU-24-900060 | PATCH | Ubuntu 24.04 LTS must permit only authorized groups to own the audit configuration files.
   when: ubtu24stig_900060
@@ -66,13 +67,13 @@
         paths: /etc/audit
         file_type: file
         recurse: true
-      register: discovered_audit_files
+      register: discovered_audit_files_group
 
     - name: MEDIUM | UBTU-24-900060 | PATCH | Ubuntu 24.04 LTS must permit only authorized groups to own the audit configuration files.
       ansible.builtin.file:
         path: "{{ item.path }}"
         group: root
-      loop: "{{ discovered_audit_files.files }}"
+      loop: "{{ discovered_audit_files_group.files }}"
 
 - name: MEDIUM | UBTU-24-900070 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the su command.
   when: ubtu24stig_900070
@@ -109,7 +110,7 @@
     - CAT2
     - CCI-000172
     - SRG-OS-000064-GPOS-00033
-    - SV-270780r1066829_rulee
+    - SV-270780r1066829_rule
     - V-270780
     - NIST800-53R4_AU-12
     - auditd

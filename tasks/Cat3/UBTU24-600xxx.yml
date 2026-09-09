@@ -17,7 +17,7 @@
         paths: [ '/etc/sysctl.d', '/run/sysctl.d', '/usr/local/lib/sysctl.d', '/usr/lib/sysctl.d', '/lib/sysctl.d' ]
         pattern: '*.conf'
         contains: kernel.dmesg_restrict
-      register: discovered_sysctl_conf_files
+      register: discovered_kernel_msg_sysctl_conf_files
 
     - name: LOW | UBTU-24-600140 | PATCH | Ubuntu 24.04 LTS must restrict access to the kernel message buffer. | remove existing
       when: "ubtu24stig_sysctl_kernel_conf not in item"
@@ -26,7 +26,7 @@
         regexp: ^\s*kernel.dmesg_restrict\s*=\s*[ 0, 1 ]
         replace: ''
       with_items:
-        - "{{ discovered_sysctl_conf_files.files | map(attribute='path') }}"
+        - "{{ discovered_kernel_msg_sysctl_conf_files.files | map(attribute='path') }}"
         - /etc/sysctl.conf
 
     - name: LOW | UBTU-24-600140 | PATCH | Ubuntu 24.04 LTS must restrict access to the kernel message buffer. | add file specific settings
@@ -44,7 +44,8 @@
   tags:
     - UBTU-24-600160
     - CAT3
-    - CCI-000000
+    - CCI-004922
+    - CCI-004923
     - SRG-OS-000355-GPOS-00143
     - SRG-OS-000785-GPOS-00250
     - SV-270751r1066742_rule
@@ -76,7 +77,7 @@
   tags:
     - UBTU-24-600180
     - CAT3
-    - CCI-000000
+    - CCI-004926
     - SRG-OS-000356-GPOS-00144
     - SV-270752r1068365_rule
     - V-270752
