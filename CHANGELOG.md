@@ -2,16 +2,20 @@
 
 ## 1.6.0 - 2026 October Updates - community fixes, pipeline parity, syver
 
-Thank you @karlg100 for the issues and pull requests.
+Thank you @karlg100 for issues ansible-lockdown/UBUNTU24-STIG#32 and
+ansible-lockdown/UBUNTU24-STIG#33 and pull requests ansible-lockdown/UBUNTU24-STIG#34 and
+ansible-lockdown/UBUNTU24-STIG#35. Both issues are addressed in this release, and the logic of both
+pull requests is incorporated below.
 
 - **The audit rules file needed a second run to reach its required mode**
-  (ansible-lockdown/UBUNTU24-STIG#32). `tasks/auditd.yml` created `stig.rules` with `u-x,go-wx`,
-  which leaves it world-readable under umask 022, and UBTU-24-900040 had already run, so only the
-  next run tightened it. The template now writes `u-x,g-wx,o-rwx`
-- **Molecule now gates on idempotence** (ansible-lockdown/UBUNTU24-STIG#33). The second converge
-  changed nothing in the role itself, only the harness: the pre and post audit scans, the audit fetch
-  and the two facts templates, each of which writes a timestamp or a fresh result by design. Those
-  five carry `molecule-idempotence-notest`, and the workflow runs `molecule idempotence`
+  (ansible-lockdown/UBUNTU24-STIG#32, ansible-lockdown/UBUNTU24-STIG#34). `tasks/auditd.yml` created
+  `stig.rules` with `u-x,go-wx`, which leaves it world-readable under umask 022, and UBTU-24-900040
+  had already run, so only the next run tightened it. The template now writes `u-x,g-wx,o-rwx`
+- **Molecule now gates on idempotence** (ansible-lockdown/UBUNTU24-STIG#33,
+  ansible-lockdown/UBUNTU24-STIG#35). The second converge changed nothing in the role itself, only
+  the harness: the pre and post audit scans, the audit fetch and the two facts templates, each of
+  which writes a timestamp or a fresh result by design. Those five carry
+  `molecule-idempotence-notest`, and the workflow runs `molecule idempotence`
 - **The skip-reboot warning could never run.** Its block required `not skip_reboot` while the task
   required `skip_reboot`. The block is now gated on `reboot_required` alone, and the warning, a
   display-only `debug`, no longer reports changed
