@@ -26,7 +26,7 @@
     - CAT2
     - CCI-001133
     - SRG-OS-000163-GPOS-00072
-    - SV-270743r1066718_rule
+    - SV-270743r1208702_rule
     - V-270743
     - NIST800-53R4_SC-10
     - ssh
@@ -53,7 +53,8 @@
     - name: MEDIUM | UBTU-24-600060 | AUDIT | Ubuntu 24.04 LTS must use DOD PKI-established certificate authorities (CAs) for verification of the establishment of protected sessions.
       ansible.builtin.find:
         paths: /etc/ssl/certs
-        patterns: DOD*.pem
+        patterns: '(?i)^dod.*\.pem$'
+        use_regex: true
       register: discovered_dod_certs
 
     - name: MEDIUM | UBTU-24-600060 | AUDIT | Ubuntu 24.04 LTS must use DOD PKI-established certificate authorities (CAs) for verification of the establishment of protected sessions. | warning

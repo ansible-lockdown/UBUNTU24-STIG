@@ -1,6 +1,6 @@
 ---
 
-- name: LOW | UBTU-24-300001 | PATCH | Ubuntu 24.04 LTS must be configured so that the Advance Package Tool (APT) prevents the installation of patches, service packs, device drivers, or operating system components without verification they have been digitally signed using a certificate that is recognized and approved by the organization.
+- name: LOW | UBTU-24-300001 | PATCH | Ubuntu 24.04 LTS Advance Package Tool (APT) must be configured to prevent the installation of patches, service packs, device drivers, or Ubuntu 24.04 LTS components without verification they have been digitally signed using a certificate that is recognized and approved by the organization.
   when: ubtu24stig_300001
   tags:
     - UBTU-24-300001
@@ -12,7 +12,7 @@
     - NIST800-53R4_NA
     - apt
   block:
-    - name: LOW | UBTU-24-300001 | AUDIT | Ubuntu 24.04 LTS must be configured so that the Advance Package Tool (APT) prevents the installation of patches, service packs, device drivers, or operating system components without verification they have been digitally signed using a certificate that is recognized and approved by the organization.
+    - name: LOW | UBTU-24-300001 | AUDIT | Ubuntu 24.04 LTS Advance Package Tool (APT) must be configured to prevent the installation of patches, service packs, device drivers, or Ubuntu 24.04 LTS components without verification they have been digitally signed using a certificate that is recognized and approved by the organization.
       when: "'/etc/apt/apt.conf.d/01-vendor-ubuntu' in item"
       ansible.builtin.replace:
         path: "{{ item }}"
@@ -20,7 +20,7 @@
         replace: '#\1'
       loop: "{{ prelim_apt_conf_files.files }}"
 
-    - name: LOW | UBTU-24-300001 | AUDIT | Ubuntu 24.04 LTS must be configured so that the Advance Package Tool (APT) prevents the installation of patches, service packs, device drivers, or operating system components without verification they have been digitally signed using a certificate that is recognized and approved by the organization.
+    - name: LOW | UBTU-24-300001 | AUDIT | Ubuntu 24.04 LTS Advance Package Tool (APT) must be configured to prevent the installation of patches, service packs, device drivers, or Ubuntu 24.04 LTS components without verification they have been digitally signed using a certificate that is recognized and approved by the organization.
       ansible.builtin.lineinfile:
         path: /etc/apt/apt.conf.d/01-vendor-ubuntu
         regexp: APT::Get::AllowUnauthenticated "true";

@@ -34,7 +34,9 @@
   when:
     - run_audit or audit_only
     - setup_audit
-  tags: always
+  tags:
+    - always
+    - molecule-idempotence-notest
   ansible.builtin.import_tasks:
     file: pre_remediation_audit.yml
 

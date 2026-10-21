@@ -461,7 +461,7 @@
   ansible.builtin.set_fact:
     update_audit_template: true
 
-- name: MEDIUM | UBTU-24-900340 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the init_module and finit_module system calls.
+- name: MEDIUM | UBTU-24-900340 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the init_module and finit_module syscalls.
   when: ubtu24stig_900340
   tags:
     - UBTU-24-900340
@@ -476,7 +476,7 @@
   ansible.builtin.set_fact:
     update_audit_template: true
 
-- name: MEDIUM | UBTU-24-900350 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the delete_module system call.
+- name: MEDIUM | UBTU-24-900350 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful uses of the delete_module syscall.
   when: ubtu24stig_900350
   tags:
     - UBTU-24-900350
@@ -575,7 +575,7 @@
   ansible.builtin.set_fact:
     update_audit_template: true
 
-- name: MEDIUM | UBTU-24-900730 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful attempts to use modprobe command.
+- name: MEDIUM | UBTU-24-900730 | Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to use modprobe command.
   when: ubtu24stig_900730
   tags:
     - UBTU-24-900730
@@ -589,13 +589,13 @@
   ansible.builtin.set_fact:
     update_audit_template: true
 
-- name: MEDIUM | UBTU-24-900740 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful attempts to use the kmod command.
+- name: MEDIUM | UBTU-24-900740 | Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to use the kmod command.
   when: ubtu24stig_900740
   tags:
     - UBTU-24-900740
     - CAT2
     - CCI-000172
-    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000477-GPOS-00222
     - SV-270814r1066931_rule
     - V-270814
     - NIST800-53R4_AU-12
@@ -603,13 +603,13 @@
   ansible.builtin.set_fact:
     update_audit_template: true
 
-- name: MEDIUM | UBTU-24-900750 | Ubuntu 24.04 LTS must generate audit records for successful/unsuccessful attempts to use the fdisk command.
+- name: MEDIUM | UBTU-24-900750 | Ubuntu 24.04 LTS must generate audit records when successful/unsuccessful attempts to use the fdisk command.
   when: ubtu24stig_900750
   tags:
     - UBTU-24-900750
     - CAT2
     - CCI-000172
-    - SRG-OS-000064-GPOS-00033
+    - SRG-OS-000477-GPOS-00222
     - SV-270815r1066934_rule
     - V-270815
     - NIST800-53R4_AU-12

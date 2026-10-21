@@ -15,30 +15,17 @@
     _molecule_role_name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
     ansible_user: root
 
-    # Test-scaffolding: pretend we already gathered the prerequisites
-    ubtu24stig_skip_for_test: true
-    setup_audit: true
-    run_audit: true
-    fetch_audit_output: true
-
-    # The role's bootloader assertion runs only on non-container hosts, but
-    # set both anyway so any stray check passes.
-    ubtu24stig_set_bootloader_password: false
+    # The role's bootloader assertion runs only on non-container hosts, but set a
+    # non-default hash anyway so any stray check passes.
     ubtu24stig_bootloader_password_hash: "grub.pbkdf2.sha512.10000.DEADBEEF.DEADBEEF"  # pragma: allowlist secret
 
     # Reboot is meaningless inside a container.
-    change_requires_reboot: false
+    skip_reboot: true
+
+    # Same shell the role uses for its shell tasks (vars/main.yml).
+    ubtu24stig_shell_executable: /bin/bash
 
   pre_tasks:
-    # audit_output_destination now lives in vars/audit.yml, loaded via include_vars
-    # (precedence 18) which outranks host/play vars. set_fact (precedence 19) is the
-    # only in-play way to override it so the molecule audit-fetch lands in the host
-    # temp dir. fetch_audit_output stays a play var (it lives in defaults, not
-    # vars/audit.yml, so it is not clobbered).
-    - name: "Molecule | Force audit_output_destination above include_vars precedence"
-      ansible.builtin.set_fact:
-        audit_output_destination: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/../../_temp_fetched_audits/"
-
     - name: Set a real root password (some STIG rules verify /etc/shadow state)
       ansible.builtin.shell:
         cmd: |
@@ -50,7 +37,7 @@
           else
             echo "SKIP"
           fi
-        executable: /bin/bash
+        executable: "{{ ubtu24stig_shell_executable }}"
       register: _root_pw_setup
       changed_when: '"SET" in _root_pw_setup.stdout'
 

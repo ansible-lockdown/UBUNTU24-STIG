@@ -15,7 +15,7 @@
     - name: MEDIUM | UBTU-24-700010 | AUDIT | Ubuntu 24.04 LTS must generate error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries. | find files
       ansible.builtin.shell: |
         set -o pipefail
-        find /var/log -perm /137 ! -name '*[bw]tmp' ! -name '*lastlog' ! -name 'history*' ! -name '*eipp.log.xz' {% if ubtu24stig_700010 %}! -name '*syslog' {% endif %}-type f -exec stat -c "%n" {} \;
+        find /var/log -perm /137 ! -name '*[bw]tmp' ! -name '*lastlog' ! -name 'history*' ! -name '*eipp.log.xz' -type f -exec stat -c "%n" {} \;
       args:
         executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
@@ -162,7 +162,6 @@
   tags:
     - UBTU-24-700060
     - CAT2
-    - CCI-001312
     - CCI-001314
     - SRG-OS-000206-GPOS-00084
     - SV-270761r1184074_rule
@@ -200,7 +199,6 @@
   tags:
     - UBTU-24-700070
     - CAT2
-    - CCI-001312
     - CCI-001314
     - SRG-OS-000206-GPOS-00084
     - SV-270762r1184076_rule
@@ -239,7 +237,6 @@
   tags:
     - UBTU-24-700080
     - CAT2
-    - CCI-001312
     - CCI-001314
     - SRG-OS-000206-GPOS-00084
     - SV-270763r1184078_rule
@@ -277,7 +274,6 @@
   tags:
     - UBTU-24-700090
     - CAT2
-    - CCI-001312
     - CCI-001314
     - SRG-OS-000206-GPOS-00084
     - SV-270764r1184080_rule
@@ -366,7 +362,7 @@
     state: directory
     mode: 'go-w'
 
-- name: MEDIUM | UBTU-24-700130 | PATCH | Ubuntu 24.04 LTS must configure /var/log/syslog file to be group-owned by "adm".
+- name: MEDIUM | UBTU-24-700130 | PATCH | Ubuntu 24.04 LTS must configure the /var/log/syslog file to be group-owned by adm.
   when:
     - ubtu24stig_700130
     - ubtu24stig_disruption_high
@@ -515,7 +511,7 @@
         sysctl_set: true
         ignoreerrors: true
 
-- name: MEDIUM | UBTU-24-700320 | PATCH | Ubuntu 24.04 LTS must be configured so that the Advance Package Tool (APT) removes all software components after updated versions have been installed.
+- name: MEDIUM | UBTU-24-700320 | PATCH | Ubuntu 24.04 LTS must be configured so that Advance Package Tool (APT) removes all software components after updated versions have been installed.
   when: ubtu24stig_700320
   tags:
     - UBTU-24-700320

@@ -6,7 +6,7 @@
     dest: /etc/audit/rules.d/stig.rules
     owner: root
     group: root
-    mode: 'u-x,go-wx'
+    mode: 'u-x,g-wx,o-rwx'
   notify:
     - Auditd_immutable_check
     - Audit_immutable_fact
