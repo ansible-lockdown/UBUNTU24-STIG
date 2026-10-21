@@ -68,15 +68,12 @@ jobs:
       # shutil.which - when absent those two checks report SKIP rather than failing, so omitting
       # them would quietly remove 2 of the checks that can emit FAIL.
       #
-      # ansible-lint is pinned to the same version as .pre-commit-config.yaml. yamllint is NOT,
-      # and cannot be: pre-commit installs every hook in its own isolated virtualenv, so the two
-      # pins there never have to resolve against each other, whereas this is a single pip
-      # install. ansible-lint 26.3.0 requires yamllint>=1.38.0, so pinning the pre-commit value
-      # of 1.37.1 here is unsatisfiable. Raise this pin, not lower it, when ansible-lint moves.
+      # Versions match .pre-commit-config.yaml so CI and the local hook agree. Move both together:
+      # this is a single pip install, so the pair must also resolve against each other.
       - name: Install linters
         run: |
           python -m pip install --upgrade pip
-          pip install "yamllint==1.38.0" "ansible-lint==26.8.0"
+          pip install "yamllint==1.38.0" "ansible-lint==26.10.1"
 
       # --strict is load-bearing, not cosmetic: most findings in this role are WARN severity, and
       # without it a real regression exits 0 and passes silently. .qa_baseline.json absorbs the

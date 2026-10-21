@@ -1,68 +1,102 @@
 # Ubuntu24STIG
 
-## 1.5.0 - 2026 August - Public repo hygiene
+## 1.6.0 - 2026 October Updates - community fixes, pipeline parity, syver
 
-- removed `.github/workflows/export_badges_private.yml`. It fires only on a push to `latest` and
-  needs `secrets.BADGE_PUSH_TOKEN`; this repository uses `devel` and `main` and has no `latest`
-  branch, so the workflow could never run here and a manual dispatch would fail on the missing
-  secret. It also carries no visibility gate, unlike its counterpart
-  `export_badges_public.yml`, which self-gates on `github.repository_visibility == 'public'` and is
-  retained.
+Thank you @karlg100 for issues ansible-lockdown/UBUNTU24-STIG#32 and
+ansible-lockdown/UBUNTU24-STIG#33 and pull requests ansible-lockdown/UBUNTU24-STIG#34 and
+ansible-lockdown/UBUNTU24-STIG#35. Both issues are addressed in this release, and the logic of both
+pull requests is incorporated below.
 
-## 1.5.0 - 2026 August - PAM durability via pam-auth-update
+- **The audit rules file needed a second run to reach its required mode**
+  (ansible-lockdown/UBUNTU24-STIG#32, ansible-lockdown/UBUNTU24-STIG#34). `tasks/auditd.yml` created
+  `stig.rules` with `u-x,go-wx`, which leaves it world-readable under umask 022, and UBTU-24-900040
+  had already run, so only the next run tightened it. The template now writes `u-x,g-wx,o-rwx`
+- **Molecule now gates on idempotence** (ansible-lockdown/UBUNTU24-STIG#33,
+  ansible-lockdown/UBUNTU24-STIG#35). The second converge changed nothing in the role itself, only
+  the harness: the pre and post audit scans, the audit fetch and the two facts templates, each of
+  which writes a timestamp or a fresh result by design. Those five carry
+  `molecule-idempotence-notest`, and the workflow runs `molecule idempotence`
+- **The skip-reboot warning could never run.** Its block required `not skip_reboot` while the task
+  required `skip_reboot`. The block is now gated on `reboot_required` alone, and the warning, a
+  display-only `debug`, no longer reports changed
+- **UBTU-24-200610 never locked an account.** The control (Ubuntu 24.04 LTS must automatically
+  lock an account until the locked account is released by an administrator when three unsuccessful
+  logon attempts have been made) generated only the `authfail` and `authsucc` lines, and
+  pam-auth-update points the `pam_unix` success jump past them, so after three failures the correct
+  password still authenticated. A second profile, `faillock_notify`, adds `auth requisite
+  pam_faillock.so preauth` before `pam_unix` and `account required pam_faillock.so`, which deny the
+  locked account and clear the count on a successful logon. A host with only the old profile gets it
+  on the next run, and Molecule verify now locks a test user and asserts the denial
+- **UBTU-24-100030 removed `telnet`, the client.** The check and fix text name `telnetd`, the
+  server, which is what the task now removes
+- **UBTU-24-100650 installed `libpam-sss` three times** instead of `sssd`, `libpam-sss` and
+  `libnss-sss`; the package name was hardcoded inside a loop over `ubtu24stig_sssd_packages`
+- **UBTU-24-400370 (CAT I) never ran.** It was gated on a package named `pam-pkcs11`, which does not
+  exist; the package is `libpam-pkcs11`. It also used `backrefs`, which leaves `sssd.conf` untouched
+  when `ldap_user_certificate` is absent, so it now writes the line into the `[domain/` section.
+  Like its audit check, it now also requires `ubtu24stig_use_sssd`, so it never edits an `sssd.conf`
+  that is not in use
+- **UBTU-24-400060, 400375 and 400380 appended new `cert_policy` lines instead of editing them.**
+  They grepped for `^cert_policy=`, which misses the indented lines inside a `pkcs11_module` block,
+  and wrote their result as a new line at the end of the file; 400375 also selected the lines that
+  already carried `ca`. Each now edits every `cert_policy` line in place, adding `ocsp_on`, `ca` or
+  `crl_auto` only where it is missing, and skips a host without `pam_pkcs11.conf`
+- **UBTU-24-600060 warned on hosts that had the DOD CA bundle.** It searched `/etc/ssl/certs` for
+  `DOD*.pem`, case-sensitively, while the DISA bundle is `DoD_PKE_CA_chain.pem`
+- **The SSH client crypto lines were matched with `^Ciphers` and `^MACs`** while the role writes them
+  indented under `Host *` (UBTU-24-100850, 100860); the regexps now allow leading whitespace
+- **UBTU-24-700010 excluded `*syslog` from the 640 log-file mode.** The exclusion sat inside a
+  condition on the control's own toggle, so it was always on, and the fix text excludes only `btmp`,
+  `wtmp`, `lastlog`, `history` and `eipp.log.xz`
+- **UBTU-24-200060 wrote `TMOUT=900`.** It is now `ubtu24stig_tmout`, default `600`, the value in the
+  fix text. The comment on `ubtu24stig_screen_idle_delay` said 900 seconds was 10 minutes; it is 600
+- **The audit template fed the audit malformed values.** The SSH cipher, MAC and KEX lists were
+  passed as lists rather than the comma-joined strings the role writes, so the SSH crypto checks
+  could never pass. The template now passes the comma-joined strings and quotes each banner line.
+  UBTU-24-200640 (Ubuntu 24.04 LTS must display the Standard Mandatory DOD Notice and Consent Banner
+  before granting access to via an SSH logon.) and UBTU-24-200680 (Ubuntu 24.04 LTS must be
+  configured to enforce the acknowledgement of the Standard Mandatory DOD Notice and Consent Banner
+  for all SSH connections.) still fail in the paired audit content, which reads an unquoted banner
+  line ending in `conditions:` as a map and matches the banner lines as unescaped patterns
+- **CCI and SRG tags now match the V1R6 XCCDF on 15 tasks**, and 60 task names across 31 controls
+  carry the V1R6 rule title, with quotation marks removed
+- **The audit binary moves from goss v0.5.0 to [syver](https://github.com/krameff/syver) v0.13.0**,
+  the signed continuation of the krameff goss fork, which reads the same audit content.
+  `audit_bin_url`, `audit_bin` and the AMD64 and ARM64 checksums follow it; the checksums match the
+  release's published `SHA256SUMS`. The paired audit content raises its minimum binary version to
+  0.13.0 in the same cycle
+- **The Molecule workflow gates on idempotence.** It runs `molecule idempotence` between converge
+  and verify, and the scenario takes `MOLECULE_DOCKER_PLATFORM` so CI runs amd64 while local Apple
+  Silicon runs stay on arm64. Molecule and Repo QA stay on GitHub-hosted runners. The scenario now
+  installs `collections/requirements.yml` in its dependency step
+- **The pipeline workflows skip fork pull requests.** They run on `pull_request_target`, which carries
+  the repository's secrets and AWS role, and `actions/checkout` refuses fork code in that context, so
+  fork PRs failed at checkout. The test job now skips them and shows as skipped
+- **Pins:** `collections/requirements.yml` uses the Galaxy form with minimum versions and drops
+  `community.crypto`, which no task uses; pre-commit and the Repo QA workflow pin ansible-lint
+  `v26.10.1` and yamllint `v1.38.0`, and pre-commit pins gitleaks `v8.30.1`
+- **Molecule scaffolding:** `converge.yml` set `ubtu24stig_skip_for_test` and
+  `change_requires_reboot`, which the role never reads; it now sets `skip_reboot`. The
+  `audit_output_destination` `set_fact` worked around a precedence that no longer exists and is
+  replaced by a host var. The QuickStart now describes the idempotence step, the 25 verify
+  tasks, the platform variable and syver. The Molecule shell tasks take their shell from
+  `ubtu24stig_shell_executable`, as the role's own shell tasks do, instead of a hard-coded
+  `/bin/bash`
 
-Addresses ansible-lockdown/UBUNTU24-STIG#27. No benchmark version change.
+## 1.6.0 - 2026 August Updates - kdump unit, CCI alignment
 
-This reverses the decision recorded further down this file, that the PAM rework would stay on the
-current release line. Two things changed that judgement:
+- `UBTU-24-600070` masked `kdump` in `tasks/Cat2/UBTU24-60xxxx.yml`. The unit shipped on Ubuntu is `kdump-tools.service`; `kdump.service` does not exist, and `masked: true` against a nonexistent unit creates a `/dev/null` symlink and reports success, so the control was a silent no-op. Verified in a container: masking `kdump` leaves `systemctl status kdump-tools.service` reporting "could not be found", which the check text treats as a finding, while masking `kdump-tools` reports `Loaded: masked` as required. The `stop` task keeps its `linux-crashdump` package gate; the `mask` task stays ungated so a later install cannot start the service
+- CCI tags aligned with the benchmark across 31 controls: 15 carried the `CCI-000000` placeholder and 16 were missing a CCI the XCCDF lists. Tags were regenerated from this branch's own XCCDF revision rather than copied from the other benchmark line
+- two task names carried `PATCH |Ubuntu` with no space after the separator (`tasks/Cat2/UBTU24-60xxxx.yml`, `tasks/Cat2/UBTU24-901xxx.yml`), which breaks the `SEV | ID | PHASE | title` convention any parser relies on
+- `.gitignore` no longer ignores `.github/`. The directory was ignored while the workflows and `dependabot.yml` were all tracked, so every new file there had to be force-added
+- the role defaults moved from a single `defaults/main.yml` to a `defaults/main/` directory holding `main.yml` and `audit.yml`, and every audit variable is now consolidated in `defaults/main/audit.yml`. `vars/audit.yml` is removed along with the `include_vars` that loaded it. This is a variable-precedence change and that is the point: those settings were previously loaded by `include_vars`, which outranks play and host vars, so only extra-vars could override them. They are now ordinary role defaults, so inventory and play vars work. Verified by setting `audit_git_version` from a play var and confirming it takes effect, which it could not before
+- the Repo QA Checker pin moved to `2.8.4`, which is the first release that accepts a `defaults/main/` directory. Earlier versions look only for `defaults/main.yml` and abort before running a single check
+- `molecule/README_Molecule_QuickStart.md` and `molecule/default/molecule.yml` no longer name this repository. The role resolves itself from the basename of `MOLECULE_PROJECT_DIRECTORY`, so these were documentation only, and the public mirror previously inherited a guide telling readers to change into a repository they cannot clone
+- `molecule/README_Molecule_QuickStart.md`: the audit-branch section placed `audit_git_version` in `vars/audit.yml`, which no longer exists, and claimed `include_vars` precedence meant only extra-vars could override it. It is an ordinary role default in `defaults/main/audit.yml`, so inventory, group and play vars work - as the entry above already records. Its two `benchmark_v1.5.0` examples were also a release behind this branch
+- `molecule/default/converge.yml`: dropped the stale V1R3 release marker from the comment header rather than bumping it, since a hardcoded release in a comment goes stale every cycle
+- the `pam` tag was missing from the UBTU-24-300016 pam_pwquality profile task, while UBTU-24-200610, 300017, 300028 and 400220 all carried it. `--tags pam` therefore applied four of the five profile controls and silently skipped the pwquality one, leaving exactly the partial PAM stack these controls exist to avoid. The tag is deliberately not added to the other UBTU-24-300016 task, which edits `/etc/security/pwquality.conf` rather than the PAM stack
 
-- **UBTU-24-300028 (CAT I) was not fully remediated on this line.** The task removed `nullok` only
-  from `/etc/pam.d/common-password`, but the V1R5 check text greps `common-password` **and**
-  `common-auth`. `nullok` originates in the distribution's `unix` profile and reaches `common-auth`,
-  which the role never touched, so a host remediated exactly per this line could still fail the
-  V1R5 check. The V1R5 and V1R6 check text for this rule is identical; only the fixtext differs, and
-  V1R6 corrected it to name both files.
-- **The generated files are not a durable place to hold the fix.** Ubuntu builds
-  `/etc/pam.d/common-*` from the profiles in `/usr/share/pam-configs` via `pam-auth-update`, which
-  any `libpam-runtime` or PAM module upgrade triggers. Edits to the generated files are discarded on
-  the next regeneration, silently reinstating a CAT I finding, while a content-only audit that reads
-  the generated file reports the host compliant throughout.
-
-Changes:
-
-- UBTU-24-200610, 300016, 300017, 300028 and 400220 now template a profile into
-  `/usr/share/pam-configs` and notify a handler running `pam-auth-update --enable`, so the hardening
-  is a property of the source rather than of a file rebuilt from under it. Both
-  `community.general.pamd` calls are retired.
-- New templates `templates/usr/share/pam-configs/{pam_unix,faillock,faildelay,pwquality}.j2`. They
-  carry no `file_managed_by_ansible` header: the pam-config format has no comment syntax and
-  `pam-auth-update` warns on every such line.
-- Relative order in the generated stack is now a property of profile `Priority` - faildelay 384
-  above the unix profile 256, faillock 0 below it - rather than of `insertbefore` anchors. The old
-  300017 anchored on `auth.*pam_unix.so nullok`, an anchor that 300028 removes, so the two controls
-  were order-coupled through the generated file.
-- `pam-auth-update --enable` is used rather than `--force`. `--force` overrides the safety check that
-  refuses to discard manual edits to the generated files, and discarding those silently is the
-  behaviour these controls are moving away from.
-- UBTU-24-400220 gains `rounds` on the `pam_unix` password line via `ubtu24stig_passwd_rounds`
-  (default 100000). The V1R5 check-content is a finding when `rounds` is below 100000, so this is the
-  STIG floor rather than a tuning knob.
-- UBTU-24-400020 deliberately keeps its `lineinfile`: it is gated behind
-  `ubtu24stig_uses_smartcard` and `ubtu24stig_disruption_high`, and there is no
-  distribution-provided pam-config for `pam_pkcs11`.
-- The superseded faillock block written into `common-auth` by earlier releases is now removed by
-  marker. That marker is reproduced byte for byte, including its misspelled company name, because
-  `blockinfile` matches markers exactly - correcting the spelling would leave a duplicate faillock
-  stanza on every host that still carries the old block.
-- New: `ubtu24stig_pam_confd_dir`, `ubtu24stig_pam_pwunix_file`, `ubtu24stig_pam_faillock_file`,
-  `ubtu24stig_pam_faildelay_file`, `ubtu24stig_pam_pwquality_file`, `ubtu24stig_pwquality_retry`,
-  `ubtu24stig_passwd_rounds`.
-- `molecule/default/verify.yml` now asserts PAM stack ordering and re-asserts the hardening after a
-  forced regeneration, so a future change that reverts to editing the generated files fails the
-  suite. Its previous header forbade exactly these assertions on this line; that note described the
-  old design and has been rewritten.
-
-## 1.5.0 - 2026 August - Contributing guide and README refresh
+## 1.6.0 - 2026 August - Contributing guide and README refresh
 
 - replaced `CONTRIBUTING.rst` with `CONTRIBUTING.md`, carrying the current Ansible-Lockdown
   contributing guide. It adds the approved-contributor model for pull requests, keeps issues open to
@@ -72,47 +106,56 @@ Changes:
   so contradicted the new guide
 - `README.md`: removed the decorative emoji from headings, and switched the social badge from
   `twitter.com` to `x.com`
-- `molecule/README_Molecule_QuickStart.md` and `molecule/default/molecule.yml` no longer name this
-  repository. The role resolves itself from the basename of `MOLECULE_PROJECT_DIRECTORY`, so these
-  were documentation only, and the public mirror previously inherited a guide telling readers to
-  change into a repository they cannot clone
-- `molecule/README_Molecule_QuickStart.md`: the audit-branch section placed `audit_git_version` in
-  `vars/audit.yml`, which no longer exists, and claimed `include_vars` precedence meant only
-  extra-vars could override it. It is an ordinary role default in `defaults/main/audit.yml`, so
-  inventory, group and play vars work - as this changelog already records
-- `molecule/default/converge.yml`: dropped the stale V1R3 release marker from the comment header rather than bumping it, since a hardcoded release in a comment goes stale every cycle
 
-## 1.5.0 - 2026 August Updates - kdump unit, CCI alignment
-
-- `UBTU-24-600070` masked `kdump` in `tasks/Cat2/UBTU24-60xxxx.yml`. The unit shipped on Ubuntu is `kdump-tools.service`; `kdump.service` does not exist, and `masked: true` against a nonexistent unit creates a `/dev/null` symlink and reports success, so the control was a silent no-op. Verified in a container: masking `kdump` leaves `systemctl status kdump-tools.service` reporting "could not be found", which the check text treats as a finding, while masking `kdump-tools` reports `Loaded: masked` as required. The `stop` task keeps its `linux-crashdump` package gate; the `mask` task stays ungated so a later install cannot start the service
-- CCI tags aligned with the benchmark across 31 controls: 15 carried the `CCI-000000` placeholder and 16 were missing a CCI the XCCDF lists. Tags were regenerated from this branch's own XCCDF revision rather than copied from the other benchmark line
-- two task names carried `PATCH |Ubuntu` with no space after the separator (`tasks/Cat2/UBTU24-60xxxx.yml`, `tasks/Cat2/UBTU24-901xxx.yml`), which breaks the `SEV | ID | PHASE | title` convention any parser relies on
-- `.gitignore` no longer ignores `.github/`. The directory was ignored while the workflows and `dependabot.yml` were all tracked, so every new file there had to be force-added
-- the role defaults moved from a single `defaults/main.yml` to a `defaults/main/` directory holding `main.yml` and `audit.yml`, and every audit variable is now consolidated in `defaults/main/audit.yml`. `vars/audit.yml` is removed along with the `include_vars` that loaded it. This is a variable-precedence change and that is the point: those settings were previously loaded by `include_vars`, which outranks play and host vars, so only extra-vars could override them. They are now ordinary role defaults, so inventory and play vars work. Verified by setting `audit_git_version` from a play var and confirming it takes effect, which it could not before
-- the Repo QA Checker pin moved to `2.8.4`, which is the first release that accepts a `defaults/main/` directory. Earlier versions look only for `defaults/main.yml` and abort before running a single check
-
-
-## 1.5.0 - 2026 August - Company name updated to Quantum Sky
+## 1.6.0 - 2026 August - Company name updated to Quantum Sky
 
 - the parent company name changed from Tyto Athene to Quantum Sky. Renamed in `meta/main.yml`, `vars/main.yml` and `LICENSE`. `vars/main.yml` feeds `file_managed_by_ansible`, so the header written into every templated file carries the new name; expect a one-off change on those files at the next run
 - the Repo QA Checker pin moved from `2.8.1` to `2.8.3`. `2.8.1` expected the former parent company in `meta/main.yml`, so it failed this branch on its own rename; `2.8.3` expects the new name. Its Company Naming check now also reads the `UBTU-24-200610` marker noted below, which cannot be renamed, so that single finding is recorded in `.qa_baseline.json`
 - deliberately not renamed: the `UBTU-24-200610` `blockinfile` marker. It is matched byte for byte to remove the block written by an earlier release, so changing any character in it would leave a duplicate faillock stanza on every host that still has the old block
 - deliberately not renamed: existing entries in this file, which record what was true when written
-## 1.5.0 - 2026 August Alignment - CI action versions and documentation
+## 1.6.0 - 2026 August Alignment - PAM durability, CI parity and documentation
 
-Alignment pass at the existing V1R5 release (no benchmark version change). This line receives the documentation and CI work; the PAM rework was at this point deliberately confined to the current release line, since it changes authentication behaviour and this branch is in maintenance. That decision was later reversed - see the PAM durability entry at the top of this file for why.
+Alignment pass at the existing V1R6 release (no benchmark version change).
 
-- `actions/checkout` moved from `@v6.0.2` to `@v7` across the devel and main pipeline workflows, all four references. `@v7` is a moving pointer rather than a frozen pin: upstream advances the major tag onto each release, so future v7.x patches are picked up with no maintenance and only a major would need review.
-- Added the Molecule and Repo QA workflows, matching the current release line so both maintained lines get the same gates. Branch filters list both repository models (`latest`/`benchmark*` and `devel`/`main`) so the files need no edit when overlaid to the public mirror, the same convention the pipeline workflows already use.
-- Added `molecule/default/verify.yml`, which this line previously lacked. Without it `molecule verify` exits 0 on a missing playbook, so the workflow would have reported success without asserting anything. It carried, at this point, only the checks this line then implemented - the SSH hardening and login-banner spot-checks. The current release line's PAM assertions were deliberately **not** carried back, because this line still edited `/etc/pam.d` directly and shipped no pam-configs profiles, so those assertions would have failed against a correctly remediated host. That premise no longer holds - see the PAM durability entry at the top of this file.
-- Added `.qa_baseline.json` for the Repo QA workflow, absorbing the single known audit-variable warning.
-- No Dependabot configuration is added here. Dependabot reads its configuration from the repository default branch only, so the file would have no effect on this branch and would simply become a merge conflict later.
-- README: the DISA download link returned 404. Corrected to the published path and verified to return 200.
+PAM controls now write the profile source instead of the generated files (addresses ansible-lockdown/UBUNTU24-STIG#27):
+
+- Ubuntu generates `/etc/pam.d/common-*` from the profiles in `/usr/share/pam-configs` using `pam-auth-update`. Editing the generated files directly does not survive the next regeneration, which any `libpam-runtime` or PAM module upgrade triggers. UBTU-24-200610, 300016, 300017, 300028 and 400220 now template a profile and notify a handler that runs `pam-auth-update --enable`, so the hardening is a property of the source rather than of a file that is rebuilt from under it.
+- UBTU-24-300028 is the concrete case and is CAT 1. `nullok` originates in the distribution's `unix` profile, so stripping it only from `/etc/pam.d/common-auth` left the source intact and a regeneration silently reinstated the finding. The audit reported the host compliant throughout, because it reads the generated file. The control now removes `nullok` at source and the replacement `unix` profile does not carry it. Verified by emptying both generated files, regenerating from profile source alone, and confirming `nullok` is still absent.
+- UBTU-24-300017 and UBTU-24-300028 were order-coupled: the faildelay `lineinfile` anchored on `insertbefore: auth.*pam_unix.so nullok`, an anchor that 300028 removes. Ordering is now a property of profile `Priority` - faildelay at 384 sits above the unix profile at 256 so it is evaluated before `pam_unix`, and faillock at 0 sits below it so `authfail` and `authsucc` follow. This is the part most easily got wrong in a way that still satisfies a content-only check, so `molecule/default/verify.yml` asserts position rather than presence, and asserts the hardening again after a forced regeneration.
+- `pam-auth-update --enable` is used rather than `--force`. `--force` overrides the safety check that refuses to discard manual edits to the generated files, and discarding those silently is the behaviour these controls are moving away from. Tasks that need a regeneration on a drifted host notify the handler explicitly instead.
+- UBTU-24-400020 deliberately keeps its `lineinfile`. It is gated behind `ubtu24stig_uses_smartcard` and `ubtu24stig_disruption_high`, and there is no distribution-provided pam-config for `pam_pkcs11`.
+- The pam-configs templates carry no `file_managed_by_ansible` header. The pam-config format has no comment syntax and `pam-auth-update` emits a parse warning for every such line, so the header is omitted here for the same reason it is omitted from the DOD banner template.
+- UBTU-24-400220 now sets `rounds` on the `pam_unix` password line, closing a coverage gap that predates this cycle. The V1R6 check-content is a finding when `rounds` is set below 100000 and the fixtext prescribes `rounds=100000`, but the role previously set only the hashing algorithm and the paired audit asserted only that, so a host could sit at the distribution default and be reported compliant. `ubtu24stig_passwd_rounds` defaults to 100000, which is the STIG floor rather than a tuning knob - raising it increases hashing cost on every password set and check, lowering it is a finding.
+- New: `ubtu24stig_pam_confd_dir`, `ubtu24stig_pam_pwunix_file`, `ubtu24stig_pam_faillock_file`, `ubtu24stig_pam_faildelay_file`, `ubtu24stig_pam_pwquality_file`, `ubtu24stig_pwquality_retry`, `ubtu24stig_passwd_rounds`.
+
+CI:
+
+- `actions/checkout` moved from `@v6.0.2` to `@v7` across the devel and main pipeline workflows, all four references.
+- Added `.github/dependabot.yml` for the `github-actions` ecosystem, batching updates into one grouped pull request monthly because each pull request runs the molecule scenario plus the self-hosted pipeline that provisions and destroys real infrastructure. Dependabot resolves version-like references only, so the AWS credentials action, first-interaction and the shared reusable workflows are all outside its reach and still need reviewing by hand.
+- Added a Molecule workflow, so `molecule/default/verify.yml` is exercised on pull requests rather than only locally, and a Repo QA workflow running the pinned Lockdown QA checker with `.qa_baseline.json` absorbing the single known audit-variable warning.
+- Note for anyone adding to `.github/` in future: `.gitignore` excludes that directory, so a new file there needs a forced add even though the existing workflow files stage normally.
+
+Documentation and hygiene:
+
+- README: the DISA download link returned 404. Corrected to the published path, verified to return 200.
 - README: removed the emoji from the section headings and the check-mode caution bullet, leaving the wording unchanged.
-- `templates/lockdown_audit.yml.j2` gained the `file_managed_by_ansible` header, leaving `templates/etc/issue.net.j2` as the only deliberate exclusion since it renders the mandated Standard Mandatory DOD Notice and Consent Banner wording, which must not be prefixed.
+- README and the molecule QuickStart pointed at the previous goss upstream while `vars/audit.yml` already resolved the krameff fork. Both corrected.
+- `templates/lockdown_audit.yml.j2` gained the `file_managed_by_ansible` header, leaving `templates/etc/issue.net.j2` as the only deliberate exclusion since it renders mandated banner wording.
 - Inlined the single-item `when:` list in the prelim wireless-adapter task. The remaining block-form condition holds a multi-line `or` chain where a list is clearer and is left alone.
 - Corrected a `BENCMHARK_TYPE` typo in a `vars/audit.yml` comment.
-- The goss upstream references in the README and the molecule QuickStart are left pointing at the original project on this line, because `vars/audit.yml` here still resolves the binary from that upstream. Changing the documentation without the source would misdescribe the branch.
+
+## 1.6.0 - Based on DISA STIG Ubuntu 24.04 LTS V1R6 (01 July 2026) - branch benchmark_v1r6
+
+Benchmark V1R5 -> V1R6 (194 -> 194; 0 added/removed; 5 SV-rev bumps; all fixtext-only per the revision history). Version: defaults/main.yml v1.6.0, README banner + DISA zip V1R6.
+
+Rule delta:
+- SSH restart: DISA V1R6 corrected the fixtext SSH restart command `systemctl restart sshd.service` -> `systemctl restart ssh` (UBTU-24-300022/300023/300031/600010). The role manifestation is the shared `Restart_ssh` handler, changed from `name: sshd` to `name: ssh` (Ubuntu 24.04 service is `ssh`).
+- UBTU-24-300028: nullok removal now loops both `/etc/pam.d/common-password` and `/etc/pam.d/common-auth` (V1R6 fixtext added common-auth).
+- SV-rev tag bumps: 300022 r1208697, 300023 r1208698, 300028 r1208699, 300031 r1208700, 600010 r1208702.
+
+New Alignment (krameff goss migration):
+- vars/audit.yml: audit_bin_url goss-org -> github.com/krameff/goss; audit_bin_version.release v0.4.8 -> v0.5.0 with krameff checksums.
+- Added molecule/default/verify.yml (SSH hardening + login-banner spot-checks; the goss audit run remains authoritative).
 
 ## 1.5.0 - 2026 July QA
 

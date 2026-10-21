@@ -15,7 +15,7 @@
 
 - name: Restart_ssh
   ansible.builtin.systemd_service:
-    name: sshd
+    name: ssh
     state: restarted
 
 - name: Restart_chrony
@@ -80,7 +80,7 @@
   changed_when: true
 
 - name: Pam_auth_update_pwfaillock
-  ansible.builtin.command: pam-auth-update --enable {{ ubtu24stig_pam_faillock_file }}
+  ansible.builtin.command: pam-auth-update --enable {{ ubtu24stig_pam_faillock_file }} {{ ubtu24stig_pam_faillock_notify_file }}
   changed_when: true
 
 - name: Pam_auth_update_pwfaildelay

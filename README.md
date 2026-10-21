@@ -2,7 +2,7 @@
 
 ## Configure a UBUNTU24 based system to be compliant with DISA STIG
 
-This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 5 released on 01 April 2026](https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_CAN_Ubuntu_24-04_LTS_V1R5_STIG.zip).
+This role is based on UBUNTU 24 DISA STIG: [Version 1, Rel 6 released on 01 July 2026](https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_CAN_Ubuntu_24-04_LTS_V1R6_STIG.zip).
 
 ---
 
@@ -130,7 +130,7 @@ ubtu24stig_cat3: true
 
 Ubuntu 24.04 LTS
 
-- Access to download or add the goss binary and content to the system if using auditing
+- Access to download or add the syver binary and content to the system if using auditing
 (other options are available on how to get the content to the system.)
 - Python 3.10+ (Ubuntu 24.04 ships 3.12)
 - Ansible 2.16.1+
@@ -140,11 +140,11 @@ Ubuntu 24.04 LTS
 
 ## Auditing
 
-This can be turned on or off within the defaults/main.yml file with the variable run_audit. The value is false by default, please refer to the wiki for more details. The defaults file also populates the goss checks to check only the controls that have been enabled in the ansible role.
+This can be turned on or off within the defaults/main.yml file with the variable run_audit. The value is false by default, please refer to the wiki for more details. The defaults file also populates the audit checks to check only the controls that have been enabled in the ansible role.
 
 This is a much quicker, very lightweight, checking (where possible) config compliance and live/running settings.
 
-A new form of auditing has been developed, by using a small (12MB) go binary called [goss](https://github.com/goss-org/goss) along with the relevant configurations to check. Without the need for infrastructure or other tooling.
+A new form of auditing has been developed, by using a small go binary called [syver](https://github.com/krameff/syver), the signed continuation of the krameff goss fork, along with the relevant configurations to check. Without the need for infrastructure or other tooling.
 This audit will not only check the config has the correct setting but aims to capture if it is running with that configuration also trying to remove [false positives](https://www.mindpointgroup.com/blog/is-compliance-scanning-still-relevant/) in the process.
 
 Refer to [UBUNTU24-STIG-Audit](https://github.com/ansible-lockdown/UBUNTU24-STIG-Audit).
@@ -231,7 +231,7 @@ uses:
 - This is an automated test that occurs on pull requests into devel
 - self-hosted runners using OpenTofu
 
-For running the molecule `default` scenario locally (converge, idempotency, and goss audit), see [molecule/README_Molecule_QuickStart.md](molecule/README_Molecule_QuickStart.md).
+For running the molecule `default` scenario locally (converge, idempotence, and the syver audit), see [molecule/README_Molecule_QuickStart.md](molecule/README_Molecule_QuickStart.md).
 
 ## Credits and Thanks
 

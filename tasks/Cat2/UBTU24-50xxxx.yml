@@ -1,6 +1,6 @@
 ---
 
-- name: MEDIUM | UBTU-24-500010 | Ubuntu 24.04 LTS must generate audit records for privileged activities, nonlocal maintenance, diagnostic sessions and other system-level access.
+- name: MEDIUM | UBTU-24-500010 | Ubuntu 24.04 LTS must generate audit records for privileged activities, nonlocal maintenance, diagnostic sessions, and other system-level access.
   when: ubtu24stig_500010
   tags:
     - UBTU-24-500010

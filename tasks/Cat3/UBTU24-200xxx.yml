@@ -1,6 +1,6 @@
 ---
 
-- name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types.
+- name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to 10 for all accounts and/or account types.
   when: ubtu24stig_200000
   tags:
     - UBTU-24-200000
@@ -13,7 +13,7 @@
     - account
     - pam
   block:
-    - name: LOW | UBTU-24-200000 | AUDIT | Ubuntu 24.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types. | find current settings
+    - name: LOW | UBTU-24-200000 | AUDIT | Ubuntu 24.04 LTS must limit the number of concurrent sessions to 10 for all accounts and/or account types. | find current settings
       ansible.builtin.find:
         paths: /etc/security
         contains: \* hard maxlogins
@@ -22,7 +22,7 @@
         read_whole_file: true
       register: discovered_security_maxlogins
 
-    - name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types. | comment out settings
+    - name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to 10 for all accounts and/or account types. | comment out settings
       when: "'/etc/security/limits.conf' not in item.path"
       ansible.builtin.lineinfile:
         path: "{{ item.path }}"
@@ -30,7 +30,7 @@
         line: '#* hard maxlogins'
       loop: "{{ discovered_security_maxlogins.files }}"
 
-    - name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to ten for all accounts and/or account types. | Ensure settings
+    - name: LOW | UBTU-24-200000 | PATCH | Ubuntu 24.04 LTS must limit the number of concurrent sessions to 10 for all accounts and/or account types. | Ensure settings
       ansible.builtin.lineinfile:
         path: /etc/security/limits.conf
         regexp: ^\* hard maxlogins
@@ -78,16 +78,18 @@
         marker: "# {mark} Faillock config Ubuntu2404 STIG - Ansible-lockdown Sponsored by Mindpoint Group - A Tyto Athene Company / Ansible Lockdown"
         state: absent
 
-    - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | check common-auth for pam_faillock.so
+    - name: LOW | UBTU-24-200610 | AUDIT | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | check the generated stack for pam_faillock.so
       ansible.builtin.shell: |
         set -o pipefail
-        grep -P -- '\bpam_faillock\.so\b' /etc/pam.d/common-auth
+        grep -qP -- '^auth\s+requisite\s+pam_faillock\.so\s+preauth\b' /etc/pam.d/common-auth || echo 'common-auth preauth'
+        grep -qP -- '^auth\s+\[default=die\]\s+pam_faillock\.so\s+authfail\b' /etc/pam.d/common-auth || echo 'common-auth authfail'
+        grep -qP -- '^auth\s+sufficient\s+pam_faillock\.so\s+authsucc\b' /etc/pam.d/common-auth || echo 'common-auth authsucc'
+        grep -qP -- '^account\s+required\s+pam_faillock\.so\b' /etc/pam.d/common-account || echo 'common-account'
       args:
         executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: false
-      failed_when: discovered_pam_faillock_auth.rc not in [ 0, 1 ]
       check_mode: false
-      register: discovered_pam_faillock_auth
+      register: discovered_pam_faillock_missing
 
     - name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | ensure faillock profile
       ansible.builtin.template:
@@ -98,9 +100,21 @@
         mode: 'u-x,go-rwx'
       notify: Pam_auth_update_pwfaillock
 
-    - name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | force pam-auth-update when the entry is missing
-      when: discovered_pam_faillock_auth.stdout | length == 0
+    # The faillock profile alone does not deny a locked account: pam-auth-update points the
+    # pam_unix success jump past authsucc, so a correct password still authenticates. The preauth
+    # line this profile adds before pam_unix is what denies it.
+    - name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | ensure faillock_notify profile
+      ansible.builtin.template:
+        src: "{{ ubtu24stig_pam_confd_dir }}{{ ubtu24stig_pam_faillock_notify_file }}.j2"
+        dest: "/{{ ubtu24stig_pam_confd_dir }}{{ ubtu24stig_pam_faillock_notify_file }}"
+        owner: root
+        group: root
+        mode: 'u-x,go-rwx'
+      notify: Pam_auth_update_pwfaillock
+
+    - name: LOW | UBTU-24-200610 | PATCH | Ubuntu 24.04 LTS must automatically lock an account until the locked account is released by an administrator when three unsuccessful logon attempts have been made. | force pam-auth-update when an entry is missing
+      when: discovered_pam_faillock_missing.stdout | length > 0
       ansible.builtin.debug:
-        msg: "pam_faillock.so is missing from /etc/pam.d/common-auth; forcing pam-auth-update."
+        msg: "pam_faillock.so is missing from {{ discovered_pam_faillock_missing.stdout_lines | join(', ') }}; forcing pam-auth-update."
       changed_when: true
       notify: Pam_auth_update_pwfaillock

@@ -3,17 +3,12 @@
 # Ubuntu 24.04 STIG hardening the role applies. The authoritative validation is the
 # Goss audit run during converge (run_audit: true); this playbook is a fast sanity
 # gate so `molecule verify` is not a silent no-op.
-#
-# An earlier revision of this file carried a note that the PAM assertions below must not
-# be used on this release line, because the line edited /etc/pam.d directly and shipped no
-# pam-configs profiles. That is no longer true: this line now writes the profile source and
-# lets pam-auth-update generate the common-* files, so the assertions are correct here and
-# are the regression guard for that change. Every rule cited below exists in V1R5 and V1R6
-# alike, and no SV-ID or release string is asserted, so the file is not revision-bound.
 
 - name: Verify - Ubuntu 24.04 STIG hardening spot-checks
   hosts: all
   gather_facts: false
+  vars:
+    ubtu24stig_shell_executable: /bin/bash
   tasks:
     - name: Verify | Read /etc/ssh/sshd_config
       ansible.builtin.slurp:
@@ -54,39 +49,48 @@
         src: /etc/pam.d/common-password
       register: verify_common_password
 
+    - name: Verify | Read the generated PAM common-account
+      ansible.builtin.slurp:
+        src: /etc/pam.d/common-account
+      register: verify_common_account
+
     - name: Verify | Index the pam_unix, faildelay and faillock lines in common-auth
       ansible.builtin.set_fact:
         verify_auth_lines: "{{ (verify_common_auth.content | b64decode).splitlines() | select('match', '^auth') | list }}"
 
     # Presence is asserted before position. Without this, an index expression over an empty
     # match list can collapse to 0 and make the ordering comparisons vacuously true.
-    - name: Verify | All four PAM lines are present in common-auth
+    - name: Verify | All five PAM lines are present in common-auth
       ansible.builtin.assert:
         that:
           - verify_auth_lines | select('search', 'pam_faildelay.so') | list | length == 1
           - verify_auth_lines | select('search', 'pam_unix.so') | list | length == 1
+          - verify_auth_lines | select('search', 'pam_faillock.so preauth') | list | length == 1
           - verify_auth_lines | select('search', 'pam_faillock.so authfail') | list | length == 1
           - verify_auth_lines | select('search', 'pam_faillock.so authsucc') | list | length == 1
-        fail_msg: "Expected exactly one each of pam_faildelay, pam_unix, faillock authfail and authsucc in common-auth: {{ verify_auth_lines }}"
-        success_msg: "All four PAM auth lines present exactly once"
+        fail_msg: "Expected exactly one each of pam_faildelay, pam_unix, faillock preauth, authfail and authsucc in common-auth: {{ verify_auth_lines }}"
+        success_msg: "All five PAM auth lines present exactly once"
 
     - name: Verify | PAM stack ordering and content (UBTU-24-200610, 300017, 300028)
       vars:
         idx_faildelay: "{{ verify_auth_lines.index(verify_auth_lines | select('search', 'pam_faildelay.so') | first) }}"
         idx_unix: "{{ verify_auth_lines.index(verify_auth_lines | select('search', 'pam_unix.so') | first) }}"
+        idx_preauth: "{{ verify_auth_lines.index(verify_auth_lines | select('search', 'pam_faillock.so preauth') | first) }}"
         idx_authfail: "{{ verify_auth_lines.index(verify_auth_lines | select('search', 'pam_faillock.so authfail') | first) }}"
         idx_authsucc: "{{ verify_auth_lines.index(verify_auth_lines | select('search', 'pam_faillock.so authsucc') | first) }}"
       ansible.builtin.assert:
         that:
           # UBTU-24-300017 - the delay must be evaluated before pam_unix
           - idx_faildelay | int < idx_unix | int
-          # UBTU-24-200610 - authfail and authsucc must follow pam_unix
+          # UBTU-24-200610 - preauth must precede pam_unix, and authfail and authsucc follow it
+          - idx_preauth | int < idx_unix | int
           - idx_authfail | int > idx_unix | int
           - idx_authsucc | int > idx_authfail | int
           # UBTU-24-300028 (CAT 1) - nullok must be absent from the generated stack
           - "'nullok' not in (verify_common_auth.content | b64decode)"
           - "'nullok' not in (verify_common_password.content | b64decode)"
-        fail_msg: "PAM stack is misordered or still carries nullok: {{ verify_auth_lines }}"
+          - (verify_common_account.content | b64decode) is search('^account\\s+required\\s+pam_faillock\\.so\\b', multiline=True)
+        fail_msg: "PAM stack is misordered, still carries nullok, or common-account lacks pam_faillock: {{ verify_auth_lines }}"
         success_msg: "PAM stack ordering correct and nullok absent"
 
     - name: Verify | PAM password stack carries the STIG hashing and quality settings (UBTU-24-300016, 400220)
@@ -118,6 +122,11 @@
         src: /etc/pam.d/common-password
       register: verify_common_password_after
 
+    - name: Verify | Re-read common-account after regeneration
+      ansible.builtin.slurp:
+        src: /etc/pam.d/common-account
+      register: verify_common_account_after
+
     - name: Verify | UBTU-24-300028 survives a pam-auth-update regeneration
       ansible.builtin.assert:
         that:
@@ -139,3 +148,88 @@
           - (verify_common_password_after.content | b64decode) is search('^password.*pam_pwquality.so.*retry=[1-3]', multiline=True)
         fail_msg: "common-password lost nullok removal, sha512, rounds>=100000 or the pwquality retry after regeneration"
         success_msg: "common-password hardening survives regeneration"
+
+    # The lines alone are not the control. With only authfail and authsucc, a locked account
+    # still authenticated with its correct password, because the pam_unix success jump skips
+    # them. The patterns are YAML single-quoted so their backslashes reach the regex engine.
+    - name: Verify | UBTU-24-200610 survives a pam-auth-update regeneration
+      vars:
+        verify_auth_after_lines: "{{ (verify_common_auth_after.content | b64decode).splitlines() | select('match', '^auth') | list }}"
+        verify_preauth_re: '^auth\s+requisite\s+pam_faillock\.so\s+preauth\b'
+        verify_account_re: '(?m)^account\s+required\s+pam_faillock\.so\b'
+      ansible.builtin.assert:
+        that:
+          - verify_auth_after_lines | select('search', verify_preauth_re) | list | length == 1
+          - verify_auth_after_lines | select('search', 'pam_unix.so') | list | length == 1
+          - verify_auth_after_lines.index(verify_auth_after_lines | select('search', verify_preauth_re) | first) < verify_auth_after_lines.index(verify_auth_after_lines | select('search', 'pam_unix.so') | first)
+          - (verify_common_account_after.content | b64decode) is search(verify_account_re)
+        fail_msg: "After regeneration, common-auth lacks pam_faillock preauth before pam_unix, or common-account lacks pam_faillock: {{ verify_auth_after_lines }}"
+        success_msg: "UBTU-24-200610 preauth and account lines survive regeneration"
+
+    # Behavioral check on the regenerated stack: a correct password must be refused once the
+    # account has reached the deny threshold. The test service includes only the common stacks,
+    # and the password is random, so nothing here depends on another service's PAM file.
+    - name: Verify | UBTU-24-200610 lockout | install pamtester
+      ansible.builtin.apt:
+        name: pamtester
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Verify | UBTU-24-200610 lockout | write a PAM service that includes the common stacks
+      ansible.builtin.copy:
+        dest: /etc/pam.d/molecule-faillock
+        content: |
+          auth    include common-auth
+          account include common-account
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Verify | UBTU-24-200610 lockout | generate the test password
+      ansible.builtin.set_fact:
+        verify_faillock_password: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
+
+    - name: Verify | UBTU-24-200610 lockout | create the test user
+      ansible.builtin.shell: |
+        set -o pipefail
+        id faillocktest >/dev/null 2>&1 || useradd -m faillocktest
+        printf 'faillocktest:%s\n' "$(openssl passwd -6 -stdin <<< "$VERIFY_PW")" | chpasswd -e
+        faillock --user faillocktest --reset
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
+      environment:
+        VERIFY_PW: "{{ verify_faillock_password }}"
+      changed_when: false
+      no_log: true
+
+    - name: Verify | UBTU-24-200610 lockout | attempt logons
+      ansible.builtin.shell: |
+        set -o pipefail
+        t() { printf '%s\n' "$1" | pamtester molecule-faillock faillocktest authenticate acct_mgmt >/dev/null 2>&1 && echo OK || echo DENIED; }
+        echo "before=$(t "$VERIFY_PW")"
+        for n in 1 2 3; do t "wrong-$n" >/dev/null; done
+        echo "count=$(faillock --user faillocktest | grep -c ' V$')"
+        echo "after=$(t "$VERIFY_PW")"
+        faillock --user faillocktest --reset
+      args:
+        executable: "{{ ubtu24stig_shell_executable }}"
+      environment:
+        VERIFY_PW: "{{ verify_faillock_password }}"
+      changed_when: false
+      register: verify_faillock_attempts
+
+    - name: Verify | UBTU-24-200610 locks the account after three failures
+      ansible.builtin.assert:
+        that:
+          - "'before=OK' in verify_faillock_attempts.stdout_lines"
+          - "'count=3' in verify_faillock_attempts.stdout_lines"
+          - "'after=DENIED' in verify_faillock_attempts.stdout_lines"
+        fail_msg: "Expected the correct password to work before lockout and be denied after three failures: {{ verify_faillock_attempts.stdout_lines }}"
+        success_msg: "Correct password works before lockout and is denied after three failures"
+
+    - name: Verify | UBTU-24-200610 lockout | remove the test user and service
+      ansible.builtin.shell: |
+        userdel -r faillocktest 2>/dev/null || true
+        rm -f /etc/pam.d/molecule-faillock
+      changed_when: false
