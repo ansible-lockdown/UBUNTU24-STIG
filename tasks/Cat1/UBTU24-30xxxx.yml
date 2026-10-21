@@ -7,7 +7,7 @@
     - CAT1
     - CCI-000366
     - SRG-OS-000480-GPOS-00227
-    - SV-270708r1066613_rule
+    - SV-270708r1208697_rule
     - V-270708
     - NIST800-53R4_CM-6
     - ssh
@@ -110,7 +110,7 @@
     - CAT1
     - CCI-000366
     - SRG-OS-000480-GPOS-00227
-    - SV-270714r1134808_rule
+    - SV-270714r1208699_rule
     - V-270714
     - NIST800-53R4_CM-6
     - password
@@ -119,9 +119,8 @@
     # nullok originates in the distribution's unix PAM profile, not in the generated
     # common-* files. Stripping it only from /etc/pam.d leaves the source intact, so the
     # next pam-auth-update run - which any libpam-runtime or PAM module upgrade triggers -
-    # silently reinstates a CAT 1 finding. The profile is replaced by UBTU-24-400220; this
-    # sweep also clears nullok from any profile or generated file a previous state left
-    # behind. The V1R5 check greps both common-password and common-auth, so both are covered.
+    # silently reinstates a CAT 1 finding. The profile is replaced below; this sweep also
+    # clears nullok from any profile or generated file a previous state left behind.
     - name: HIGH | UBTU-24-300028 | AUDIT | Ubuntu 24.04 LTS must not allow accounts configured in Pluggable Authentication Modules (PAM) with blank or null passwords. | capture nullok state
       ansible.builtin.shell: |
         set -o pipefail
@@ -151,7 +150,7 @@
     - CAT1
     - CCI-000366
     - SRG-OS-000480-GPOS-00229
-    - SV-270717r1067177_rule
+    - SV-270717r1208700_rule
     - V-270717
     - NIST800-53R4_CM-6
     - ssh

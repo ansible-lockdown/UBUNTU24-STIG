@@ -1,6 +1,6 @@
 ---
 
-- name: MEDIUM | UBTU-24-901230 | PATCH | Ubuntu 24.04 LTS must configure audit tools with a mode of "755" or less permissive.
+- name: MEDIUM | UBTU-24-901230 | PATCH | Ubuntu 24.04 LTS must configure audit tools with a mode of 0755 or less permissive.
   when:
     - ubtu24stig_901230
     - ubtu24stig_disruption_high
@@ -48,7 +48,7 @@
   register: discovered_audit_tools_owner
   loop: "{{ ubtu24stig_audit_tools }}"
 
-- name: MEDIUM | UBTU-24-901250 | PATCH | Ubuntu 24.04 LTS must configure audit tools to be group-owned by root.
+- name: MEDIUM | UBTU-24-901250 | PATCH | Ubuntu 24.04 LTS must configure the audit tools to be group owned by root.
   when:
     - ubtu24stig_901250
     - ubtu24stig_disruption_high
@@ -72,7 +72,7 @@
   register: discovered_audit_tools_group
   loop: "{{ ubtu24stig_audit_tools }}"
 
-- name: MEDIUM | UBTU-24-901260 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive.
+- name: MEDIUM | UBTU-24-901260 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of 0755 or less permissive.
   when: ubtu24stig_901260
   tags:
     - UBTU-24-901260
@@ -84,7 +84,7 @@
     - NIST800-53R4_AU-9
     - permissions
   block:
-    - name: MEDIUM | UBTU-24-901260 | AUDIT | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive. | Discover
+    - name: MEDIUM | UBTU-24-901260 | AUDIT | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of 0755 or less permissive. | Discover
       ansible.builtin.shell: |
         set -o pipefail
         find /bin /sbin /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -perm /022 -type d -exec stat -c "%n" '{}' \;
@@ -94,7 +94,7 @@
       failed_when: discovered_system_bin_dirs_perms.rc not in [ 0, 1 ]
       register: discovered_system_bin_dirs_perms
 
-    - name: MEDIUM | UBTU-24-901260 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive. | Fix
+    - name: MEDIUM | UBTU-24-901260 | PATCH | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of 0755 or less permissive. | Fix
       when:
         - discovered_system_bin_dirs_perms.stdout_lines is defined
         - ubtu24stig_disruption_high
@@ -104,14 +104,14 @@
         mode: 'go-w'
       loop: "{{ discovered_system_bin_dirs_perms.stdout_lines }}"
 
-    - name: MEDIUM | UBTU-24-901260 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive. | Warning
+    - name: MEDIUM | UBTU-24-901260 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of 0755 or less permissive. | Warning
       when:
         - discovered_system_bin_dirs_perms.stdout_lines is defined
         - not ubtu24stig_disruption_high
       ansible.builtin.debug:
         msg: "Warning!! The following system directories permissions are not correct please investigate {{ discovered_system_bin_dirs_perms.stdout_lines }}"
 
-    - name: MEDIUM | UBTU-24-901260 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of "755" or less permissive. | Warn count
+    - name: MEDIUM | UBTU-24-901260 | WARN | Ubuntu 24.04 LTS must have directories that contain system commands set to a mode of 0755 or less permissive. | Warn count
       when:
         - discovered_system_bin_dirs_perms.stdout_lines is defined
         - not ubtu24stig_disruption_high

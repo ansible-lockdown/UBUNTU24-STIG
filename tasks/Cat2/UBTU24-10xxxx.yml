@@ -16,7 +16,7 @@
     state: present
     lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
 
-- name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system.
+- name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system if installed.
   when:
     - ubtu24stig_100110
     - ubtu24stig_disruption_high
@@ -31,7 +31,7 @@
     - NIST800-53R4_SI-6
     - aide
   block:
-    - name: MEDIUM | UBTU-24-100110 | AUDIT | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system. | Get DB file
+    - name: MEDIUM | UBTU-24-100110 | AUDIT | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system if installed. | Get DB file
       ansible.builtin.shell: |
         set -o pipefail
         grep -E ^database_in /etc/aide/aide.conf | cut -d ':' -f2
@@ -41,24 +41,24 @@
       failed_when: discovered_aide_db_file.rc not in [ 0, 1 ]
       register: discovered_aide_db_file
 
-    - name: MEDIUM | UBTU-24-100110 | AUDIT | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system. | Get DB file
+    - name: MEDIUM | UBTU-24-100110 | AUDIT | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system if installed. | Get DB file
       ansible.builtin.stat:
         path: "{{ discovered_aide_db_file.stdout }}"
       register: discovered_aide_db_present
 
-    - name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system. | Run aide check
+    - name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system if installed. | Run aide check
       when: discovered_aide_db_present.stat.exists
       ansible.builtin.command: aide -c /etc/aide/aide.conf --check
       changed_when: false
       failed_when: discovered_aide_check.rc not in [ 0, 7 ]
       register: discovered_aide_check
 
-    - name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system. | Initiate aide DB
+    - name: MEDIUM | UBTU-24-100110 | PATCH | Ubuntu 24.04 LTS must configure AIDE to perform file integrity checking on the file system if installed. | Initiate aide DB
       when: not discovered_aide_db_present.stat.exists or discovered_aide_check.rc != 0
       ansible.builtin.command: aideinit
       changed_when: true
 
-- name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default.
+- name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script which runs each 30 days or less to check file integrity is the default one.
   when:
     - ubtu24stig_100120
     - ubtu24stig_disruption_high
@@ -72,13 +72,13 @@
     - NIST800-53R4_SI-6
     - aide
   block:
-    - name: MEDIUM | UBTU-24-100120 | AUDIT | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | capture sha1sum
+    - name: MEDIUM | UBTU-24-100120 | AUDIT | Ubuntu 24.04 LTS must be configured so that the script which runs each 30 days or less to check file integrity is the default one. | capture sha1sum
       ansible.builtin.command: sha256sum /etc/aide/aide.conf
       changed_when: false
       failed_when: discovered_cron_script_sha256.rc not in [ 0, 1 ]
       register: discovered_cron_script_sha256
 
-    - name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | replace if needed
+    - name: MEDIUM | UBTU-24-100120 | PATCH | Ubuntu 24.04 LTS must be configured so that the script which runs each 30 days or less to check file integrity is the default one. | replace if needed
       when: "'458aea46ab75906c3d9ad7f174a03b4ab62ee389fc4b8fb3c0330aae3c765441' not in discovered_cron_script_sha256.stdout"  # pragma: allowlist secret
       ansible.builtin.shell: |
         set -o pipefail
@@ -88,7 +88,7 @@
         executable: "{{ ubtu24stig_shell_executable }}"
       changed_when: true
 
-- name: MEDIUM | UBTU-24-100130 | PATCH | Ubuntu 24.04 LTS must notify designated personnel if baseline configurations are changed in an unauthorized manner. The file integrity tool must notify the system administrator when changes to the baseline configuration or anomalies in the operation of any security functions are discovered.
+- name: MEDIUM | UBTU-24-100130 | PATCH | Ubuntu 24.04 LTS must notify designated personnel if baseline configurations are changed in an unauthorized manner. The file integrity tool must notify the system administrator (SA) when changes to the baseline configuration or anomalies in the operation of any security functions are discovered.
   when: ubtu24stig_100130
   tags:
     - UBTU-24-100130
@@ -158,6 +158,7 @@
     - CAT2
     - CCI-002314
     - SRG-OS-000297-GPOS-00115
+    - SRG-OS-000480-GPOS-00232
     - SV-270655r1067145_rule
     - V-270655
     - NIST800-53R4_AC-17
@@ -313,9 +314,8 @@
     - CAT2
     - CCI-001764
     - CCI-001774
-    - CCI-002165
     - CCI-002235
-    - SRG-OS-000312-GPOS-00124
+    - SRG-OS-000324-GPOS-00125
     - SRG-OS-000368-GPOS-00154
     - SRG-OS-000370-GPOS-00155
     - SV-270660r1066469_rule
@@ -367,7 +367,7 @@
     - NIST800-53R4_IA-2
     - packages
   ansible.builtin.package:
-    name: libpam-sss
+    name: "{{ item }}"
     state: present
     lock_timeout: "{{ ubtu24stig_apt_lock_timeout }}"
   loop: "{{ ubtu24stig_sssd_packages }}"
@@ -400,7 +400,7 @@
     state: started
     enabled: true
 
-- name: MEDIUM | UBTU-24-100820 | PATCH | Ubuntu 24.04 LTS must configure the SSH daemon to use FIPS 140-3-approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
+- name: MEDIUM | UBTU-24-100820 | PATCH | Ubuntu 24.04 LTS must configure the SSH daemon to use FIPS 140-3 approved ciphers to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
   when: ubtu24stig_100820
   tags:
     - UBTU-24-100820
@@ -424,7 +424,7 @@
     validate: sshd -t -f %s
   notify: Change_requires_reboot
 
-- name: MEDIUM | UBTU-24-100830 | PATCH | Ubuntu 24.04 LTS must configure the SSH daemon to use Message Authentication Codes (MACs) employing FIPS 140-3-approved cryptographic hashes to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
+- name: MEDIUM | UBTU-24-100830 | PATCH | Ubuntu 24.04 LTS must configure the SSH daemon to use Message Authentication Codes (MACs) employing FIPS 140-3 approved cryptographic hashes to prevent the unauthorized disclosure of information and/or detect changes to information during transmission.
   when: ubtu24stig_100830
   tags:
     - UBTU-24-100830
@@ -448,7 +448,7 @@
     validate: sshd -t -f %s
   notify: Change_requires_reboot
 
-- name: MEDIUM | UBTU-24-100840 | PATCH | Ubuntu 24.04 LTS SSH server must be configured to use only FIPS-validated key exchange algorithms.
+- name: MEDIUM | UBTU-24-100840 | PATCH | Ubuntu 24.04 LTS SSH server must be configured to use only FIPS 140-3 validated key exchange algorithms.
   when: ubtu24stig_100840
   tags:
     - UBTU-24-100840
@@ -479,7 +479,7 @@
     - ssh
   ansible.builtin.lineinfile:
     path: /etc/ssh/ssh_config
-    regexp: ^Ciphers
+    regexp: ^\s*Ciphers\s
     line: "    Ciphers {{ ubtu24stig_sshd_config_ciphers | join(',') }}"
   notify: Change_requires_reboot
 
@@ -496,7 +496,7 @@
     - ssh
   ansible.builtin.lineinfile:
     path: /etc/ssh/ssh_config
-    regexp: ^MACs
+    regexp: ^\s*MACs\s
     line: "    MACs {{ ubtu24stig_sshd_config_macs | join(',') }}"
   notify: Restart_ssh
 
@@ -539,6 +539,7 @@
     - CAT2
     - CCI-000057
     - CCI-000060
+    - SRG-OS-000030-GPOS-00011
     - SRG-OS-000031-GPOS-00012
     - SV-270674r1067167_rule
     - V-270674

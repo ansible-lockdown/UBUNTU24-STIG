@@ -69,7 +69,7 @@
       ansible.builtin.debug:
         msg: "Warning!! No job for auditd to have logs copied off the system have been found"
 
-    - name: LOW | UBTU-24-900950 | AUDIT | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems.| Warn count
+    - name: LOW | UBTU-24-900950 | AUDIT | Ubuntu 24.04 LTS must have a crontab script running weekly to offload audit events of standalone systems.
       when: discovered_audit_cron_copy.files | length == 0
       vars:
         warn_control_id: 'LOW | UBTU-24-900950'
@@ -96,7 +96,7 @@
     - { regexp: '^(#|)space_left_action\s*=\s*', line: 'space_left_action = {{ ubtu24stig_auditd_space_left_action }}' }
   notify: Restart_auditd
 
-- name: "LOW | UBTU-24-900980 | PATCH | Ubuntu 24.04 LTS must alert the information system security officer (ISSO) and system administrator (SA) in the event of an audit processing failure."
+- name: "LOW | UBTU-24-900980 | PATCH | Ubuntu 24.04 LTS must alert the system administrator (SA) and information system security officer (ISSO) (at a minimum) in the event of an audit processing failure."
   when: ubtu24stig_900980
   tags:
     - UBTU-24-900980

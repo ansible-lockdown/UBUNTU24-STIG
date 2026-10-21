@@ -1,19 +1,19 @@
 ---
 
-- name: HIGH | UBTU-24-600030 | PATCH | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information
+- name: "HIGH | UBTU-24-600030 | PATCH | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information and for the following: To provision digital signatures, to generate cryptographic hashes, and to protect unclassified information requiring confidentiality and cryptographic protection in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards."
   when: ubtu24stig_600030
   tags:
     - UBTU-24-600030
     - CAT1
     - CCI-002450
     - SRG-OS-000396-GPOS-00176
-    - SRG-OS-000478-GPOS-00243
+    - SRG-OS-000478-GPOS-00223
     - SV-270744r1137699_rule
     - V-270744
     - NIST800-53R4_SC-13
     - fips
   block:
-    - name: HIGH | UBTU-24-600030 | PATCH | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information | Enable FIPS
+    - name: "HIGH | UBTU-24-600030 | PATCH | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information and for the following: To provision digital signatures, to generate cryptographic hashes, and to protect unclassified information requiring confidentiality and cryptographic protection in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards. | Enable FIPS"
       when:
         - ubtu24stig_subscribed
         - ubtu24stig_disruption_high
@@ -24,21 +24,21 @@
         line: 1
         mode: 'ugo-wx'
 
-    - name: HIGH | UBTU-24-600030 | PATCH | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information | Pro Enable FIPS
+    - name: "HIGH | UBTU-24-600030 | PATCH | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information and for the following: To provision digital signatures, to generate cryptographic hashes, and to protect unclassified information requiring confidentiality and cryptographic protection in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards. | Pro Enable FIPS"
       when:
         - ubtu24stig_subscribed
         - ubtu24stig_disruption_high
       ansible.builtin.command: pro enable fips-updates
       changed_when: true
 
-    - name: HIGH | UBTU-24-600030 | WARN | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information | Warning
+    - name: "HIGH | UBTU-24-600030 | WARN | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information and for the following: To provision digital signatures, to generate cryptographic hashes, and to protect unclassified information requiring confidentiality and cryptographic protection in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards. | Warning"
       when:
         - not ubtu24stig_subscribed
         - not ubtu24stig_disruption_high
       ansible.builtin.debug:
         msg: "Warning!! - Unable carry out UBTU-24-600030 for FIPS enablement, System is not subscribed"
 
-    - name: HIGH | UBTU-24-600030 | WARN | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information | Warning
+    - name: "HIGH | UBTU-24-600030 | WARN | Ubuntu 24.04 LTS must implement NIST FIPS-validated cryptography to protect classified information and for the following: To provision digital signatures, to generate cryptographic hashes, and to protect unclassified information requiring confidentiality and cryptographic protection in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards. | Warning"
       when:
         - not ubtu24stig_subscribed
         - not ubtu24stig_disruption_high

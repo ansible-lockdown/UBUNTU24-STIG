@@ -112,25 +112,18 @@
     - multifactor
   block:
     - name: MEDIUM | UBTU-24-400060 | AUDIT | Ubuntu 24.04 LTS must electronically verify personal identity verification (PIV) credentials. | find current settings
-      ansible.builtin.shell: |
-        set -o pipefail
-        grep -E "^cert_policy=" /etc/pam_pkcs11/pam_pkcs11.conf | cut -d ';' -f1 | grep -v ocsp_on
-      args:
-        executable: "{{ ubtu24stig_shell_executable }}"
-      changed_when: false
-      failed_when: discovered_pkcs_cert_ocsp_policy.rc not in [ 0, 1 ]
+      ansible.builtin.stat:
+        path: /etc/pam_pkcs11/pam_pkcs11.conf
       register: discovered_pkcs_cert_ocsp_policy
 
     - name: MEDIUM | UBTU-24-400060 | PATCH | Ubuntu 24.04 LTS must electronically verify personal identity verification (PIV) credentials. | change where needed
-      when:
-        - discovered_pkcs_cert_ocsp_policy is defined
-        - discovered_pkcs_cert_ocsp_policy.stdout | length > 0
-      ansible.builtin.lineinfile:
+      when: discovered_pkcs_cert_ocsp_policy.stat.exists
+      ansible.builtin.replace:
         path: /etc/pam_pkcs11/pam_pkcs11.conf
-        line: "{{ item }},ocsp_on;"
-      loop: "{{ discovered_pkcs_cert_ocsp_policy.stdout_lines }}"
+        regexp: '^(\s*cert_policy\s*=(?![^;#]*\bocsp_on\b)[^;#]*?)\s*;'
+        replace: '\1,ocsp_on;'
 
-- name: MEDIUM | UBTU-24-400110 | PATCH | Ubuntu 24.04 LTS must prevent direct login into the root account.
+- name: MEDIUM | UBTU-24-400110 | PATCH | Ubuntu 24.04 LTS must prevent direct login to the root account.
   when: ubtu24stig_400110
   tags:
     - UBTU-24-400110
@@ -191,7 +184,7 @@
       changed_when: true
       notify: Pam_auth_update_pwunix
 
-- name: MEDIUM | UBTU-24-400260 | PATCH | Ubuntu 24.04 LTS must enforce password complexity by requiring at least one uppercase character be used.
+- name: MEDIUM | UBTU-24-400260 | PATCH | Ubuntu 24.04 LTS must enforce password complexity by requiring that at least one uppercase character be used.
   when: ubtu24stig_400260
   tags:
     - UBTU-24-400260
@@ -209,7 +202,7 @@
     regexp: (?i)^(#|)ucredit\s*=
     line: 'ucredit = -1'
 
-- name: MEDIUM | UBTU-24-400270 | PATCH | Ubuntu 24.04 LTS must enforce password complexity by requiring at least one lowercase character be used.
+- name: MEDIUM | UBTU-24-400270 | PATCH | Ubuntu 24.04 LTS must enforce password complexity by requiring that at least one lowercase character be used.
   when: ubtu24stig_400270
   tags:
     - UBTU-24-400270
@@ -264,7 +257,7 @@
     regexp: (?i)^(#|)difok\s*=
     line: 'difok = {{ ubtu24stig_pass_difok }}'
 
-- name: MEDIUM | UBTU-24-400300 | PATCH | Ubuntu 24.04 LTS must enforce 24 hours/one day as the minimum password lifetime. Passwords for new users must have a 24 hours/one day minimum password lifetime restriction.
+- name: MEDIUM | UBTU-24-400300 | PATCH | Ubuntu 24.04 LTS must enforce 24 hours/1 day as the minimum password lifetime. Passwords for new users must have a 24 hours/1 day minimum password lifetime restriction.
   when: ubtu24stig_400300
   tags:
     - UBTU-24-400300
@@ -338,7 +331,7 @@
 
 ####### 400360 & 400370 #######
 
-- name: MEDIUM | UBTU-24-400375 | PATCH | Ubuntu 24.04 LTS, for PKI-based authentication, must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.
+- name: MEDIUM | UBTU-24-400375 | PATCH | Ubuntu 24.04 LTS, for PKI-based authentication, Privileged Access Management (PAM) must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor.
   when:
     - ubtu24stig_400375
     - ubtu24stig_disruption_high
@@ -355,23 +348,16 @@
     - multifactor
   block:
     - name: MEDIUM | UBTU-24-400375 | AUDIT | Ubuntu 24.04 LTS, for PKI-based authentication, Privileged Access Management (PAM) must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor. | find current settings
-      ansible.builtin.shell: |
-        set -o pipefail
-        grep use_pkcs11_module /etc/pam_pkcs11/pam_pkcs11.conf | awk '/pkcs11_module opensc {/,/}/' /etc/pam_pkcs11/pam_pkcs11.conf | grep cert_policy | grep ca
-      args:
-        executable: "{{ ubtu24stig_shell_executable }}"
-      changed_when: false
-      failed_when: discovered_pkcs_cert_ca_policy.rc not in [ 0, 1 ]
+      ansible.builtin.stat:
+        path: /etc/pam_pkcs11/pam_pkcs11.conf
       register: discovered_pkcs_cert_ca_policy
 
     - name: MEDIUM | UBTU-24-400375 | PATCH | Ubuntu 24.04 LTS, for PKI-based authentication, Privileged Access Management (PAM) must validate certificates by constructing a certification path (which includes status information) to an accepted trust anchor. | change where needed
-      when:
-        - discovered_pkcs_cert_ca_policy is defined
-        - discovered_pkcs_cert_ca_policy.stdout | length > 0
-      ansible.builtin.lineinfile:
+      when: discovered_pkcs_cert_ca_policy.stat.exists
+      ansible.builtin.replace:
         path: /etc/pam_pkcs11/pam_pkcs11.conf
-        line: "{{ item }},ocsp_on;"
-      loop: "{{ discovered_pkcs_cert_ca_policy.stdout_lines }}"
+        regexp: '^(\s*cert_policy\s*=\s*)(?!(?:[^;#]*,)?\s*ca\s*[,;])'
+        replace: '\1ca,'
 
 ##################
 
@@ -383,6 +369,7 @@
     - CCI-000185
     - CCI-004909
     - SRG-OS-000066-GPOS-00034
+    - SRG-OS-000775-GPOS-00230
     - SV-270735r1066694_rule
     - V-270735
     - NIST800-53R4_IA-5
@@ -437,33 +424,25 @@
     - multifactor
   block:
     - name: MEDIUM | UBTU-24-400380 | AUDIT | Ubuntu 24.04 LTS for PKI-based authentication, must implement a local cache of revocation data in case of the inability to access revocation information via the network. | find current settings
-      ansible.builtin.shell: |
-        set -o pipefail
-        grep -E "^cert_policy=" /etc/pam_pkcs11/pam_pkcs11.conf | cut -d ';' -f1 | grep -Ev "crl_auto|crl_offline"
-      args:
-        executable: "{{ ubtu24stig_shell_executable }}"
-      changed_when: false
-      failed_when: discovered_pkcs_cert_crl_policy.rc not in [ 0, 1 ]
+      ansible.builtin.stat:
+        path: /etc/pam_pkcs11/pam_pkcs11.conf
       register: discovered_pkcs_cert_crl_policy
 
     - name: MEDIUM | UBTU-24-400380 | PATCH | Ubuntu 24.04 LTS for PKI-based authentication, must implement a local cache of revocation data in case of the inability to access revocation information via the network. | change where needed
-      when: "'No such file' not in discovered_pkcs_cert_crl_policy.stderr"
+      when: discovered_pkcs_cert_crl_policy.stat.exists
       ansible.builtin.replace:
         path: /etc/pam_pkcs11/pam_pkcs11.conf
         regexp: crl_offline
         replace: "crl_auto"
-      register: discovered_pkcs_crl_change
 
     - name: MEDIUM | UBTU-24-400380 | PATCH | Ubuntu 24.04 LTS for PKI-based authentication, must implement a local cache of revocation data in case of the inability to access revocation information via the network. | change where needed
-      when:
-        - discovered_pkcs_cert_crl_policy is defined
-        - discovered_pkcs_cert_crl_policy.stdout | length > 0
-      ansible.builtin.lineinfile:
+      when: discovered_pkcs_cert_crl_policy.stat.exists
+      ansible.builtin.replace:
         path: /etc/pam_pkcs11/pam_pkcs11.conf
-        line: "{{ item }},crl_auto;"
-      loop: "{{ discovered_pkcs_cert_crl_policy.stdout_lines }}"
+        regexp: '^(\s*cert_policy\s*=(?![^;#]*\bcrl_(?:auto|offline)\b)[^;#]*?)\s*;'
+        replace: '\1,crl_auto;'
 
-- name: MEDIUM | UBTU-24-400400 | PATCH | Ubuntu 24.04 LTS must store only encrypted representations of passwords.
+- name: MEDIUM | UBTU-24-400400 | PATCH | Ubuntu 24.04 LTS must encrypt all stored passwords with a FIPS 140-3 approved cryptographic hashing algorithm.
   when: ubtu24stig_400400
   tags:
     - UBTU-24-400400

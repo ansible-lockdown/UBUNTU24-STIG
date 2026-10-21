@@ -1,7 +1,7 @@
 ---
 
 ## metadata for Audit benchmark
-benchmark_version: 'v1.5.0'
+benchmark_version: 'v1.6.0'
 
 ## Benchmark name used by auditing control role
 # The audit variable found at the base
@@ -343,8 +343,13 @@ ubtu24stig_gui: "{{ prelim_gnome_present.stat.exists | default(false) }}"
 
 ### 200020 - screensaver
 # ubtu24stig_screen_idle_delay is the amount of time in seconds before screen locks
-# To be STIG compliant this value must be 900 seconds (10 minutes) or less
+# To be STIG compliant this value must be 600 seconds (10 minutes) or less
 ubtu24stig_screen_idle_delay: 600
+
+## 200060
+# Seconds of shell inactivity before the session is terminated; the STIG fix text sets 600, and
+# the check fails only when TMOUT is unset or 0
+ubtu24stig_tmout: 600
 
 ## 200260
 # Number of days account is active before disabled
@@ -390,17 +395,6 @@ ubtu24stig_faillock_deny: '3'  # 3 or less but not 0
 ubtu24stig_faillock_fail_interval: '900'  # 900 or less is required
 ubtu24stig_faillock_unlock_time: '0'
 
-## 200680
-ubtu24stig_ssh_confirm_file: etc/profile.d/ssh_confirm.sh
-
-##############
-### 30XXXX ###
-##############
-
-## 30xxxx - ssh
-ubtu24stig_ssh_required: true
-ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
-
 ## PAM profile management
 # Ubuntu generates /etc/pam.d/common-* from the profiles in this directory using
 # pam-auth-update. Editing the generated files directly does not survive the next
@@ -413,12 +407,27 @@ ubtu24stig_pam_confd_dir: 'usr/share/pam-configs/'
 # 300028 and 400220 - the distribution-provided unix profile is replaced so that
 # nullok is absent at source and the hashing algorithm is enforced.
 ubtu24stig_pam_pwunix_file: 'unix'
-# 200610
+# 200610 - two profiles. Priority 0 places authfail and authsucc after every primary
+# authentication module, and pam-auth-update points the success jumps past them, so
+# they alone never deny a locked account. Priority 1024 adds the preauth check before
+# pam_unix, which does, and the account line that clears the failure count on success.
 ubtu24stig_pam_faillock_file: 'faillock'
+ubtu24stig_pam_faillock_notify_file: 'faillock_notify'
 # 300017
 ubtu24stig_pam_faildelay_file: 'faildelay'
 # 300016
 ubtu24stig_pam_pwquality_file: 'pwquality'
+
+## 200680
+ubtu24stig_ssh_confirm_file: etc/profile.d/ssh_confirm.sh
+
+##############
+### 30XXXX ###
+##############
+
+## 30xxxx - ssh
+ubtu24stig_ssh_required: true
+ubtu24stig_sshd_config_file: /etc/ssh/sshd_config
 
 # 300016
 # pam_pwquality retry count - STIG requires 1-3; 0 or greater than 3 is a finding
@@ -445,11 +454,10 @@ ubtu24stig_uses_smartcard: false
 
 # ubtu24stig_passwd_hash_algo is the hashing algorithm used - STIG required SHA512 - system default is often yescrypt
 ubtu24stig_passwd_hash_algo: sha512  # pragma: allowlist secret
-
 # 400220 - SHA512 rounds applied to the pam_unix password line.
-# The V1R5 check-content is a finding when rounds is set below 100000, and the fixtext
-# prescribes rounds=100000, so 100000 is the STIG floor rather than a tunable default.
-# Raising it increases password hashing cost on every set and check; lowering it is a finding.
+# The V1R6 check-content fails when rounds is set below 100000, and the fixtext prescribes
+# rounds=100000, so 100000 is the STIG floor rather than a tunable default. Raising it
+# increases password hashing cost on every set and check; lowering it is a finding.
 ubtu24stig_passwd_rounds: 100000
 ubtu24stig_pass_difok: '8'  # 8 is minimum for STIG
 ubtu24stig_pass_min_days: '1'
